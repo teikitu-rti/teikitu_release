@@ -1,0 +1,169 @@
+# Treat everything not text if not specified
+# Avoid crlf messing up things like .asset and ProjectSettings (But we'd like to diff so we do not assign binary[-text -diff] tag)
+# You should never do line ending conversion on .asset, .asset could be CRLF(ProjectSettings) LF(Tile set config) or binary even if forced text(Lighting and Terrain Data)
+* -text
+
+# All extensions are specified in lower cases
+# [git config core.ignorecase true] is assumed.
+# The projects are going to be developed across OSX and Windows, if we allow OSX user to commit file names only differ in capitalization.
+# These files will prevent Windows users to pull
+
+# Human authored code - forcing LF line endings across all platforms to maintain binary consistency of all files (for hash calculations etc.)
+
+*.txt           text eol=lf
+
+*.c             text eol=lf
+*.cpp           text eol=lf
+*.cxx           text eol=lf
+*.c++           text eol=lf
+*.c_inc         text eol=lf
+
+*.h             text eol=lf
+*.hxx           text eol=lf
+*.h_inc         text eol=lf
+
+*.inl           text eol=lf
+*.i_inc         text eol=lf
+
+*.m             text eol=lf
+*.mm            text eol=lf
+
+*.cs            diff=csharp text eol=lf
+*.json          text eol=lf
+
+# ShaderLab
+*.cginc         text eol=lf
+*.shader        text eol=lf
+*.hlsl          text eol=lf
+*.hlsli+         text eol=lf
+
+# Gradle property
+*.properties    text eol=lf
+
+# AndroidManifest and other XML files
+*.xml           text eol=lf
+
+# NeXTSTEP property list
+*.plist         text eol=lf
+
+# GitLab and other services config
+*.yml           text eol=lf
+*.toml          text eol=lf
+
+
+# Declare files that will always have CRLF line endings on checkout.
+*.sln           text eol=crlf
+*.bat           text eol=crlf
+
+# How files are interpreted for language reporting
+*.h             linguist-language=C
+*.inl           linguist-language=C
+
+# GIT patch files, shell scripts, and markdown files
+*.patch         text eol=lf
+*.sh            text eol=lf
+*.md            text eol=lf
+*.ps1           text eol=lf
+
+## git-lfs ##
+
+# Specific overrides
+cmake-3.31.0-g3d84ef8-Linux-x86_64.sh filter=lfs diff=lfs merge=lfs -text
+
+# Library
+*.dll           filter=lfs diff=lfs merge=lfs -text
+*.jar           filter=lfs diff=lfs merge=lfs -text
+*.aar           filter=lfs diff=lfs merge=lfs -text
+*.srcaar        filter=lfs diff=lfs merge=lfs -text
+*.so            filter=lfs diff=lfs merge=lfs -text
+*.lib           filter=lfs diff=lfs merge=lfs -text
+*.a             filter=lfs diff=lfs merge=lfs -text
+*.dylib         filter=lfs diff=lfs merge=lfs -text
+*.swiftmodule   filter=lfs diff=lfs merge=lfs -text
+*.swiftdoc      filter=lfs diff=lfs merge=lfs -text
+*.bundle        filter=lfs diff=lfs merge=lfs -text
+
+# Debug information, really should not get committed into repository Program database
+*.pdb           filter=lfs diff=lfs merge=lfs -text
+
+# Program database for Mono
+*.mdb           filter=lfs diff=lfs merge=lfs -text
+
+# Linking information, really should not get committed into repository
+*.ilk           filter=lfs diff=lfs merge=lfs -text
+
+# Executable
+*.exe           filter=lfs diff=lfs merge=lfs -text
+
+# Texture
+*.bmp           filter=lfs diff=lfs merge=lfs -text
+*.gif           filter=lfs diff=lfs merge=lfs -text
+*.png           filter=lfs diff=lfs merge=lfs -text
+*.jpg           filter=lfs diff=lfs merge=lfs -text
+*.jpeg          filter=lfs diff=lfs merge=lfs -text
+*.psd           filter=lfs diff=lfs merge=lfs -text
+*.ai            filter=lfs diff=lfs merge=lfs -text
+*.tga           filter=lfs diff=lfs merge=lfs -text
+*.tif           filter=lfs diff=lfs merge=lfs -text
+*.tiff          filter=lfs diff=lfs merge=lfs -text
+*.exr           filter=lfs diff=lfs merge=lfs -text
+*.hdr           filter=lfs diff=lfs merge=lfs -text
+*.svg           filter=lfs diff=lfs merge=lfs -text
+*.xcf           filter=lfs diff=lfs merge=lfs -text
+*.clip          filter=lfs diff=lfs merge=lfs -text
+*.sbs           filter=lfs diff=lfs merge=lfs -text
+*.spp           filter=lfs diff=lfs merge=lfs -text
+*.sbsar         filter=lfs diff=lfs merge=lfs -text
+*.assbin        filter=lfs diff=lfs merge=lfs -text
+*.cubemap       filter=lfs diff=lfs merge=lfs -text
+
+#Audio
+*.aif           filter=lfs diff=lfs merge=lfs -text
+*.aiff          filter=lfs diff=lfs merge=lfs -text
+*.mp3           filter=lfs diff=lfs merge=lfs -text
+*.wav           filter=lfs diff=lfs merge=lfs -text
+*.wma           filter=lfs diff=lfs merge=lfs -text
+*.ogg           filter=lfs diff=lfs merge=lfs -text
+*.bnk           filter=lfs diff=lfs merge=lfs -text
+
+#Video
+*.mp4           filter=lfs diff=lfs merge=lfs -text
+*.mov           filter=lfs diff=lfs merge=lfs -text
+
+#3D Object and Scene Files
+*.fbx           filter=lfs diff=lfs merge=lfs -text
+*.max           filter=lfs diff=lfs merge=lfs -text
+*.ma            filter=lfs diff=lfs merge=lfs -text
+*.mb            filter=lfs diff=lfs merge=lfs -text
+*.obj           filter=lfs diff=lfs merge=lfs -text
+*.ztl           filter=lfs diff=lfs merge=lfs -text
+*.zpr           filter=lfs diff=lfs merge=lfs -text
+*.blend         filter=lfs diff=lfs merge=lfs -text
+
+# Animation
+*.skel.bytes    filter=lfs diff=lfs merge=lfs -text
+*.anim          filter=lfs diff=lfs merge=lfs -text
+*.xaf           filter=lfs diff=lfs merge=lfs -text
+
+# Font
+*.ttf           filter=lfs diff=lfs merge=lfs -text
+*.otf           filter=lfs diff=lfs merge=lfs -text
+
+# Document
+*.doc           filter=lfs diff=lfs merge=lfs -text
+*.docx          filter=lfs diff=lfs merge=lfs -text
+*.pdf           filter=lfs diff=lfs merge=lfs -text
+*.rtf           filter=lfs diff=lfs merge=lfs -text
+*.chm           filter=lfs diff=lfs merge=lfs -text
+
+# Spreadsheet
+*.xls           filter=lfs diff=lfs merge=lfs -text
+*.xlsx          filter=lfs diff=lfs merge=lfs -text
+
+# Misc, consider remove them from repository
+*.7z            filter=lfs diff=lfs merge=lfs -text
+*.zip           filter=lfs diff=lfs merge=lfs -text
+*.rar           filter=lfs diff=lfs merge=lfs -text
+*.nupkg         filter=lfs diff=lfs merge=lfs -text
+*.dlu           filter=lfs diff=lfs merge=lfs -text
+*.db            filter=lfs diff=lfs merge=lfs -text
