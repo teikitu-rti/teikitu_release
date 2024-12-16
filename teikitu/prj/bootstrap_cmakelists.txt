@@ -1,0 +1,24 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.23)
+CMAKE_POLICY(VERSION 3.23)
+
+# Base language overrides
+SET (CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/../../../prj/flag_overrides.cmake)
+
+# Stream specific solution name
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../../prj/cmake_solution_name.cmake)
+SET(STREAM_FILE_CONTENTS "SET (MK_PROJECT_NAME \"${MK_PROJECT_NAME}\")\n")
+
+# Project (Solution for MSVC)
+PROJECT ("BootStrap")
+
+# Project Configurations
+SET (CMAKE_CONFIGURATION_TYPES Debug Release Final Tools )
+SET (CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "Reset the configurations to what we need" FORCE )
+
+# General CMake Environment
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../../prj/cmake_config.cmake)
+
+# Documentation
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../../prj/project_report.cmake)
+SET(STREAM_FILE_CONTENTS ${STREAM_FILE_CONTENTS} "SET (_CMAKE_PROJECT_NAME \"${MK_PROJECT_NAME}\")\n")
+FILE (WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../cmake_stream.cmake ${STREAM_FILE_CONTENTS})

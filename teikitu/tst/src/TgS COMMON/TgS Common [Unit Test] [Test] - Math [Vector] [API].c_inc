@@ -1,0 +1,84 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Common [Unit Test] [Set] - Math API [Vector].c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2022, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if defined(TEMPLATE__ENABLE_INTEGER)
+
+    #if !defined (ENABLE_RELOAD_GUARD)
+        #define ENABLE_RELOAD_GUARD
+        #define TEMPLATE__ENABLE_UNSIGNED
+        #include __FILE__
+        #undef TEMPLATE__ENABLE_UNSIGNED
+        #undef ENABLE_RELOAD_GUARD
+    #endif
+
+#else
+
+    #if !defined (ENABLE_RELOAD_GUARD)
+        #define ENABLE_RELOAD_GUARD
+        #if !defined(TEMPLATE__TYPE_SIZE)
+            #define TEMPLATE__TYPE_SIZE 32
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+            #define TEMPLATE__TYPE_SIZE 64
+        #endif
+        #undef ENABLE_RELOAD_GUARD
+    #endif
+
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+#define FCN_V_UT(...)                       MULTI_MACRO(FCN_V_UT, __VA_ARGS__)
+#define FCN_V_UT_1(F)                       TgMACRO_CONCAT5( UNIT_TEST__TEST__##F, _, GENERATE__VEC_DESC, _, 1 )
+#define FCN_V_UT_2(F, COL)                  TgMACRO_CONCAT5( UNIT_TEST__TEST__##F, _, GENERATE__VEC_DESC, _, COL )
+
+
+/* == Common ===================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Internal Functions                                                                                                                                                             */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+#if defined(TEMPLATE__ENABLE_INTEGER)
+    #include "TgS Common [Unit Test] [Test] - Math [Vector] [S] [I].c_inc"
+    #if (!VEC_IS_NATIVE && TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE) || VEC_IS_NATIVE /* MACRO_COMPILE_NATIVE_VECTOR_GUARD */
+        #include "TgS Common [Unit Test] [Test] - Math [Vector] [I].c_inc"
+    #endif
+
+#else
+    #include "TgS Common [Unit Test] [Test] - Math [Vector] [S] [F].c_inc"
+    #if (4 == TEMPLATE__VECTOR_DIM)
+        #include "TgS Common [Unit Test] [Test] - Math [Vector] [S] [FXX_04].c_inc"
+    #endif
+    #if (!VEC_IS_NATIVE && TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE) || VEC_IS_NATIVE /* MACRO_COMPILE_NATIVE_VECTOR_GUARD */
+        #include "TgS Common [Unit Test] [Test] - Math [Vector] [F].c_inc"
+        #if (4 == TEMPLATE__VECTOR_DIM)
+            #include "TgS Common [Unit Test] [Test] - Math [Vector] [FXX_04].c_inc"
+        #endif
+    #endif
+
+#endif
+
+#if (!VEC_IS_NATIVE && TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE) || VEC_IS_NATIVE /* MACRO_COMPILE_NATIVE_VECTOR_GUARD */
+    #include "TgS Common [Unit Test] [Test] - Math [Vector].c_inc"
+#endif
+
+#include "TgS Common [Unit Test] [Test] - Math [Vector] [S].c_inc"
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+#undef FCN_V_UT
+#undef FCN_V_UT_1
+#undef FCN_V_UT_2
+

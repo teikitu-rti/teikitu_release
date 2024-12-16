@@ -7,12 +7,10 @@ compare/*
 
 teikitu/.vs
 teikitu/bin
+teikitu/bld
 teikitu/doc
 teikitu/lib
 teikitu/obj
-
-teikitu/prj/cmake_stream.cmake
-teikitu/prj/*/
 
 samples
 teikitu/DerivedData

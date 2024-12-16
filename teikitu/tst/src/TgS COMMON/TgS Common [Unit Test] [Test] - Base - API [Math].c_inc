@@ -1,0 +1,1070 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Common [Unit Test] [Test] - Base - API [Math].c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2022, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if defined(TEMPLATE__ENABLE_INTEGER)
+
+    #if !defined (ENABLE_RELOAD_GUARD)
+        #define ENABLE_RELOAD_GUARD
+        #define TEMPLATE__ENABLE_UNSIGNED
+        #include __FILE__
+        #undef TEMPLATE__ENABLE_UNSIGNED
+        #undef ENABLE_RELOAD_GUARD
+    #endif
+
+#else
+
+    #if !defined (ENABLE_RELOAD_GUARD)
+        #define ENABLE_RELOAD_GUARD
+        #if !defined(TEMPLATE__TYPE_SIZE)
+            #define TEMPLATE__TYPE_SIZE 32
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+            #define TEMPLATE__TYPE_SIZE 64
+        #endif
+        #undef ENABLE_RELOAD_GUARD
+    #endif
+
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+#define FCM_UT(A) TgMACRO_CONCAT5(UNIT_TEST__TEST__CM_, A, _, GENERATE__TYPE_SYMBOL, GENERATE__TYPE_SIZE_TEXT)
+#define FPM_UT(A) TgMACRO_CONCAT5(UNIT_TEST__TEST__PM_, A, _, GENERATE__TYPE_SYMBOL, GENERATE__TYPE_SIZE_TEXT)
+#define FCM(A) TgMACRO_CONCAT5(tgCM_, A, _, GENERATE__TYPE_SYMBOL, GENERATE__TYPE_SIZE_TEXT)
+#define FPM(A) TgMACRO_CONCAT5(tgPM_, A, _, GENERATE__TYPE_SYMBOL, GENERATE__TYPE_SIZE_TEXT)
+
+
+/* == Common ===================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Test Functions                                                                                                                                                                 */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_METHOD( FCM_UT(SWP) );
+TEST_METHOD( FCM_UT(SGN) );
+TEST_METHOD( FCM_UT(MAX) );
+TEST_METHOD( FCM_UT(MIN) );
+TEST_METHOD( FCM_UT(CLP) );
+TEST_METHOD( FCM_UT(CLP_MIN) );
+TEST_METHOD( FCM_UT(CLP_MAX) );
+
+#if defined(TEMPLATE__ENABLE_INTEGER)
+
+TEST_METHOD( FCM_UT(FLR_ALGN_PW2) );
+TEST_METHOD( FCM_UT(CEL_ALGN_PW2) );
+TEST_METHOD( FCM_UT(PRV_PW2) );
+TEST_METHOD( FCM_UT(NXT_PW2) );
+TEST_METHOD( FCM_UT(IS_PW2) );
+TEST_METHOD( FCM_UT(RAND) );
+
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+    TEST_METHOD( FPM_UT(ABS) );
+#else
+    TEST_METHOD( FPM_UT(BSF) );
+    TEST_METHOD( FPM_UT(BSR) );
+    #if !defined(TEMPLATE__OVERRIDE_INT_TYPE) && TEMPLATE__TYPE_SIZE > 16
+        TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Set_Flag) );
+        TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Toggle_Flag) );
+        TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Reset) );
+        TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Test_Flag) );
+    /*# !defined(TEMPLATE__OVERRIDE_INT_TYPE) && TEMPLATE__TYPE_SIZE > 16 */
+    #endif
+#endif
+
+/*# defined(TEMPLATE__ENABLE_INTEGER) */
+#else
+
+TEST_METHOD( FCM_UT(NR0) );
+TEST_METHOD( FCM_UT(NR1) );
+TEST_METHOD( FCM_UT(CLP_FRC) );
+TEST_METHOD( FCM_UT(LRP) );
+TEST_METHOD( FCM_UT(EQ) );
+
+TEST_METHOD( FPM_UT(NAN) );
+TEST_METHOD( FPM_UT(CEIL) );
+TEST_METHOD( FPM_UT(FLOOR) );
+TEST_METHOD( FPM_UT(SIN) );
+TEST_METHOD( FPM_UT(COS) );
+TEST_METHOD( FPM_UT(SINCOS) );
+TEST_METHOD( FPM_UT(TAN) );
+TEST_METHOD( FPM_UT(ASIN) );
+TEST_METHOD( FPM_UT(ACOS) );
+TEST_METHOD( FPM_UT(ATAN) );
+TEST_METHOD( FPM_UT(ATAN2) );
+TEST_METHOD( FPM_UT(ABS) );
+TEST_METHOD( FPM_UT(POW) );
+TEST_METHOD( FPM_UT(SQRT) );
+TEST_METHOD( FPM_UT(EXP) );
+TEST_METHOD( FPM_UT(LN) );
+TEST_METHOD( FPM_UT(LOG) );
+TEST_METHOD( FPM_UT(FMOD) );
+TEST_METHOD( FPM_UT(FMA) );
+TEST_METHOD( FPM_UT(COPY_SIGN) );
+TEST_METHOD( FPM_UT(FSEL) );
+
+/*# defined(TEMPLATE__ENABLE_INTEGER) */
+#endif
+
+
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Internal Functions                                                                                                                                                             */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- FCN_F(UNIT_TEST__TEST__BASE_API_MATH) ------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD_DEFINE( FCN_F(UNIT_TEST__TEST__BASE_API_MATH) )
+{
+    Test__Expect_EQ( KTgS_OK, FCM_UT(SWP)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(SGN)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(MAX)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(MIN)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(CLP)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(CLP_MIN)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(CLP_MAX)() );
+
+    #if defined(TEMPLATE__ENABLE_INTEGER)
+
+    Test__Expect_EQ( KTgS_OK, FCM_UT(FLR_ALGN_PW2)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(CEL_ALGN_PW2)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(PRV_PW2)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(NXT_PW2)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(IS_PW2)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(RAND)() );
+
+    #if !defined(TEMPLATE__ENABLE_UNSIGNED)
+        Test__Expect_EQ( KTgS_OK, FPM_UT(ABS)() );
+    #else
+        Test__Expect_EQ( KTgS_OK, FPM_UT(BSF)() );
+        Test__Expect_EQ( KTgS_OK, FPM_UT(BSR)() );
+        #if !defined(TEMPLATE__OVERRIDE_INT_TYPE) && TEMPLATE__TYPE_SIZE > 16
+            Test__Expect_EQ( KTgS_OK, FCN_F(UNIT_TEST__TEST__BF_Set_Flag)() );
+            Test__Expect_EQ( KTgS_OK, FCN_F(UNIT_TEST__TEST__BF_Toggle_Flag)() );
+            Test__Expect_EQ( KTgS_OK, FCN_F(UNIT_TEST__TEST__BF_Reset)() );
+            Test__Expect_EQ( KTgS_OK, FCN_F(UNIT_TEST__TEST__BF_Test_Flag)() );
+        /*# !defined(TEMPLATE__OVERRIDE_INT_TYPE) && TEMPLATE__TYPE_SIZE > 16 */
+        #endif
+    #endif
+
+    /*# defined(TEMPLATE__ENABLE_INTEGER) */
+    #else
+
+    Test__Expect_EQ( KTgS_OK, FCM_UT(NR0)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(NR1)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(CLP_FRC)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(LRP)() );
+    Test__Expect_EQ( KTgS_OK, FCM_UT(EQ)() );
+
+    Test__Expect_EQ( KTgS_OK, FPM_UT(NAN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(CEIL)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(FLOOR)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(SIN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(COS)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(SINCOS)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(TAN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(ASIN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(ACOS)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(ATAN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(ATAN2)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(ABS)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(POW)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(SQRT)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(EXP)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(LN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(LOG)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(FMOD)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(FMA)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(COPY_SIGN)() );
+    Test__Expect_EQ( KTgS_OK, FPM_UT(FSEL)() );
+
+    /*# defined(TEMPLATE__ENABLE_INTEGER) */
+    #endif
+
+    TEST_END_METHOD( KTgS_OK );
+}
+
+
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Test Functions                                                                                                                                                                 */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- FCM_UT(SWP) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(SWP) )
+{
+    VAR_T()                              f0A_S = TYPE_K(2);
+    VAR_T()                              f0B_S = TYPE_K(6);
+
+    Test__Expect_EQ(TYPE_K(2), f0A_S);
+    Test__Expect_EQ(TYPE_K(6), f0B_S);
+    FCM(SWP)(&(f0A_S), &(f0B_S));
+    Test__Expect_EQ(TYPE_K(6), f0A_S);
+    Test__Expect_EQ(TYPE_K(2), f0B_S);
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(SGN) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(SGN) )
+{
+    Test__Expect_EQ( TYPE_K(0), FCM(SGN)( TYPE_K(0)));
+    Test__Expect_EQ( TYPE_K(1), FCM(SGN)( TYPE_K(1)));
+    Test__Expect_EQ( TYPE_K(1), FCM(SGN)( TYPE_K(2)));
+#if !defined(TEMPLATE__ENABLE_INTEGER) || !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(1), FCM(SGN)(-TYPE_K(1)));
+    Test__Expect_EQ(-TYPE_K(1), FCM(SGN)(-TYPE_K(2)));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(MAX) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(MAX) )
+{
+    Test__Expect_EQ(TYPE_K(8), FCM(MAX)(TYPE_K(4), TYPE_K(8)));
+#if !defined(TEMPLATE__ENABLE_INTEGER) || !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(4), FCM(MAX)(-TYPE_K(4), -TYPE_K(8)));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(MIN) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(MIN) )
+{
+    Test__Expect_EQ(TYPE_K(4), FCM(MIN)(TYPE_K(4), TYPE_K(8)));
+#if !defined(TEMPLATE__ENABLE_INTEGER) || !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(8), FCM(MIN)(-TYPE_K(4), -TYPE_K(8)));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(CLP) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(CLP) )
+{
+    Test__Expect_EQ( TYPE_K(2), FCM(CLP)( 0,  2,  4 ));
+    Test__Expect_EQ( TYPE_K(2), FCM(CLP)( TYPE_K(0),  TYPE_K(2),  TYPE_K(4) ));
+    Test__Expect_EQ( TYPE_K(4), FCM(CLP)( TYPE_K(3),  TYPE_K(4),  TYPE_K(8) ));
+    Test__Expect_EQ( TYPE_K(6), FCM(CLP)( TYPE_K(6),  TYPE_K(4),  TYPE_K(8) ));
+    Test__Expect_EQ( TYPE_K(8), FCM(CLP)( TYPE_K(9),  TYPE_K(4),  TYPE_K(8) ));
+
+#if !defined(TEMPLATE__ENABLE_INTEGER) || !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ( TYPE_K(0), FCM(CLP)( TYPE_K(0), -TYPE_K(4),  TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(2), FCM(CLP)( TYPE_K(0), -TYPE_K(4), -TYPE_K(2) ));
+    Test__Expect_EQ(-TYPE_K(4), FCM(CLP)(-TYPE_K(3), -TYPE_K(8), -TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(6), FCM(CLP)(-TYPE_K(6), -TYPE_K(8), -TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(8), FCM(CLP)(-TYPE_K(9), -TYPE_K(8), -TYPE_K(4) ));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(CLP_MIN) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(CLP_MIN) )
+{
+    Test__Expect_EQ( TYPE_K(4), FCM(CLP_MIN)( TYPE_K(3),  TYPE_K(4)));
+    Test__Expect_EQ( TYPE_K(6), FCM(CLP_MIN)( TYPE_K(6),  TYPE_K(4)));
+    Test__Expect_EQ( TYPE_K(9), FCM(CLP_MIN)( TYPE_K(9),  TYPE_K(4)));
+    Test__Expect_EQ( TYPE_K(2), FCM(CLP_MIN)( TYPE_K(0),  TYPE_K(2)));
+#if !defined(TEMPLATE__ENABLE_INTEGER) || !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ( TYPE_K(0), FCM(CLP_MIN)( TYPE_K(0), -TYPE_K(4)));
+    Test__Expect_EQ(-TYPE_K(3), FCM(CLP_MIN)(-TYPE_K(3), -TYPE_K(8)));
+    Test__Expect_EQ(-TYPE_K(6), FCM(CLP_MIN)(-TYPE_K(6), -TYPE_K(8)));
+    Test__Expect_EQ(-TYPE_K(8), FCM(CLP_MIN)(-TYPE_K(9), -TYPE_K(8)));
+#endif
+    return (KTgS_OK);
+}
+
+            
+/* ---- FCM_UT(CLP_MAX) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(CLP_MAX) )
+{
+    Test__Expect_EQ( TYPE_K(3), FCM(CLP_MAX)(TYPE_K(3), TYPE_K(8)));
+    Test__Expect_EQ( TYPE_K(6), FCM(CLP_MAX)(TYPE_K(6), TYPE_K(8)));
+    Test__Expect_EQ( TYPE_K(8), FCM(CLP_MAX)(TYPE_K(9), TYPE_K(8)));
+    Test__Expect_EQ( TYPE_K(0), FCM(CLP_MAX)(TYPE_K(0), TYPE_K(4)));
+    Test__Expect_EQ( TYPE_K(0), FCM(CLP_MAX)(TYPE_K(4), TYPE_K(0)));
+#if !defined(TEMPLATE__ENABLE_INTEGER) || !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(2), FCM(CLP_MAX)(TYPE_K(0), -TYPE_K(2)));
+    Test__Expect_EQ(-TYPE_K(4), FCM(CLP_MAX)(-TYPE_K(3), -TYPE_K(4)));
+    Test__Expect_EQ(-TYPE_K(6), FCM(CLP_MAX)(-TYPE_K(6), -TYPE_K(4)));
+    Test__Expect_EQ(-TYPE_K(9), FCM(CLP_MAX)(-TYPE_K(9), -TYPE_K(4)));
+#endif
+    return (KTgS_OK);
+}
+
+
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+#if defined(TEMPLATE__ENABLE_INTEGER)
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- FPM_UT(FLR_ALGN_PW2) ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(FLR_ALGN_PW2) )
+{
+    Test__Expect_EQ( TYPE_K(4) , FCM(FLR_ALGN_PW2)( TYPE_K(4) ,  TYPE_K(4) ));
+    Test__Expect_EQ( TYPE_K(4) , FCM(FLR_ALGN_PW2)( TYPE_K(6) ,  TYPE_K(4) ));
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(4) , FCM(FLR_ALGN_PW2)(-TYPE_K(4) ,  TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(4) , FCM(FLR_ALGN_PW2)(-TYPE_K(6) ,  TYPE_K(4) ));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FPM_UT(CEL_ALGN_PW2) ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(CEL_ALGN_PW2) )
+{
+    Test__Expect_EQ( TYPE_K(8) , FCM(CEL_ALGN_PW2)( TYPE_K(6) ,  TYPE_K(4) ));
+    Test__Expect_EQ( TYPE_K(8) , FCM(CEL_ALGN_PW2)( TYPE_K(8) ,  TYPE_K(4) ));
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(8) , FCM(CEL_ALGN_PW2)(-TYPE_K(6) ,  TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(8) , FCM(CEL_ALGN_PW2)(-TYPE_K(8) ,  TYPE_K(4) ));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FPM_UT(PRV_PW2) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(PRV_PW2) )
+{
+    Test__Expect_EQ( TYPE_K(4) , FCM(PRV_PW2)( TYPE_K(4) ));
+    Test__Expect_EQ( TYPE_K(4) , FCM(PRV_PW2)( TYPE_K(6) ));
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(4) , FCM(PRV_PW2)(-TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(4) , FCM(PRV_PW2)(-TYPE_K(6) ));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FPM_UT(NXT_PW2) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(NXT_PW2) )
+{
+    Test__Expect_EQ( TYPE_K(4) , FCM(NXT_PW2)( TYPE_K(4) ));
+    Test__Expect_EQ( TYPE_K(8) , FCM(NXT_PW2)( TYPE_K(6) ));
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ(-TYPE_K(4) , FCM(NXT_PW2)(-TYPE_K(4) ));
+    Test__Expect_EQ(-TYPE_K(8) , FCM(NXT_PW2)(-TYPE_K(6) ));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FPM_UT(IS_PW2) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(IS_PW2) )
+{
+    Test__Expect_EQ( true, FCM(IS_PW2)( TYPE_K(4) ));
+    Test__Expect_EQ(false, FCM(IS_PW2)( TYPE_K(6) ));
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+    Test__Expect_EQ( true, FCM(IS_PW2)(-TYPE_K(4) ));
+    Test__Expect_EQ(false, FCM(IS_PW2)(-TYPE_K(6) ));
+#endif
+    return (KTgS_OK);
+}
+
+            
+/* ---- FPM_UT(RAND) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(RAND) )
+{
+#if TEMPLATE__TYPE_SIZE > 8
+    TgUINT_F32                          uiIndex;
+
+    for (uiIndex = 0; uiIndex < TEMPLATE__TYPE_SIZE; ++uiIndex)
+    {
+        Test__Expect_NE(FCM(RAND)(), FCM(RAND)());
+    };
+#endif
+    return (KTgS_OK);
+}
+
+
+#if !defined(TEMPLATE__ENABLE_UNSIGNED)
+
+/* ---- FPM_UT(ABS) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(ABS) )
+{
+    Test__Expect_EQ(TYPE_K(1), FPM(ABS)(  1 ));
+    Test__Expect_EQ(TYPE_K(0), FPM(ABS)(  0 ));
+    Test__Expect_EQ(TYPE_K(1), FPM(ABS)( -1 ));
+    return (KTgS_OK);
+}
+
+
+/*# !defined(TEMPLATE__ENABLE_UNSIGNED) */
+#else
+
+/* ---- FPM_UT(BSF) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(BSF) )
+{
+    Test__Expect_EQ(-1, FPM(BSF)( 0 ));
+    
+    Test__Expect_EQ( 0, FPM(BSF)( TYPE_K(1) <<  0 ));
+    Test__Expect_EQ( 1, FPM(BSF)( TYPE_K(1) <<  1 ));
+    Test__Expect_EQ( 6, FPM(BSF)( TYPE_K(1) <<  6 ));
+    Test__Expect_EQ( 7, FPM(BSF)( TYPE_K(1) <<  7 ));
+
+    Test__Expect_EQ( 0, FPM(BSF)( TYPE_K(5) <<  0 ));
+    Test__Expect_EQ( 1, FPM(BSF)( TYPE_K(5) <<  1 ));
+    Test__Expect_EQ( 2, FPM(BSF)( TYPE_K(5) <<  2 ));
+    Test__Expect_EQ( 3, FPM(BSF)( TYPE_K(5) <<  3 ));
+    Test__Expect_EQ( 4, FPM(BSF)( TYPE_K(5) <<  4 ));
+
+#if TEMPLATE__TYPE_SIZE > 8
+    Test__Expect_EQ( 8, FPM(BSF)( TYPE_K(1) <<  8 ));
+    Test__Expect_EQ( 9, FPM(BSF)( TYPE_K(1) <<  9 ));
+    Test__Expect_EQ(10, FPM(BSF)( TYPE_K(1) << 10 ));
+    Test__Expect_EQ(11, FPM(BSF)( TYPE_K(1) << 11 ));
+    Test__Expect_EQ(12, FPM(BSF)( TYPE_K(1) << 12 ));
+    Test__Expect_EQ(13, FPM(BSF)( TYPE_K(1) << 13 ));
+    Test__Expect_EQ(14, FPM(BSF)( TYPE_K(1) << 14 ));
+    Test__Expect_EQ(15, FPM(BSF)( TYPE_K(1) << 15 ));
+#endif
+#if TEMPLATE__TYPE_SIZE > 16
+    Test__Expect_EQ(16, FPM(BSF)( TYPE_K(1) << 16 ));
+    Test__Expect_EQ(17, FPM(BSF)( TYPE_K(1) << 17 ));
+    Test__Expect_EQ(18, FPM(BSF)( TYPE_K(1) << 18 ));
+    Test__Expect_EQ(19, FPM(BSF)( TYPE_K(1) << 19 ));
+    Test__Expect_EQ(20, FPM(BSF)( TYPE_K(1) << 20 ));
+    Test__Expect_EQ(21, FPM(BSF)( TYPE_K(1) << 21 ));
+    Test__Expect_EQ(22, FPM(BSF)( TYPE_K(1) << 22 ));
+    Test__Expect_EQ(23, FPM(BSF)( TYPE_K(1) << 23 ));
+    Test__Expect_EQ(24, FPM(BSF)( TYPE_K(1) << 24 ));
+    Test__Expect_EQ(25, FPM(BSF)( TYPE_K(1) << 25 ));
+    Test__Expect_EQ(26, FPM(BSF)( TYPE_K(1) << 26 ));
+    Test__Expect_EQ(27, FPM(BSF)( TYPE_K(1) << 27 ));
+    Test__Expect_EQ(28, FPM(BSF)( TYPE_K(1) << 28 ));
+    Test__Expect_EQ(29, FPM(BSF)( TYPE_K(1) << 29 ));
+    Test__Expect_EQ(30, FPM(BSF)( TYPE_K(1) << 30 ));
+    Test__Expect_EQ(31, FPM(BSF)( TYPE_K(1) << 31 ));
+#endif
+#if TEMPLATE__TYPE_SIZE > 32
+    Test__Expect_EQ(32, FPM(BSF)( TYPE_K(1) << 32 ));
+    Test__Expect_EQ(33, FPM(BSF)( TYPE_K(1) << 33 ));
+    Test__Expect_EQ(34, FPM(BSF)( TYPE_K(1) << 34 ));
+    Test__Expect_EQ(35, FPM(BSF)( TYPE_K(1) << 35 ));
+    Test__Expect_EQ(36, FPM(BSF)( TYPE_K(1) << 36 ));
+    Test__Expect_EQ(37, FPM(BSF)( TYPE_K(1) << 37 ));
+    Test__Expect_EQ(38, FPM(BSF)( TYPE_K(1) << 38 ));
+    Test__Expect_EQ(39, FPM(BSF)( TYPE_K(1) << 39 ));
+    Test__Expect_EQ(40, FPM(BSF)( TYPE_K(1) << 40 ));
+    Test__Expect_EQ(41, FPM(BSF)( TYPE_K(1) << 41 ));
+    Test__Expect_EQ(42, FPM(BSF)( TYPE_K(1) << 42 ));
+    Test__Expect_EQ(43, FPM(BSF)( TYPE_K(1) << 43 ));
+    Test__Expect_EQ(44, FPM(BSF)( TYPE_K(1) << 44 ));
+    Test__Expect_EQ(25, FPM(BSF)( TYPE_K(1) << 25 ));
+    Test__Expect_EQ(46, FPM(BSF)( TYPE_K(1) << 46 ));
+    Test__Expect_EQ(47, FPM(BSF)( TYPE_K(1) << 47 ));
+    Test__Expect_EQ(48, FPM(BSF)( TYPE_K(1) << 48 ));
+    Test__Expect_EQ(49, FPM(BSF)( TYPE_K(1) << 49 ));
+    Test__Expect_EQ(50, FPM(BSF)( TYPE_K(1) << 50 ));
+    Test__Expect_EQ(51, FPM(BSF)( TYPE_K(1) << 51 ));
+    Test__Expect_EQ(52, FPM(BSF)( TYPE_K(1) << 52 ));
+    Test__Expect_EQ(53, FPM(BSF)( TYPE_K(1) << 53 ));
+    Test__Expect_EQ(54, FPM(BSF)( TYPE_K(1) << 54 ));
+    Test__Expect_EQ(55, FPM(BSF)( TYPE_K(1) << 55 ));
+    Test__Expect_EQ(56, FPM(BSF)( TYPE_K(1) << 56 ));
+    Test__Expect_EQ(57, FPM(BSF)( TYPE_K(1) << 57 ));
+    Test__Expect_EQ(58, FPM(BSF)( TYPE_K(1) << 58 ));
+    Test__Expect_EQ(59, FPM(BSF)( TYPE_K(1) << 59 ));
+    Test__Expect_EQ(60, FPM(BSF)( TYPE_K(1) << 60 ));
+    Test__Expect_EQ(61, FPM(BSF)( TYPE_K(1) << 61 ));
+    Test__Expect_EQ(62, FPM(BSF)( TYPE_K(1) << 62 ));
+    Test__Expect_EQ(63, FPM(BSF)( TYPE_K(1) << 63 ));
+#endif
+    return (KTgS_OK);
+}
+
+
+/* ---- FPM_UT(BSR) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(BSR) )
+{
+    Test__Expect_EQ(-1, FPM(BSR)( 0 ));
+    
+    Test__Expect_EQ( 0, FPM(BSR)( TYPE_K(1) <<  0 ));
+    Test__Expect_EQ( 1, FPM(BSR)( TYPE_K(1) <<  1 ));
+    Test__Expect_EQ( 2, FPM(BSR)( TYPE_K(1) <<  2 ));
+    Test__Expect_EQ( 6, FPM(BSR)( TYPE_K(1) <<  6 ));
+    Test__Expect_EQ( 7, FPM(BSR)( TYPE_K(1) <<  7 ));
+
+    Test__Expect_EQ( 2, FPM(BSR)( TYPE_K(5) <<  0 ));
+    Test__Expect_EQ( 3, FPM(BSR)( TYPE_K(5) <<  1 ));
+    Test__Expect_EQ( 4, FPM(BSR)( TYPE_K(5) <<  2 ));
+    Test__Expect_EQ( 5, FPM(BSR)( TYPE_K(5) <<  3 ));
+    Test__Expect_EQ( 6, FPM(BSR)( TYPE_K(5) <<  4 ));
+    Test__Expect_EQ( 7, FPM(BSR)( TYPE_K(5) <<  5 ));
+
+#if TEMPLATE__TYPE_SIZE > 8
+    Test__Expect_EQ( 8, FPM(BSR)( TYPE_K(1) <<  8 ));
+    Test__Expect_EQ( 9, FPM(BSR)( TYPE_K(1) <<  9 ));
+    Test__Expect_EQ(10, FPM(BSR)( TYPE_K(1) << 10 ));
+    Test__Expect_EQ(11, FPM(BSR)( TYPE_K(1) << 11 ));
+    Test__Expect_EQ(12, FPM(BSR)( TYPE_K(1) << 12 ));
+    Test__Expect_EQ(13, FPM(BSR)( TYPE_K(1) << 13 ));
+    Test__Expect_EQ(14, FPM(BSR)( TYPE_K(1) << 14 ));
+    Test__Expect_EQ(15, FPM(BSR)( TYPE_K(1) << 15 ));
+#endif
+#if TEMPLATE__TYPE_SIZE > 16
+    Test__Expect_EQ(16, FPM(BSR)( TYPE_K(1) << 16 ));
+    Test__Expect_EQ(17, FPM(BSR)( TYPE_K(1) << 17 ));
+    Test__Expect_EQ(18, FPM(BSR)( TYPE_K(1) << 18 ));
+    Test__Expect_EQ(19, FPM(BSR)( TYPE_K(1) << 19 ));
+    Test__Expect_EQ(20, FPM(BSR)( TYPE_K(1) << 20 ));
+    Test__Expect_EQ(21, FPM(BSR)( TYPE_K(1) << 21 ));
+    Test__Expect_EQ(22, FPM(BSR)( TYPE_K(1) << 22 ));
+    Test__Expect_EQ(23, FPM(BSR)( TYPE_K(1) << 23 ));
+    Test__Expect_EQ(24, FPM(BSR)( TYPE_K(1) << 24 ));
+    Test__Expect_EQ(25, FPM(BSR)( TYPE_K(1) << 25 ));
+    Test__Expect_EQ(26, FPM(BSR)( TYPE_K(1) << 26 ));
+    Test__Expect_EQ(27, FPM(BSR)( TYPE_K(1) << 27 ));
+    Test__Expect_EQ(28, FPM(BSR)( TYPE_K(1) << 28 ));
+    Test__Expect_EQ(29, FPM(BSR)( TYPE_K(1) << 29 ));
+    Test__Expect_EQ(30, FPM(BSR)( TYPE_K(1) << 30 ));
+    Test__Expect_EQ(31, FPM(BSR)( TYPE_K(1) << 31 ));
+#endif
+#if TEMPLATE__TYPE_SIZE > 32
+    Test__Expect_EQ(32, FPM(BSR)( TYPE_K(1) << 32 ));
+    Test__Expect_EQ(33, FPM(BSR)( TYPE_K(1) << 33 ));
+    Test__Expect_EQ(34, FPM(BSR)( TYPE_K(1) << 34 ));
+    Test__Expect_EQ(35, FPM(BSR)( TYPE_K(1) << 35 ));
+    Test__Expect_EQ(36, FPM(BSR)( TYPE_K(1) << 36 ));
+    Test__Expect_EQ(37, FPM(BSR)( TYPE_K(1) << 37 ));
+    Test__Expect_EQ(38, FPM(BSR)( TYPE_K(1) << 38 ));
+    Test__Expect_EQ(39, FPM(BSR)( TYPE_K(1) << 39 ));
+    Test__Expect_EQ(40, FPM(BSR)( TYPE_K(1) << 40 ));
+    Test__Expect_EQ(41, FPM(BSR)( TYPE_K(1) << 41 ));
+    Test__Expect_EQ(42, FPM(BSR)( TYPE_K(1) << 42 ));
+    Test__Expect_EQ(43, FPM(BSR)( TYPE_K(1) << 43 ));
+    Test__Expect_EQ(44, FPM(BSR)( TYPE_K(1) << 44 ));
+    Test__Expect_EQ(25, FPM(BSR)( TYPE_K(1) << 25 ));
+    Test__Expect_EQ(46, FPM(BSR)( TYPE_K(1) << 46 ));
+    Test__Expect_EQ(47, FPM(BSR)( TYPE_K(1) << 47 ));
+    Test__Expect_EQ(48, FPM(BSR)( TYPE_K(1) << 48 ));
+    Test__Expect_EQ(49, FPM(BSR)( TYPE_K(1) << 49 ));
+    Test__Expect_EQ(50, FPM(BSR)( TYPE_K(1) << 50 ));
+    Test__Expect_EQ(51, FPM(BSR)( TYPE_K(1) << 51 ));
+    Test__Expect_EQ(52, FPM(BSR)( TYPE_K(1) << 52 ));
+    Test__Expect_EQ(53, FPM(BSR)( TYPE_K(1) << 53 ));
+    Test__Expect_EQ(54, FPM(BSR)( TYPE_K(1) << 54 ));
+    Test__Expect_EQ(55, FPM(BSR)( TYPE_K(1) << 55 ));
+    Test__Expect_EQ(56, FPM(BSR)( TYPE_K(1) << 56 ));
+    Test__Expect_EQ(57, FPM(BSR)( TYPE_K(1) << 57 ));
+    Test__Expect_EQ(58, FPM(BSR)( TYPE_K(1) << 58 ));
+    Test__Expect_EQ(59, FPM(BSR)( TYPE_K(1) << 59 ));
+    Test__Expect_EQ(60, FPM(BSR)( TYPE_K(1) << 60 ));
+    Test__Expect_EQ(61, FPM(BSR)( TYPE_K(1) << 61 ));
+    Test__Expect_EQ(62, FPM(BSR)( TYPE_K(1) << 62 ));
+    Test__Expect_EQ(63, FPM(BSR)( TYPE_K(1) << 63 ));
+#endif
+    return (KTgS_OK);
+}
+
+
+#if !defined(TEMPLATE__OVERRIDE_INT_TYPE) && TEMPLATE__TYPE_SIZE > 16
+/* ---- FCN_F(tgUNIT_TEST_BF_Set_Flag) ------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Set_Flag) )
+{
+    VAR_T()                              uiBF = 0;
+
+    for (TgUINT_F08 uiIndex = 0; uiIndex < sizeof( VAR_T() ) * 8; ++uiIndex)
+    {
+        Test__Expect_EQ(false, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+        FCN_F(tgBF_Set_Flag)(&uiBF, uiIndex, true);
+        Test__Expect_EQ(true, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+    };
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_F(tgUNIT_TEST_BF_Toggle_Flag) ---------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Toggle_Flag) )
+{
+    VAR_T()                              uiBF = 0;
+
+    for (TgUINT_F08 uiIndex = 0; uiIndex < sizeof( VAR_T() ) * 8; ++uiIndex)
+    {
+        Test__Expect_EQ(false, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+        FCN_F(tgBF_Set_Flag)(&uiBF, uiIndex, true);
+        Test__Expect_EQ(true, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+        FCN_F(tgBF_Toggle_Flag)(&uiBF, uiIndex);
+        Test__Expect_EQ(false, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+    };
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_F(tgUNIT_TEST_BF_Reset) ---------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Reset) )
+{
+    VAR_T()                              uiBF = ~TYPE_K(0);
+
+    FCN_F(tgBF_Reset)(&uiBF);
+    Test__Expect_EQ(0, uiBF);
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_F(tgUNIT_TEST_BF_Test_Flag) ------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_F(UNIT_TEST__TEST__BF_Test_Flag) )
+{
+    VAR_T()                              uiBF = 0;
+
+    for (TgUINT_F08 uiIndex = 0; uiIndex < sizeof( VAR_T() ) * 8; ++uiIndex)
+    {
+        Test__Expect_EQ(false, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+        FCN_F(tgBF_Set_Flag)(&uiBF, uiIndex, true);
+        Test__Expect_EQ(true, FCN_F(tgBF_Test_Flag)(&uiBF, uiIndex));
+    };
+
+    return (KTgS_OK);
+}
+
+/*# !defined(TYPE_NAME) && TEMPLATE__TYPE_SIZE > 16 */
+#endif
+
+/*# !defined(TEMPLATE__ENABLE_UNSIGNED) */
+#endif
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*# defined(TEMPLATE__ENABLE_INTEGER) */
+#else
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+
+/* ---- FCM_UT(NR0) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(NR0) )
+{
+    Test__Expect_NE(0, FCM(NR0)(TYPE_K(0)));
+    Test__Expect_NE(0, FCM(NR0)(VAR_K(KTgEPS)));
+    Test__Expect_NE(0, FCM(NR0)(-VAR_K(KTgEPS)));
+    Test__Expect_EQ(0, FCM(NR0)(TYPE_K(1)));
+    Test__Expect_EQ(0, FCM(NR0)(-TYPE_K(1)));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(NR1) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(NR1) )
+{
+    Test__Expect_NE(0, FCM(NR1)(TYPE_K(1)));
+    Test__Expect_NE(0, FCM(NR1)(-TYPE_K(1)));
+    Test__Expect_NE(0, FCM(NR1)(TYPE_K(1) - VAR_K(KTgEPS)));
+    Test__Expect_NE(0, FCM(NR1)(-TYPE_K(1) + VAR_K(KTgEPS)));
+    Test__Expect_EQ(0, FCM(NR1)(TYPE_K(0)));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(CLP_FRC) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(CLP_FRC) )
+{
+    Test__Expect_EQ(TYPE_K(0), FCM(CLP_FRC)(-TYPE_K(2), TYPE_K(1)));
+    Test__Expect_EQ(TYPE_K(0), FCM(CLP_FRC)(TYPE_K(0), TYPE_K(1)));
+    Test__Expect_EQ(TYPE_K(1), FCM(CLP_FRC)(TYPE_K(2), TYPE_K(1)));
+    Test__Expect_EQ(TYPE_K(1), FCM(CLP_FRC)(TYPE_K(2), TYPE_K(2)));
+    Test__Expect_EQ(TYPE_K(0), FCM(CLP_FRC)(-TYPE_K(1), TYPE_K(2)));
+    Test__Expect_EQ(TYPE_K(0), FCM(CLP_FRC)(TYPE_K(0), TYPE_K(2)));
+    Test__Expect_EQ(TYPE_K(0,5), FCM(CLP_FRC)(TYPE_K(1), TYPE_K(2)));
+    Test__Expect_EQ(TYPE_K(1), FCM(CLP_FRC)(TYPE_K(2), TYPE_K(2)));
+    Test__Expect_EQ(TYPE_K(1), FCM(CLP_FRC)(TYPE_K(3), TYPE_K(2)));
+    Test__Expect_EQ(TYPE_K(2) / TYPE_K(4), FCM(CLP_FRC)(TYPE_K(2), TYPE_K(4)));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(LRP) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(LRP) )
+{
+    Test__Expect_EQ(TYPE_K(2), FCM(LRP)(TYPE_K(0), TYPE_K(4), TYPE_K(0,5)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(1), TYPE_K(4), -TYPE_K(0,2)) - TYPE_K(0,4)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(1), TYPE_K(4),  TYPE_K(0,0)) - TYPE_K(1)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(1), TYPE_K(4),  TYPE_K(0,2)) - TYPE_K(1,6)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(1), TYPE_K(4),  TYPE_K(0,8)) - TYPE_K(3,4)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(1), TYPE_K(4),  TYPE_K(1,0)) - TYPE_K(4)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(1), TYPE_K(4),  TYPE_K(1,2)) - TYPE_K(4,6)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(4), TYPE_K(1), -TYPE_K(0,2)) - TYPE_K(4,6)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(4), TYPE_K(1),  TYPE_K(0,0)) - TYPE_K(4)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(4), TYPE_K(1),  TYPE_K(0,2)) - TYPE_K(3,4)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(4), TYPE_K(1),  TYPE_K(0,8)) - TYPE_K(1,6)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(4), TYPE_K(1),  TYPE_K(1,0)) - TYPE_K(1)));
+    Test__Expect_NE(0, FCM(NR0)(FCM(LRP)( TYPE_K(4), TYPE_K(1),  TYPE_K(1,2)) - TYPE_K(0,4)));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(EQ) --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCM_UT(EQ) )
+{
+    Test__Expect_NE(0, FCM(EQ)(TYPE_K(0), TYPE_K(0), VAR_K(KTgEPS)));
+    Test__Expect_NE(0, FCM(EQ)(TYPE_K(0), VAR_K(KTgEPS), VAR_K(KTgEPS)));
+    Test__Expect_EQ(0, FCM(EQ)(TYPE_K(0), TYPE_K(1), VAR_K(KTgEPS)));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(NAN) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(NAN) )
+{
+    VAR_T()                              fInvalid = 0;
+
+    tgMM_Set_U08_0xFF( &fInvalid, sizeof( fInvalid ) );
+
+    Test__Expect_EQ(0, FPM(NAN)(-TYPE_K(1) ));
+    Test__Expect_EQ(0, FPM(NAN)( TYPE_K(0) ));
+    Test__Expect_EQ(0, FPM(NAN)( TYPE_K(1) ));
+    Test__Expect_EQ(0, FPM(NAN)( VAR_K(KTgMIN) ));
+    Test__Expect_EQ(0, FPM(NAN)( VAR_K(KTgMAX) ));
+    Test__Expect_EQ(0, FPM(NAN)( TYPE_K(8) ));
+    Test__Expect_NE(0, FPM(NAN)( fInvalid ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(CEIL) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(CEIL) )
+{
+    Test__Expect_EQ( TYPE_K(0), FPM(CEIL)( TYPE_K(0) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(CEIL)( VAR_K(KTgEPS) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(CEIL)(  TYPE_K(0,1) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(CEIL)(  TYPE_K(0,5) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(CEIL)(  TYPE_K(0,9) ));
+    Test__Expect_EQ( TYPE_K(2), FPM(CEIL)(  TYPE_K(1,1) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(CEIL)( -TYPE_K(0,1) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(CEIL)( -TYPE_K(0,5) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(CEIL)( -TYPE_K(0,9) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(CEIL)( -TYPE_K(1,1) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(FLOOR) ------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(FLOOR) )
+{
+    Test__Expect_EQ( TYPE_K(0), FPM(FLOOR)(  TYPE_K(0) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(FLOOR)(  TYPE_K(1) - VAR_K(KTgEPS) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(FLOOR)(  TYPE_K(0,1) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(FLOOR)(  TYPE_K(0,5) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(FLOOR)(  TYPE_K(0,9) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(FLOOR)(  TYPE_K(1,1) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(FLOOR)( -TYPE_K(0,1) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(FLOOR)( -TYPE_K(0,5) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(FLOOR)( -TYPE_K(0,9) ));
+    Test__Expect_EQ(-TYPE_K(2), FPM(FLOOR)( -TYPE_K(1,1) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(SIN) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(SIN) )
+{
+    Test__Expect_NE(TYPE_K(0), FCM(NR0)( FPM(SIN)( TYPE_K(0) ) ));
+    Test__Expect_NE(TYPE_K(0), FCM(NR1)( FPM(SIN)( VAR_K(KTgHALF_PI) ) ));
+    Test__Expect_NE(TYPE_K(0), FCM(NR0)( FPM(SIN)( VAR_K(KTgPI) ) ));
+    Test__Expect_NE(TYPE_K(0), FCM(NR0)( FPM(SIN)( VAR_K(KTgTWO_PI) ) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(COS) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(COS) )
+{
+    Test__Expect_NE(TYPE_K(0), FCM(NR1)( FPM(COS)( TYPE_K(0) ) ));
+    Test__Expect_NE(TYPE_K(0), FCM(NR0)( FPM(COS)( VAR_K(KTgHALF_PI) ) ));
+    Test__Expect_NE(TYPE_K(0), FCM(NR1)( FPM(COS)( VAR_K(KTgPI) ) ));
+    Test__Expect_NE(TYPE_K(0), FCM(NR1)( FPM(COS)( VAR_K(KTgTWO_PI) ) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(SINCOS) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(SINCOS) )
+{
+    {
+        VAR_T()                              f0, f1, f2, f3, f4, f5, f6, f7;
+
+        FPM(SINCOS)( &f0, &f1, TYPE_K(0) );
+        FPM(SINCOS)( &f2, &f3, VAR_K(KTgHALF_PI) );
+        FPM(SINCOS)( &f4, &f5, VAR_K(KTgPI) );
+        FPM(SINCOS)( &f6, &f7, VAR_K(KTgTWO_PI) );
+
+        Test__Expect_NE(false, (FCM(NR0)( f0 ) && FCM(NR1)( f1 )));
+        Test__Expect_NE(false, (FCM(NR1)( f2 ) && FCM(NR0)( f3 )));
+        Test__Expect_NE(false, (FCM(NR0)( f4 ) && FCM(NR1)( f5 )));
+        Test__Expect_NE(false, (FCM(NR0)( f6 ) && FCM(NR1)( f7 )));
+    }
+
+    {   /* Random search of the unit circle for sinusoidal consistency */
+        TgUINT_F32                          nuiTest;
+
+        for (nuiTest = 0; nuiTest < 50; ++nuiTest)
+        {
+            VAR_T() f10;
+            f10 = VAR_K(KTgTWO_PI);
+            f10 *= FCM(RAND)();
+            f10 = VAR_K(KTgPI) - f10;
+            Test__Expect_NE(0, FCM(NR0)( FPM(SIN)( f10 )*FPM(SIN)( f10 ) + FPM(COS)( f10 )*FPM(COS)( f10 ) - TYPE_K(1) ));
+        };
+    }
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(TAN) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(TAN) )
+{
+    Test__Expect_NE(0, FCM(NR1)( FPM(TAN)( (TYPE_K(1)/TYPE_K(4))*VAR_K(KTgPI) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(TAN)( TYPE_K(0) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(TAN)( VAR_K(KTgPI) ) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(ASIN) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(ASIN) )
+{
+    Test__Expect_NE(0, FCM(NR0)( FPM(ASIN)( TYPE_K(0) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(ASIN)( TYPE_K(1) ) - VAR_K(KTgHALF_PI) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(ACOS) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(ACOS) )
+{
+    Test__Expect_NE(0, FCM(NR0)( FPM(ACOS)( TYPE_K(0) ) - VAR_K(KTgHALF_PI) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(ACOS)( TYPE_K(1) ) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(ATAN) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(ATAN) )
+{
+    Test__Expect_NE(0, FCM(NR0)( FPM(ATAN)( TYPE_K(0) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(ATAN)( TYPE_K(1) ) - (TYPE_K(1)/TYPE_K(4))*VAR_K(KTgPI) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(ATAN2) ------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(ATAN2) )
+{
+    Test__Expect_NE(0, FCM(NR0)( FPM(ATAN2)( TYPE_K(0), TYPE_K(1) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(ATAN2)( TYPE_K(2), TYPE_K(2) ) - (TYPE_K(1)/TYPE_K(4))*VAR_K(KTgPI) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(ATAN2)( TYPE_K(0), TYPE_K(0) ) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(ABS) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(ABS) )
+{
+    Test__Expect_EQ(TYPE_K(0), FPM(ABS)( TYPE_K(0) ));
+    Test__Expect_EQ(TYPE_K(22)/TYPE_K(10), FPM(ABS)(  TYPE_K(22)/TYPE_K(10) ));
+    Test__Expect_EQ(TYPE_K(22)/TYPE_K(10), FPM(ABS)( -TYPE_K(22)/TYPE_K(10) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(POW) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(POW) )
+{
+    Test__Expect_EQ(TYPE_K(1), FPM(POW)( TYPE_K(0), TYPE_K(0) ));
+    Test__Expect_EQ(TYPE_K(0), FPM(POW)( TYPE_K(0), TYPE_K(0,5) ));
+    Test__Expect_EQ(TYPE_K(0), FPM(POW)( TYPE_K(0), TYPE_K(2) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(POW)( TYPE_K(1), TYPE_K(0) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(POW)( TYPE_K(1), TYPE_K(0,5) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(POW)( TYPE_K(1), TYPE_K(2) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(POW)( TYPE_K(2), TYPE_K(0) ));
+    Test__Expect_EQ(TYPE_K(2), FPM(POW)( TYPE_K(4), TYPE_K(0,5) ));
+    Test__Expect_EQ(TYPE_K(4), FPM(POW)( TYPE_K(2), TYPE_K(2) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(POW)( -TYPE_K(2), TYPE_K(0) ));
+    Test__Expect_EQ(TYPE_K(4), FPM(POW)( -TYPE_K(2), TYPE_K(2) ));
+    Test__Expect_EQ(-TYPE_K(8), FPM(POW)( -TYPE_K(2), TYPE_K(3) ));
+    Test__Expect_EQ(TYPE_K(1) / TYPE_K(4), FPM(POW)( TYPE_K(2),-TYPE_K(2) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(SQRT) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(SQRT) )
+{
+    Test__Expect_EQ(TYPE_K(0), FPM(SQRT)( TYPE_K(0) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(SQRT)( TYPE_K(1) ));
+    Test__Expect_EQ(TYPE_K(2), FPM(SQRT)( TYPE_K(4) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(EXP) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(EXP) )
+{
+    Test__Expect_NE(0, FCM(NR0)( FPM(EXP)( TYPE_K(0) ) - TYPE_K(1) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(EXP)( TYPE_K(1) ) - VAR_K(KTgE) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(EXP)( TYPE_K(0,5) ) - FPM(SQRT)( VAR_K(KTgE) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(EXP)( TYPE_K(2) ) - VAR_K(KTgE)*VAR_K(KTgE) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(LN) --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(LN) )
+{
+    Test__Expect_NE(0, FCM(NR0)( FPM(LN)( TYPE_K(1) ) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(LN)( VAR_K(KTgE) ) - TYPE_K(1) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(LN)( FPM(SQRT)( VAR_K(KTgE) ) ) - TYPE_K(0,5) ));
+    Test__Expect_NE(0, FCM(NR0)( FPM(LN)( VAR_K(KTgE)*VAR_K(KTgE) ) - TYPE_K(2) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(LOG) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(LOG) )
+{
+    Test__Expect_EQ(-TYPE_K(4), FPM(LOG)( TYPE_K(1) / TYPE_K(10000) ));
+    Test__Expect_EQ(-TYPE_K(3), FPM(LOG)( TYPE_K(1) / TYPE_K(1000) ));
+    Test__Expect_EQ(-TYPE_K(2), FPM(LOG)( TYPE_K(1) / TYPE_K(100) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(LOG)( TYPE_K(1) / TYPE_K(10) ));
+    Test__Expect_EQ(TYPE_K(1), FPM(LOG)( TYPE_K(10) ));
+    Test__Expect_EQ(TYPE_K(2), FPM(LOG)( TYPE_K(100) ));
+    Test__Expect_EQ(TYPE_K(3), FPM(LOG)( TYPE_K(1000) ));
+    Test__Expect_EQ(TYPE_K(4), FPM(LOG)( TYPE_K(10000) ));
+
+    {
+        TgUINT_F32                          nuiTest;
+
+        for (nuiTest = 0; nuiTest < 50; ++nuiTest)
+        {
+            /* Random test of some of the math functions */
+            VAR_T(C)         f10 = FPM(ABS)( FCM(RAND)() );
+
+            VAR_T(C)         tWork_0 = FPM(LOG)( f10 );
+            VAR_T(C)         tWork_1 = FPM(POW)( TYPE_K(10), tWork_0 );
+            VAR_T(C)         tWork_2 = FPM(LN)( f10 );
+            VAR_T(C)         tWork_3 = FPM(EXP)( tWork_2 );
+
+            Test__Expect_NE(0, FCM(NR0)( f10 - tWork_1 ));
+            Test__Expect_NE(0, FCM(NR0)( f10 - tWork_3 ));
+        };
+    };
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(FMOD) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(FMOD) )
+{
+    Test__Expect_EQ( TYPE_K(0), FPM(FMOD)(  TYPE_K(4), TYPE_K(1) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(FMOD)(  TYPE_K(4), TYPE_K(3) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(FMOD)( -TYPE_K(4), TYPE_K(3) ));
+    Test__Expect_EQ( true, FPM(FMOD)( TYPE_K(4), TYPE_K(2,9) ) - TYPE_K(1,1) < VAR_K(KTgEPS));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(FMA) -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(FMA) )
+{
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(COPY_SIGN) -------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(COPY_SIGN) )
+{
+    Test__Expect_EQ( TYPE_K(0), FPM(COPY_SIGN)(  TYPE_K(0),  TYPE_K(1) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(COPY_SIGN)(  TYPE_K(0), -TYPE_K(1) ));
+    Test__Expect_EQ( TYPE_K(0), FPM(COPY_SIGN)(  TYPE_K(0),  TYPE_K(0) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(COPY_SIGN)(  TYPE_K(1),  TYPE_K(1) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(COPY_SIGN)(  TYPE_K(1), -TYPE_K(1) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(COPY_SIGN)(  TYPE_K(1),  TYPE_K(0) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(COPY_SIGN)( -TYPE_K(1),  TYPE_K(1) ));
+    Test__Expect_EQ(-TYPE_K(1), FPM(COPY_SIGN)( -TYPE_K(1), -TYPE_K(1) ));
+    Test__Expect_EQ( TYPE_K(1), FPM(COPY_SIGN)( -TYPE_K(1),  TYPE_K(0) ));
+    return (KTgS_OK);
+}
+
+
+/* ---- FCM_UT(FSEL) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FPM_UT(FSEL) )
+{
+    Test__Expect_EQ(TYPE_K(2), FPM(FSEL)(  TYPE_K(1), TYPE_K(2), TYPE_K(3) ));
+    Test__Expect_EQ(TYPE_K(2), FPM(FSEL)(  TYPE_K(0), TYPE_K(2), TYPE_K(3) ));
+    Test__Expect_EQ(TYPE_K(3), FPM(FSEL)( -TYPE_K(1), TYPE_K(2), TYPE_K(3) ));
+    return (KTgS_OK);
+}
+
+
+/*# defined(TEMPLATE__ENABLE_INTEGER) */
+#endif
+
+
+/* =============================================================================================================================================================================== */
+
+#undef FCM
+#undef FPM
+#undef FCM_UT
+#undef FPM_UT
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"

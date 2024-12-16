@@ -1,0 +1,38 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Errors.TgS
+    »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
+    »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2022, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined(OK_PROC) || !defined(WARN_PROC) || !defined(ERROR_PROC)
+    #error Needed Preprocessor Tokens Not Defined
+/*# !defined(OK_PROC) || !defined(WARN_PROC) || !defined(ERROR_PROC) */
+#endif
+
+/* =============================================================================================================================================================================== */
+/* MARK: No Unit Test Required                                                                                                                                                     */
+
+OK_PROC( OK,                                    ETgLIB__GENERAL )
+OK_PROC( JOB_EXECUTED,                          ETgLIB__GENERAL )
+OK_PROC( IGNORED,                               ETgLIB__GENERAL )
+
+ERROR_PROC( FAIL,                               ETgLIB__GENERAL )
+ERROR_PROC( STACK_OVERFLOW,                     ETgLIB__GENERAL )
+ERROR_PROC( MEM_ALLOC_FAIL,                     ETgLIB__GENERAL )
+ERROR_PROC( JOB_QUEUE_FULL,                     ETgLIB__GENERAL )
+ERROR_PROC( SN_INVALID_ID,                      ETgLIB__GENERAL )
+ERROR_PROC( BUFFER_TOO_SMALL,                   ETgLIB__GENERAL )
+
+WARN_PROC( WARN,                                ETgLIB__GENERAL )
+WARN_PROC( DUPLICATE,                           ETgLIB__GENERAL )
+
+/* =============================================================================================================================================================================== */
+
+#undef OK_PROC
+#undef WARN_PROC
+#undef ERROR_PROC

@@ -1,0 +1,1744 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Common [Unit Test] [Test] - Base - API [Text].c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2022, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined (ENABLE_RELOAD_GUARD)
+    #define ENABLE_RELOAD_GUARD
+
+    #define GENERATE__USZ
+    #include __FILE__
+    #undef GENERATE__USZ
+
+    #define GENERATE__WSZ
+    #include __FILE__
+    #undef GENERATE__WSZ
+
+    #define GENERATE__NSZ
+
+    #undef ENABLE_RELOAD_GUARD
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Text].h_inc"
+
+
+/* == Common ===================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Test Functions                                                                                                                                                                 */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_LOCAL TgRESULT                         FCN_UT(LengthVF_Count_Internal)( CHAR(CP) mbzFormatLiteral, ... );
+TEST_LOCAL TgRESULT                         FCN_UT(PrintVF_Internal)( CHAR(CP) mbzFormatLiteral, ... );
+TEST_LOCAL TgRESULT                         FCN_UT(AppendVF_Internal)( CHAR(CP) mbzFormatLiteral, ... );
+
+TEST_METHOD( FCN_UT_CHAR(Is_Print) );
+TEST_METHOD( FCN_UT_CHAR(Is_Space) );
+TEST_METHOD( FCN_UT_CHAR(To_Lower) );
+TEST_METHOD( FCN_UT_CHAR(To_Upper) );
+
+TEST_METHOD( FCN_UT(Hash) );
+TEST_METHOD( FCN_UT(From_U08) );
+TEST_METHOD( FCN_UT(From_U16) );
+TEST_METHOD( FCN_UT(From_U32) );
+TEST_METHOD( FCN_UT(From_U64) );
+TEST_METHOD( FCN_UT(From_S08) );
+TEST_METHOD( FCN_UT(From_S16) );
+TEST_METHOD( FCN_UT(From_S32) );
+TEST_METHOD( FCN_UT(From_S64) );
+TEST_METHOD( FCN_UT(From_F32) );
+TEST_METHOD( FCN_UT(From_F64) );
+TEST_METHOD( FCN_UT(Formatted_From_U32) );
+TEST_METHOD( FCN_UT(Formatted_From_U64) );
+TEST_METHOD( FCN_UT(Formatted_From_S32) );
+TEST_METHOD( FCN_UT(Formatted_From_S64) );
+TEST_METHOD( FCN_UT(To_Bool) );
+TEST_METHOD( FCN_UT(To_U08) );
+TEST_METHOD( FCN_UT(To_U16) );
+TEST_METHOD( FCN_UT(To_U32) );
+TEST_METHOD( FCN_UT(To_U64) );
+TEST_METHOD( FCN_UT(To_S08) );
+TEST_METHOD( FCN_UT(To_S16) );
+TEST_METHOD( FCN_UT(To_S32) );
+TEST_METHOD( FCN_UT(To_S64) );
+TEST_METHOD( FCN_UT(To_F32) );
+TEST_METHOD( FCN_UT(To_F64) );
+TEST_METHOD( FCN_UT(Length_Count) );
+TEST_METHOD( FCN_UT(Length_U08) );
+TEST_METHOD( FCN_UT(Length) );
+TEST_METHOD( FCN_UT(Compare) );
+TEST_METHOD( FCN_UT(Compare_NoCase) );
+TEST_METHOD( FCN_UT(CompareN) );
+TEST_METHOD( FCN_UT(CompareN_NoCase) );
+TEST_METHOD( FCN_UT(To_Upper) );
+TEST_METHOD( FCN_UT(To_Lower) );
+TEST_METHOD( FCN_UT(Copy) );
+TEST_METHOD( FCN_UT(Append) );
+TEST_METHOD( FCN_UT(CopyN) );
+TEST_METHOD( FCN_UT(AppendN) );
+TEST_METHOD( FCN_UT(Token) );
+TEST_METHOD( FCN_UT(StrChr) );
+TEST_METHOD( FCN_UT(StrStr) );
+TEST_METHOD( FCN_UT(Token_List) );
+TEST_METHOD( FCN_UT(LengthVF_Count) );
+TEST_METHOD( FCN_UT(PrintVF) );
+TEST_METHOD( FCN_UT(AppendVF) );
+TEST_METHOD( FCN_UT(PrintF) );
+TEST_METHOD( FCN_UT(AppendF) );
+TEST_METHOD( FCN_UT(Convert_NSZ) );
+TEST_METHOD( FCN_UT(Convert_WSZ) );
+TEST_METHOD( FCN_UT(Convert_USZ) );
+
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_Query_Last) );
+TEST_METHOD( FCN_UT(USZ_Query_End) );
+TEST_METHOD( FCN_UT(USZ_Query_At) );
+TEST_METHOD( FCN_UT(USZ_Get_At) );
+TEST_METHOD( FCN_UT(USZ_To_Upper_Length_U08) );
+TEST_METHOD( FCN_UT(USZ_To_Lower_Length_U08) );
+#endif
+
+
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Internal Functions                                                                                                                                                             */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- FCN_UT(Base_API_String) -------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD_DEFINE( FCN_UT(Base_API_String) )
+{
+    Test__Expect_EQ( KTgS_OK, FCN_UT_CHAR(Is_Print)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT_CHAR(Is_Space)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT_CHAR(To_Lower)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT_CHAR(To_Upper)() );
+
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Hash)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_U08)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_U16)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_U32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_U64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_S08)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_S16)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_S32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_S64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_F32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(From_F64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Formatted_From_U32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Formatted_From_U64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Formatted_From_S32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Formatted_From_S64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_Bool)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_U08)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_U16)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_U32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_U64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_S08)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_S16)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_S32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_S64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_F32)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_F64)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Length_Count)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Length_U08)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Length)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Compare)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Compare_NoCase)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(CompareN)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(CompareN_NoCase)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_Upper)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(To_Lower)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Copy)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Append)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(CopyN)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(AppendN)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Token)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(StrChr)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(StrStr)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Token_List)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(LengthVF_Count)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(PrintVF)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(AppendVF)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(PrintF)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(AppendF)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Convert_NSZ)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Convert_WSZ)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(Convert_USZ)() );
+
+#if defined(GENERATE__USZ)
+    Test__Expect_EQ( KTgS_OK, FCN_UT(USZ_Query_Last)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(USZ_Query_End)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(USZ_Query_At)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(USZ_Get_At)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(USZ_To_Upper_Length_U08)() );
+    Test__Expect_EQ( KTgS_OK, FCN_UT(USZ_To_Lower_Length_U08)() );
+#endif
+
+    return (KTgS_OK);
+}
+
+
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Test Functions                                                                                                                                                                 */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- FCN_UT_CHAR(Is_Print) ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT_CHAR(Is_Print) )
+{
+    CHAR()                              szCharTest[2];
+
+    szCharTest[0] = CHAR_K(' ');
+    szCharTest[1] = 0;
+    Test__Expect_EQ(true, FCN_CHAR(Is_Print)( szCharTest ));
+    szCharTest[0] = CHAR_K('a');
+    Test__Expect_EQ(true, FCN_CHAR(Is_Print)( szCharTest ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT_CHAR(Is_Space) ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT_CHAR(Is_Space) )
+{
+    CHAR()                              szCharTest[2];
+
+    szCharTest[0] = CHAR_K(' ');
+    szCharTest[1] = 0;
+    Test__Expect_EQ(true, FCN_CHAR(Is_Space)( szCharTest ));
+    szCharTest[0] = CHAR_K('\t');
+    Test__Expect_EQ(true, FCN_CHAR(Is_Space)( szCharTest ));
+    szCharTest[0] = CHAR_K('\r');
+    Test__Expect_EQ(true, FCN_CHAR(Is_Space)( szCharTest ));
+    szCharTest[0] = CHAR_K('\n');
+    Test__Expect_EQ(true, FCN_CHAR(Is_Space)( szCharTest ));
+    szCharTest[0] = CHAR_K('a');
+    Test__Expect_EQ(false, FCN_CHAR(Is_Space)( szCharTest ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT_CHAR(To_Lower) ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT_CHAR(To_Lower) )
+{
+    CHAR()                              szCharTest[2];
+    CHAR()                              szDestTest[16];
+
+    szCharTest[0] = CHAR_K('a');
+    szCharTest[1] = 0;
+    FCN_CHAR(To_Lower)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('a'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K('A');
+    FCN_CHAR(To_Lower)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('a'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K(' ');
+    FCN_CHAR(To_Lower)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K(' '), szDestTest[0]);
+
+    szCharTest[0] = CHAR_K('\t');
+    FCN_CHAR(To_Lower)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('\t'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K('\r');
+    FCN_CHAR(To_Lower)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('\r'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K('\n');
+    FCN_CHAR(To_Lower)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('\n'), szDestTest[0]);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT_CHAR(To_Upper) ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT_CHAR(To_Upper) )
+{
+    CHAR()                              szCharTest[2];
+    CHAR()                              szDestTest[16];
+
+    szCharTest[1] = 0;
+
+    szCharTest[0] = CHAR_K('a');
+    FCN_CHAR(To_Upper)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('A'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K('A');
+    FCN_CHAR(To_Upper)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('A'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K(' ');
+    FCN_CHAR(To_Upper)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K(' '), szDestTest[0]);
+
+    szCharTest[0] = CHAR_K('\t');
+    FCN_CHAR(To_Upper)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('\t'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K('\r');
+    FCN_CHAR(To_Upper)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('\r'), szDestTest[0]);
+    
+    szCharTest[0] = CHAR_K('\n');
+    FCN_CHAR(To_Upper)( szDestTest, szCharTest );
+    Test__Expect_EQ(CHAR_K('\n'), szDestTest[0]);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Hash) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Hash) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    TgUINT_MAX                          uiHash;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Hash)( &uiHash, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(12422165047888652081ULL, uiHash);
+    Test__Expect_EQ(KTgS_OK, FCN(Hash)( &uiHash, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(0xAC64654BACAD2731ULL, uiHash);
+    Test__Expect_EQ(KTgS_OK, FCN(Hash)( &uiHash, TEXT_K(""), sizeof( CHAR() ) ));
+    Test__Expect_EQ((TgUINT_MAX)KTgEMPTY_HASH, uiHash);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_U08) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_U08) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgUINT_F08_C                        ui08_Test = 127;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_U08)( szTest_0, sizeof szTest_0, ui08_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_U16) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_U16) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgUINT_F16_C                        ui16_Test = 32767;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_U16)( szTest_0, sizeof szTest_0, ui16_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("32767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_U32) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_U32) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgUINT_F32_C    ui32_Test = 2147483647;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_U32)( szTest_0, sizeof szTest_0, ui32_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("2147483647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_U64) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_U64) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgUINT_F64_C                        ui64_Test = 9223372036854775807ULL;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_U64)( szTest_0, sizeof szTest_0, ui64_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("9223372036854775807"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_S08) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_S08) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08_C                        i08_Test_0 = 127;
+    TgSINT_F08_C                        i08_Test_1 = -127;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S08)( szTest_0, sizeof szTest_0, i08_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S08)( szTest_0, sizeof szTest_0, i08_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_S16) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_S16) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F16_C                        i16_Test_0 = 32767;
+    TgSINT_F16_C                        i16_Test_1 = -32767;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S16)( szTest_0, sizeof szTest_0, i16_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("32767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S16)( szTest_0, sizeof szTest_0, i16_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-32767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_S32) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_S32) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F32_C    i32_Test_0 = 2147483647;
+    TgSINT_F32_C    i32_Test_1 = -2147483647;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S32)( szTest_0, sizeof szTest_0, i32_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("2147483647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S32)( szTest_0, sizeof szTest_0, i32_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-2147483647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_S64) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_S64) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F64_C                        i64_Test_0 = 9223372036854775807LL;
+    TgSINT_F64_C                        i64_Test_1 = -9223372036854775807LL;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S64)( szTest_0, sizeof szTest_0, i64_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("9223372036854775807"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_S64)( szTest_0, sizeof szTest_0, i64_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-9223372036854775807"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_F32) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_F32) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F32)( szTest_0, sizeof szTest_0, -3.754392F ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-3.754392"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F32)( szTest_0, sizeof szTest_0, -1.0F ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-1.000000"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F32)( szTest_0, sizeof szTest_0, 0.0F ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("0.000000"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F32)( szTest_0, sizeof szTest_0, 1.0F ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("1.000000"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F32)( szTest_0, sizeof szTest_0, 3.754392F ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("3.754392"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(From_F64) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(From_F64) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F64)( szTest_0, sizeof szTest_0, -7.986782 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-7.986782"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F64)( szTest_0, sizeof szTest_0, -1.0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-1.000000"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F64)( szTest_0, sizeof szTest_0, 0.0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("0.000000"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F64)( szTest_0, sizeof szTest_0, 1.0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("1.000000"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(From_F64)( szTest_0, sizeof szTest_0, 7.986782 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("7.986782"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Formatted_From_U32) ----------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Formatted_From_U32) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgUINT_F32_C    ui32_Test = 2147483647;
+    TgUINT_F16_C                        ui16_Test = 32767;
+    TgUINT_F08_C                        ui08_Test = 127;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U32)( szTest_0, sizeof szTest_0, ui32_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("2,147,483,647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U32)( szTest_0, sizeof szTest_0, ui16_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("32,767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U32)( szTest_0, sizeof szTest_0, ui08_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U32)( szTest_0, sizeof szTest_0, 1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("1"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Formatted_From_U64) ----------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Formatted_From_U64) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgUINT_F64_C                        ui64_Test = 9223372036854775807ULL;
+    TgUINT_F32_C    ui32_Test = 2147483647;
+    TgUINT_F16_C                        ui16_Test = 32767;
+    TgUINT_F08_C                        ui08_Test = 127;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U64)( szTest_0, sizeof szTest_0, ui64_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("9,223,372,036,854,775,807"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U64)( szTest_0, sizeof szTest_0, ui32_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("2,147,483,647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U64)( szTest_0, sizeof szTest_0, ui16_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("32,767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U64)( szTest_0, sizeof szTest_0, ui08_Test ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_U64)( szTest_0, sizeof szTest_0, 1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("1"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Formatted_From_S32) ----------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Formatted_From_S32) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F32_C    i32_Test_0 = 2147483647;
+    TgSINT_F32_C    i32_Test_1 = -2147483647;
+    TgSINT_F16_C                        i16_Test_0 = 32767;
+    TgSINT_F16_C                        i16_Test_1 = -32767;
+    TgSINT_F08_C                        i08_Test_0 = 127;
+    TgSINT_F08_C                        i08_Test_1 = -127;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, i32_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("2,147,483,647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, i16_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("32,767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, i08_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, 1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("1"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, i32_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-2,147,483,647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, i16_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-32,767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, i08_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S32)( szTest_0, sizeof szTest_0, -1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-1"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Formatted_From_S64) ----------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Formatted_From_S64) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F64_C                        i64_Test_0 = 9223372036854775807LL;
+    TgSINT_F64_C                        i64_Test_1 = -9223372036854775807LL;
+    TgSINT_F32_C    i32_Test_0 = 2147483647;
+    TgSINT_F32_C    i32_Test_1 = -2147483647;
+    TgSINT_F16_C                        i16_Test_0 = 32767;
+    TgSINT_F16_C                        i16_Test_1 = -32767;
+    TgSINT_F08_C                        i08_Test_0 = 127;
+    TgSINT_F08_C                        i08_Test_1 = -127;
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i64_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("9,223,372,036,854,775,807"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i32_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("2,147,483,647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i16_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("32,767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i08_Test_0 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, 1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("1"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i64_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-9,223,372,036,854,775,807"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i32_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-2,147,483,647"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0  ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i16_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-32,767"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, i08_Test_1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-127"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Formatted_From_S64)( szTest_0, sizeof szTest_0, -1 ));
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, TEXT_K("-1"), KTgMAX_RSIZE, 0, szTest_0, sizeof szTest_0, 0 ));
+    Test__Expect_EQ(0, iRet);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_Bool) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_Bool) )
+{
+   Test__Expect_EQ(false, FCN(To_Bool)( TEXT_K("false"), KTgMAX_RSIZE ));
+   Test__Expect_EQ(true, FCN(To_Bool)( TEXT_K("1"), KTgMAX_RSIZE ));
+   Test__Expect_EQ(false, FCN(To_Bool)( TEXT_K("0"), KTgMAX_RSIZE ));
+   Test__Expect_EQ(true, FCN(To_Bool)( TEXT_K("true"), KTgMAX_RSIZE ));
+
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_U08) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_U08) )
+{
+    Test__Expect_EQ(0u, FCN(To_U08)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0u, FCN(To_U08)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(5u, FCN(To_U08)( TEXT_K("5"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U08, FCN(To_U08)( TEXT_K("255"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U08, FCN(To_U08)( TEXT_K("-5"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U08, FCN(To_U08)( TEXT_K("500"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_U16) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_U16) )
+{
+    Test__Expect_EQ(0u, FCN(To_U16)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0u, FCN(To_U16)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(50u, FCN(To_U16)( TEXT_K("50"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U16, FCN(To_U16)( TEXT_K("65535"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U16, FCN(To_U16)( TEXT_K("-5"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U16, FCN(To_U16)( TEXT_K("500000"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_U32) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_U32) )
+{
+    Test__Expect_EQ(0u, FCN(To_U32)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0u, FCN(To_U32)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(500u, FCN(To_U32)( TEXT_K("500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U32, FCN(To_U32)( TEXT_K("4294967295"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U32 - 4, FCN(To_U32)( TEXT_K("-5"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_U64) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_U64) )
+{
+    Test__Expect_EQ(0ULL, FCN(To_U64)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0ULL, FCN(To_U64)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(500ULL, FCN(To_U64)( TEXT_K("500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U64, FCN(To_U64)( TEXT_K("18446744073709551615"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U64 - 4, FCN(To_U64)( TEXT_K("-5"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_U64, FCN(To_U64)( TEXT_K("1844674407370955161500"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_S08) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_S08) )
+{
+    Test__Expect_EQ((TgSINT_F08)0, FCN(To_S08)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F08)0, FCN(To_S08)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F08)5, FCN(To_S08)( TEXT_K("5"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S08, FCN(To_S08)( TEXT_K("127"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S08, FCN(To_S08)( TEXT_K("500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F08)(-5), FCN(To_S08)( TEXT_K("-5"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F08)(-KTgMAX_S08 - 1), FCN(To_S08)( TEXT_K("-128"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F08)(-KTgMAX_S08 - 1), FCN(To_S08)( TEXT_K("-500"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_S16) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_S16) )
+{
+    Test__Expect_EQ(0, FCN(To_S16)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0, FCN(To_S16)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(50, FCN(To_S16)( TEXT_K("50"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S16, FCN(To_S16)( TEXT_K("32767"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S16, FCN(To_S16)( TEXT_K("500000"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F16 )(-50), FCN(To_S16)( TEXT_K("-50"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F16 )(-KTgMAX_S16 - 1), FCN(To_S16)( TEXT_K("-32768"), KTgMAX_RSIZE ));
+    Test__Expect_EQ((TgSINT_F16 )(-KTgMAX_S16 - 1), FCN(To_S16)( TEXT_K("-500000"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_S32) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_S32) )
+{
+    Test__Expect_EQ(0, FCN(To_S32)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0, FCN(To_S32)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(500, FCN(To_S32)( TEXT_K("500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S32, FCN(To_S32)( TEXT_K("2147483647"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(-500, FCN(To_S32)( TEXT_K("-500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(-KTgMAX_S32 - 1, FCN(To_S32)( TEXT_K("-2147483648"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_S64) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_S64) )
+{
+    Test__Expect_EQ(0LL, FCN(To_S64)( TEXT_K(""), KTgMAX_RSIZE ));
+    Test__Expect_EQ(0LL, FCN(To_S64)( TEXT_K("0"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(500LL, FCN(To_S64)( TEXT_K("500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S64, FCN(To_S64)( TEXT_K("9223372036854775807"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(KTgMAX_S64, FCN(To_S64)( TEXT_K("922337203685477580700"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(-500LL, FCN(To_S64)( TEXT_K("-500"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(-KTgMAX_S64 - 1LL, FCN(To_S64)( TEXT_K("-9223372036854775808"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(-KTgMAX_S64 - 1LL, FCN(To_S64)( TEXT_K("-922337203685477580700"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_F32) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_F32) )
+{
+    Test__Expect_EQ(5.2342F, FCN(To_F32)( TEXT_K("5.2342"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_F64) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_F64) )
+{
+    Test__Expect_EQ(5.2342, FCN(To_F64)( TEXT_K("5.2342"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Length_Count) ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Length_Count) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    TgRSIZE                             nbyTest;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Length_Count)( &nbyTest, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(sizeof szTest_KVal_0 / sizeof szTest_KVal_0[0], nbyTest + 1);
+    Test__Expect_EQ(KTgS_OK, FCN(Length_Count)( &nbyTest, TEXT_K(""), 1 ));
+    Test__Expect_EQ(0, nbyTest);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Length_U08) ------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Length_U08) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+    Test__Expect_EQ(sizeof szTest_KVal_0, FCN(Length_U08)( szTest_KVal_0, sizeof szTest_KVal_0 ) + sizeof( CHAR() ));
+    Test__Expect_EQ(0, FCN(Length_U08)( TEXT_K(""), 1 ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Length) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Length) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    STg1_Text_Length                    sText_Length;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Length)( &sText_Length, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(99, sText_Length.m_nuiCharacters);
+    Test__Expect_EQ(sizeof szTest_KVal_0, sText_Length.m_nbyCharacters + sizeof( CHAR() ));
+    Test__Expect_EQ(KTgS_OK, FCN(Length)( &sText_Length, TEXT_K(""), 1 ));
+    Test__Expect_EQ(0, sText_Length.m_nuiCharacters);
+    Test__Expect_EQ(0, sText_Length.m_nbyCharacters);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Compare) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Compare) )
+{
+    TgCHAR_NC_C                         nczTest_0[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_1[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_2[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz";
+    TgCHAR_NC_C                         nczTest_3[] ="THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_4[] ="this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+
+    CHAR(C)                             mbzTest_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_1[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_2[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz");
+    CHAR(C)                             mbzTest_3[] = TEXT_K("THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_4[] = TEXT_K("this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    TgSINT_F08                          iRet;
+
+#define TEST(A,B) TEST_0(A,B) && TEST_1(A,B)
+#define TEST_0(A,B) TgSUCCEEDED(FCN(Compare)( &iRet, mbzTest_##A, KTgMAX_RSIZE, 0, mbzTest_##B, KTgMAX_RSIZE, 0 ))
+#define TEST_1(A,B) tgCM_SGN_S32(iRet) == tgCM_SGN_S32(strcmp( nczTest_##A, nczTest_##B ))
+    
+    Test__Expect_EQ(true, TEST(0,0));
+    Test__Expect_EQ(true, TEST(0,1));
+    Test__Expect_EQ(true, TEST(0,2));
+    Test__Expect_EQ(true, TEST(0,3));
+    Test__Expect_EQ(true, TEST(0,4));
+
+    Test__Expect_EQ(true, TEST(1,1));
+    Test__Expect_EQ(true, TEST(1,2));
+    Test__Expect_EQ(true, TEST(1,3));
+    Test__Expect_EQ(true, TEST(1,4));
+
+    Test__Expect_EQ(true, TEST(2,2));
+    Test__Expect_EQ(true, TEST(2,3));
+    Test__Expect_EQ(true, TEST(2,4));
+
+    Test__Expect_EQ(true, TEST(3,3));
+    Test__Expect_EQ(true, TEST(3,4));
+
+    Test__Expect_EQ(true, TEST(4,4));
+    
+#undef TEST_1
+#undef TEST_0
+#undef TEST
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Compare_NoCase) --------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Compare_NoCase) )
+{
+    TgCHAR_NC_C                         nczTest_0[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_1[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_2[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz";
+    TgCHAR_NC_C                         nczTest_3[] ="THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_4[] ="this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+
+    CHAR(C)                             mbzTest_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_1[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_2[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz");
+    CHAR(C)                             mbzTest_3[] = TEXT_K("THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_4[] = TEXT_K("this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    TgSINT_F08                          iRet;
+
+#define TEST(A,B) TEST_0(A,B) && TEST_1(A,B)
+#define TEST_0(A,B) TgSUCCEEDED(FCN(Compare_NoCase)( &iRet, mbzTest_##A, KTgMAX_RSIZE, 0, mbzTest_##B, KTgMAX_RSIZE, 0 ))
+#define TEST_1(A,B) tgCM_SGN_S32(iRet) == tgCM_SGN_S32(strcasecmp( nczTest_##A, nczTest_##B ))
+    
+    Test__Expect_EQ(true, TEST(0,0));
+    Test__Expect_EQ(true, TEST(0,1));
+    Test__Expect_EQ(true, TEST(0,2));
+    Test__Expect_EQ(true, TEST(0,3));
+    Test__Expect_EQ(true, TEST(0,4));
+
+    Test__Expect_EQ(true, TEST(1,1));
+    Test__Expect_EQ(true, TEST(1,2));
+    Test__Expect_EQ(true, TEST(1,3));
+    Test__Expect_EQ(true, TEST(1,4));
+
+    Test__Expect_EQ(true, TEST(2,2));
+    Test__Expect_EQ(true, TEST(2,3));
+    Test__Expect_EQ(true, TEST(2,4));
+
+    Test__Expect_EQ(true, TEST(3,3));
+    Test__Expect_EQ(true, TEST(3,4));
+
+    Test__Expect_EQ(true, TEST(4,4));
+    
+#undef TEST_1
+#undef TEST_0
+#undef TEST
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(CompareN) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(CompareN) )
+{
+    TgCHAR_NC_C                         nczTest_0[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_1[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_2[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz";
+    TgCHAR_NC_C                         nczTest_3[] ="THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_4[] ="this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+
+    CHAR(C)                             mbzTest_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_1[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_2[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz");
+    CHAR(C)                             mbzTest_3[] = TEXT_K("THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_4[] = TEXT_K("this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    TgSINT_F08                          iRet;
+
+#define TEST(A,B,C) TEST_0(A,B,C) && TEST_1(A,B,C)
+#define TEST_0(A,B,C) TgSUCCEEDED(FCN(CompareN)( &iRet, mbzTest_##A, KTgMAX_RSIZE, 0, mbzTest_##B, KTgMAX_RSIZE, 0, C ))
+#define TEST_1(A,B,C) tgCM_SGN_S32(iRet) == tgCM_SGN_S32(strncmp( nczTest_##A, nczTest_##B, KTgMAX_S32 < C ? KTgMAX_S32  : C ))
+    
+    Test__Expect_EQ(true, TEST(0,0,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,1,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,2,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,2,20));
+    Test__Expect_EQ(true, TEST(0,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(1,1,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(1,2,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(1,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(1,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(2,2,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(2,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(2,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(3,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(3,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(4,4,KTgMAX_RSIZE));
+    
+#undef TEST_1
+#undef TEST_0
+#undef TEST
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(CompareN_NoCase) -------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(CompareN_NoCase) )
+{
+    TgCHAR_NC_C                         nczTest_0[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_1[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_2[] ="This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz";
+    TgCHAR_NC_C                         nczTest_3[] ="THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_NC_C                         nczTest_4[] ="this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+
+    CHAR(C)                             mbzTest_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_1[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_2[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyz");
+    CHAR(C)                             mbzTest_3[] = TEXT_K("THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             mbzTest_4[] = TEXT_K("this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    TgSINT_F08                          iRet;
+
+#define TEST(A,B,C) TEST_0(A,B,C) && TEST_1(A,B,C)
+#define TEST_0(A,B,C) TgSUCCEEDED(FCN(CompareN_NoCase)( &iRet, mbzTest_##A, KTgMAX_RSIZE, 0, mbzTest_##B, KTgMAX_RSIZE, 0, C ))
+#define TEST_1(A,B,C) tgCM_SGN_S32(iRet) == tgCM_SGN_S32(strncasecmp( nczTest_##A, nczTest_##B, KTgMAX_S32 < C ? KTgMAX_S32  : C ))
+    
+    Test__Expect_EQ(true, TEST(0,0,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,1,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,2,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(0,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(1,1,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(1,2,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(1,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(1,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(2,2,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(2,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(2,3,20));
+    Test__Expect_EQ(true, TEST(2,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(3,3,KTgMAX_RSIZE));
+    Test__Expect_EQ(true, TEST(3,4,KTgMAX_RSIZE));
+
+    Test__Expect_EQ(true, TEST(4,4,KTgMAX_RSIZE));
+    
+#undef TEST_1
+#undef TEST_0
+#undef TEST
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_Upper) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_Upper) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             szTest_KVal_3[] = TEXT_K("THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             szTest_KVal_4[] = TEXT_K("this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(To_Upper)( szTest_0, sizeof szTest_0, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_3, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(To_Upper)( szTest_0, sizeof szTest_0, szTest_KVal_3, sizeof szTest_KVal_3 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_3, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(To_Upper)( szTest_0, sizeof szTest_0, szTest_KVal_4, sizeof szTest_KVal_4 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_3, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(To_Lower) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(To_Lower) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             szTest_KVal_3[] = TEXT_K("THIS IS A TEST OF THE STRING SYSTEM: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR(C)                             szTest_KVal_4[] = TEXT_K("this is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(To_Lower)( szTest_0, sizeof szTest_0, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_4, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(To_Lower)( szTest_0, sizeof szTest_0, szTest_KVal_3, sizeof szTest_KVal_3 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_4, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(To_Lower)( szTest_0, sizeof szTest_0, szTest_KVal_4, sizeof szTest_KVal_4 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_4, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Copy) ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Copy) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Copy)( szTest_0, sizeof szTest_0, szTest_KVal_0, sizeof szTest_KVal_0 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal_0, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Copy)( szTest_0, sizeof szTest_0, TEXT_K("12\n") , KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("12\n"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Copy)( szTest_0, sizeof szTest_0, TEXT_K("This "), KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("This "), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Append) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Append) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Append)( szTest_0, sizeof szTest_0, TEXT_K("12"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("12"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Append)( szTest_0, sizeof szTest_0, TEXT_K("34\n"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("1234\n"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(CopyN) ------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(CopyN) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(CopyN)( szTest_0, sizeof szTest_0, TEXT_K("1234\n") , KTgMAX_RSIZE, 2 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("12"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(AppendN) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(AppendN) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(AppendN)( szTest_0, sizeof szTest_0, TEXT_K("1234\n"), KTgMAX_RSIZE, 2 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("12"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(AppendN)( szTest_0, sizeof szTest_0, TEXT_K("345678\n"), KTgMAX_RSIZE, 2 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, TEXT_K("1234"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Token) ------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Token) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    CHAR(P)                             szContext, szToken;
+    TgRSIZE                             nbyMaxTest_0;
+    TgSINT_F08                          iRet;
+
+    nbyMaxTest_0 = sizeof szTest_0;
+    Test__Expect_EQ(KTgS_OK, FCN(Copy)( szTest_0, sizeof szTest_0, TEXT_K("Token0 Token1 Token2"), KTgMAX_RSIZE ));
+    
+    Test__Expect_EQ(KTgS_OK, FCN(Token)( &szToken, szTest_0, &nbyMaxTest_0, TEXT_K(" \t\r\n"), &szContext ));
+    Test__Expect_EQ(szTest_0 + 0, szToken);
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, szToken, KTgMAX_RSIZE, 0, TEXT_K("Token0"), KTgMAX_RSIZE, 0 ));
+    Test__Expect_EQ(0,iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Token)( &szToken, nullptr, &nbyMaxTest_0, TEXT_K(" \t\r\n"), &szContext ));
+    Test__Expect_EQ(szTest_0 + 7, szToken);
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, szToken, KTgMAX_RSIZE, 0, TEXT_K("Token1"), KTgMAX_RSIZE, 0 ));
+    Test__Expect_EQ(0,iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Token)( &szToken, nullptr, &nbyMaxTest_0, TEXT_K(" \t\r\n"), &szContext ));
+    Test__Expect_EQ(szTest_0 + 14, szToken);
+    Test__Expect_EQ(KTgS_OK, FCN(Compare)( &iRet, szToken, KTgMAX_RSIZE, 0, TEXT_K("Token2"), KTgMAX_RSIZE, 0 ));
+    Test__Expect_EQ(0,iRet);
+
+    Test__Expect_EQ(KTgS_OK, FCN(Token)( &szToken, nullptr, &nbyMaxTest_0, TEXT_K(" \t\r\n"), &szContext ));
+    Test__Expect_EQ(nullptr, szToken);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(StrChr) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(StrChr) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    TgRSIZE                             nbyIndex;
+
+    Test__Expect_EQ(KTgS_OK, FCN(StrChr)( &nbyIndex, szTest_KVal_0, sizeof szTest_KVal_0, CHAR_K('t') ));
+    Test__Expect_EQ(KTgE_FAIL, FCN(StrChr)( &nbyIndex, szTest_KVal_0, sizeof szTest_KVal_0, CHAR_K('.') ));
+    Test__Expect_EQ(KTgE_FAIL, FCN(StrChr)( &nbyIndex, szTest_KVal_0, sizeof szTest_KVal_0, CHAR_K(';') ));
+    Test__Expect_EQ(KTgS_OK, FCN(StrChr)( &nbyIndex, szTest_KVal_0, sizeof szTest_KVal_0, CHAR_K('s') ));
+    Test__Expect_EQ(3,nbyIndex);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(StrStr) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(StrStr) )
+{
+    CHAR(C)                             szTest_KVal_0[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    TgRSIZE                             nbyIndex;
+
+    Test__Expect_EQ(KTgS_OK, FCN(StrStr)( &nbyIndex, szTest_KVal_0, sizeof szTest_KVal_0, TEXT_K("test"), KTgMAX_RSIZE ));
+    Test__Expect_EQ(10,nbyIndex);
+    Test__Expect_EQ(KTgE_FAIL, FCN(StrStr)( &nbyIndex, szTest_KVal_0, sizeof szTest_KVal_0, TEXT_K("bob"), KTgMAX_RSIZE ));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Token_List) ------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Token_List) )
+{
+    CHAR()                              szTest_0[192] = { 0 };
+    CHAR(P)                             apTokenList[8];
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(Copy)( szTest_0, sizeof szTest_0,
+        TEXT_K("  Token0 // test \n   \"Token1A Token1B\" /* comment \"inside\" */ aa\"Token2A Token2B\" \"Token3A Token3B\"bb aa\"Token4A Token4B\"bb Token5"), KTgMAX_RSIZE ));
+
+    Test__Expect_EQ(6, FCN(Token_List)( apTokenList, 8, szTest_0, sizeof( szTest_0 ) ));
+
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, apTokenList[0], KTgMAX_RSIZE, 0, TEXT_K("Token0"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, apTokenList[1], KTgMAX_RSIZE, 0, TEXT_K("\"Token1A Token1B\""), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, apTokenList[2], KTgMAX_RSIZE, 0, TEXT_K("aa\"Token2A Token2B\""), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, apTokenList[3], KTgMAX_RSIZE, 0, TEXT_K("\"Token3A Token3B\"bb"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, apTokenList[4], KTgMAX_RSIZE, 0, TEXT_K("aa\"Token4A Token4B\"bb"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, apTokenList[5], KTgMAX_RSIZE, 0, TEXT_K("Token5"), KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(0, apTokenList[6]);
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(LengthVF_Count) --------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(LengthVF_Count) )
+{
+#if defined(GENERATE__WSZ)
+    return (FCN_UT(LengthVF_Count_Internal)( TEXT_K("%ls%d%ls%ls%ls%f"), TEXT_K("This is a test"), 10, TEXT_K("another thing"), TEXT_K(""), TEXT_K("to be evaluated"), 1.0 ));
+#else
+    return (FCN_UT(LengthVF_Count_Internal)( TEXT_K("%s%d%s%s%s%f"), TEXT_K("This is a test"), 10, TEXT_K("another thing"), TEXT_K(""), TEXT_K("to be evaluated"), 1.0 ));
+#endif
+}
+
+
+/* ---- FCN_UT(PrintVF) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(PrintVF) )
+{
+#if defined(GENERATE__WSZ)
+    return (FCN_UT(PrintVF_Internal)( TEXT_K("%ls%d%ls%ls%ls%f"), TEXT_K("This is a test"), 10, TEXT_K("another thing"), TEXT_K(""), TEXT_K("to be evaluated"), 1.0 ));
+#else
+    return (FCN_UT(PrintVF_Internal)( TEXT_K("%s%d%s%s%s%f"), TEXT_K("This is a test"), 10, TEXT_K("another thing"), TEXT_K(""), TEXT_K("to be evaluated"), 1.0 ));
+#endif
+}
+
+
+/* ---- FCN_UT(AppendVF) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(AppendVF) )
+{
+#if defined(GENERATE__WSZ)
+    return (FCN_UT(AppendVF_Internal)( TEXT_K("%ls%d%ls%ls%ls%f"), TEXT_K("This is a test"), 10, TEXT_K("another thing"), TEXT_K(""), TEXT_K("to be evaluated"), 1.0 ));
+#else
+    return (FCN_UT(AppendVF_Internal)( TEXT_K("%s%d%s%s%s%f"), TEXT_K("This is a test"), 10, TEXT_K("another thing"), TEXT_K(""), TEXT_K("to be evaluated"), 1.0 ));
+#endif
+}
+
+
+/* ---- FCN_UT(PrintF) ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(PrintF) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(PrintF)( szTest_0, sizeof szTest_0, TEXT_K("1%d"), 2 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, TEXT_K("12"), KTgMAX_RSIZE, 0, szTest_0, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(AppendF) ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(AppendF) )
+{
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    Test__Expect_EQ(KTgS_OK, FCN(AppendF)( szTest_0, sizeof szTest_0, TEXT_K("1%d"), 2 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, TEXT_K("12"), KTgMAX_RSIZE, 0, szTest_0, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+    Test__Expect_EQ(KTgS_OK, FCN(AppendF)( szTest_0, sizeof szTest_0, TEXT_K("%d4"), 3 ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, TEXT_K("1234"), KTgMAX_RSIZE, 0, szTest_0, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Convert_NSZ) ------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Convert_NSZ) )
+{
+    TgCHAR_NC                           nczTest_KVal[] = "This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    CHAR(C)                             szTest_KVal[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+#if defined(GENERATE__NSZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_NSZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+#if defined(GENERATE__WSZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_NSZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+#if defined(GENERATE__USZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_NSZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Convert_WSZ) ------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Convert_WSZ) )
+{
+    TgCHAR_WC                           nczTest_KVal[] = L"This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    CHAR(C)                             szTest_KVal[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+#if defined(GENERATE__NSZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_WSZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+#if defined(GENERATE__WSZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_WSZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_WSZ)( szTest_0, sizeof szTest_0, KTgWC_LIT_TEST__RUSSIAN, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, KTgWC_LIT_TEST__RUSSIAN, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+#if defined(GENERATE__USZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_WSZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_WSZ)( szTest_0, sizeof szTest_0, KTgWC_LIT_TEST__RUSSIAN, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, KTgU8_LIT_TEST__RUSSIAN, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(Convert_USZ) ------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_METHOD( FCN_UT(Convert_USZ) )
+{
+    TgCHAR_U8                           nczTest_KVal[] = u8"This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    CHAR(C)                             szTest_KVal[] = TEXT_K("This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+#if defined(GENERATE__NSZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_USZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+#if defined(GENERATE__WSZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_USZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_USZ)( szTest_0, sizeof szTest_0, KTgU8_LIT_TEST__RUSSIAN, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, KTgWC_LIT_TEST__RUSSIAN, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+#if defined(GENERATE__USZ)
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_USZ)( szTest_0, sizeof szTest_0, nczTest_KVal, sizeof nczTest_KVal ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, szTest_KVal, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Convert_USZ)( szTest_0, sizeof szTest_0, KTgU8_LIT_TEST__RUSSIAN, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, KTgMAX_RSIZE, 0, KTgU8_LIT_TEST__RUSSIAN, KTgMAX_RSIZE, 0 )) && (0 == iRet));
+#endif
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(USZ_Query_At) ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_Query_At) )
+{
+    TgCHAR_U8_C                         mbzTest[] = KTgU8_LIT_TEST__BURMESE;
+
+    Test__Expect_EQ(mbzTest,   tgUSZ_Query_At( mbzTest, sizeof( mbzTest ), 0 ));
+    Test__Expect_EQ(mbzTest+3, tgUSZ_Query_At( mbzTest, sizeof( mbzTest ), 1 ));
+
+    return (KTgS_OK);
+}
+#endif
+
+
+/* ---- FCN_UT(USZ_Get_At) ------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_Get_At) )
+{
+    TgCHAR_U8                           mbzTest[] = KTgU8_LIT_TEST__BURMESE;
+
+    Test__Expect_EQ(mbzTest,   tgUSZ_Query_At( mbzTest, sizeof( mbzTest ), 0 ));
+    Test__Expect_EQ(mbzTest+3, tgUSZ_Query_At( mbzTest, sizeof( mbzTest ), 1 ));
+
+    return (KTgS_OK);
+}
+#endif
+
+
+/* ---- FCN_UT(USZ_Query_Last) --------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_Query_Last) )
+{
+    TgCHAR_U8                           nczTest_01[] = u8"This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_U8                           mbzTest_02[] = KTgU8_LIT_TEST__BURMESE;
+    TgCHAR_U8                           mbzTest_03[] = KTgU8_LIT_TEST__RUSSIAN;
+    TgCHAR_U8_CP                        mbzTest_Last;
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, sizeof(nczTest_01), KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(nczTest_01) - 2, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, sizeof(nczTest_01) - 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(nczTest_01) - 2, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, sizeof(nczTest_01) - 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(nczTest_01) - 3, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, 0, KTgMAX_RSIZE );
+    Test__Expect_EQ( nullptr, mbzTest_Last );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( 0, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( 1, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, 1, 1 );
+    Test__Expect_EQ( 0, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( nczTest_01, 2, 1 );
+    Test__Expect_EQ( 0, mbzTest_Last - nczTest_01 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, sizeof(mbzTest_02) - 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_02) - 4, mbzTest_Last - mbzTest_02 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, sizeof(mbzTest_02) - 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_02) - 7, mbzTest_Last - mbzTest_02 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, 0, KTgMAX_RSIZE );
+    Test__Expect_EQ( nullptr, mbzTest_Last );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, 3, KTgMAX_RSIZE );
+    Test__Expect_EQ( 0, mbzTest_Last - mbzTest_02 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, 6, KTgMAX_RSIZE );
+    Test__Expect_EQ( 3, mbzTest_Last - mbzTest_02 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, 3, 1 );
+    Test__Expect_EQ( 0, mbzTest_Last - mbzTest_02 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_02, 6, 1 );
+    Test__Expect_EQ( 0, mbzTest_Last - mbzTest_02 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_03, sizeof(mbzTest_03) - 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_03) - 3, mbzTest_Last - mbzTest_03 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_03, sizeof(mbzTest_03) - 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_03) - 5, mbzTest_Last - mbzTest_03 );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_03, 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( nullptr, mbzTest_Last );
+
+    mbzTest_Last = tgUSZ_Query_Last( mbzTest_03, 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( 0, mbzTest_Last - mbzTest_03 );
+
+    return (KTgS_OK);
+}
+#endif
+
+
+/* ---- FCN_UT(USZ_Query_End) ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_Query_End) )
+{
+    TgCHAR_U8                           nczTest_01[] = u8"This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_U8                           mbzTest_02[] = KTgU8_LIT_TEST__BURMESE;
+    TgCHAR_U8                           mbzTest_03[] = KTgU8_LIT_TEST__RUSSIAN;
+    TgCHAR_U8_CP                        mbzTest_End;
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, sizeof(nczTest_01), KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(nczTest_01) - 1, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, sizeof(nczTest_01) - 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(nczTest_01) - 1, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, sizeof(nczTest_01) - 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(nczTest_01) - 2, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, 0, KTgMAX_RSIZE );
+    Test__Expect_EQ( nczTest_01, mbzTest_End );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( 1, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( 2, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, 1, 1 );
+    Test__Expect_EQ( 1, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( nczTest_01, 2, 1 );
+    Test__Expect_EQ( 1, mbzTest_End - nczTest_01 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, sizeof(mbzTest_02) - 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_02) - 1, mbzTest_End - mbzTest_02 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, sizeof(mbzTest_02) - 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_02) - 4, mbzTest_End - mbzTest_02 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, 0, KTgMAX_RSIZE );
+    Test__Expect_EQ( mbzTest_02, mbzTest_End );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, 3, KTgMAX_RSIZE );
+    Test__Expect_EQ( 3, mbzTest_End - mbzTest_02 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, 6, KTgMAX_RSIZE );
+    Test__Expect_EQ( 6, mbzTest_End - mbzTest_02 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, 3, 1 );
+    Test__Expect_EQ( 3, mbzTest_End - mbzTest_02 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_02, 6, 1 );
+    Test__Expect_EQ( 3, mbzTest_End - mbzTest_02 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_03, sizeof(mbzTest_03) - 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_03) - 1, mbzTest_End - mbzTest_03 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_03, sizeof(mbzTest_03) - 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( sizeof(mbzTest_03) - 3, mbzTest_End - mbzTest_03 );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_03, 1, KTgMAX_RSIZE );
+    Test__Expect_EQ( mbzTest_03, mbzTest_End );
+
+    mbzTest_End = tgUSZ_Query_End( mbzTest_03, 2, KTgMAX_RSIZE );
+    Test__Expect_EQ( 2, mbzTest_End - mbzTest_03 );
+
+    return (KTgS_OK);
+}
+#endif
+
+
+/* ---- FCN_UT(USZ_To_Upper_Length_U08) ------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_To_Upper_Length_U08) )
+{
+    TgCHAR_U8                           mbzTest_01[] = u8"This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_U8                           mbzTest_02[] = KTgU8_LIT_TEST__BURMESE;
+
+    Test__Expect_EQ(sizeof( mbzTest_01 ) - 1, tgUSZ_To_Upper_Length_U08( mbzTest_01, sizeof( mbzTest_01 ) ));
+    Test__Expect_EQ(sizeof( mbzTest_02 ) - 1, tgUSZ_To_Upper_Length_U08( mbzTest_02, sizeof( mbzTest_02 ) ));
+
+    return (KTgS_OK);
+}
+#endif
+
+
+/* ---- FCN_UT(USZ_To_Lower_Length_U08) ------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(GENERATE__USZ)
+TEST_METHOD( FCN_UT(USZ_To_Lower_Length_U08) )
+{
+    TgCHAR_U8                           mbzTest_01[] = u8"This is a test of the string system: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    TgCHAR_U8                           mbzTest_02[] = KTgU8_LIT_TEST__BURMESE;
+
+    Test__Expect_EQ(sizeof( mbzTest_01 ) - 1, tgUSZ_To_Lower_Length_U08( mbzTest_01, sizeof( mbzTest_01 ) ));
+    Test__Expect_EQ(sizeof( mbzTest_02 ) - 1, tgUSZ_To_Lower_Length_U08( mbzTest_02, sizeof( mbzTest_02 ) ));
+
+    return (KTgS_OK);
+}
+#endif
+
+
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/* File Local Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- FCN_UT(LengthVF_Count_Internal) ------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_LOCAL TgRESULT FCN_UT(LengthVF_Count_Internal)( CHAR(CP) mbzFormatLiteral, ... )
+{
+    va_list                             vaList;
+    TgRSIZE                             nuiRet;
+
+    va_start( vaList, mbzFormatLiteral );
+    Test__Expect_EQ(KTgS_OK, FCN(LengthVF_Count)( &nuiRet, mbzFormatLiteral, vaList ));
+    Test__Expect_EQ(52, nuiRet);
+    va_end( vaList );
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(PrintVF_Internal) ------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_LOCAL TgRESULT FCN_UT(PrintVF_Internal)( CHAR(CP) mbzFormatLiteral, ... )
+{
+    CHAR()                              szResult[] = TEXT_K("This is a test10another thingto be evaluated1.000000");
+    va_list                             vaList;
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    va_start( vaList, mbzFormatLiteral );
+    Test__Expect_EQ(KTgS_OK, FCN(PrintVF)( szTest_0, KTgMAX_RSIZE, mbzFormatLiteral, vaList ));
+    va_end( vaList );
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, sizeof szTest_0, 0, szResult, sizeof szResult, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* ---- FCN_UT(AppendVF_Internal) ------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TEST_LOCAL TgRESULT FCN_UT(AppendVF_Internal)( CHAR(CP) mbzFormatLiteral, ... )
+{
+    CHAR()                              szResult0[] = TEXT_K("This is a test10another thingto be evaluated1.000000");
+    CHAR()                              szResult1[] = TEXT_K("AppendTestThis is a test10another thingto be evaluated1.000000");
+    va_list                             vaList;
+    CHAR()                              szTest_0[128] = { 0 };
+    TgSINT_F08                          iRet;
+
+    va_start( vaList, mbzFormatLiteral );
+    Test__Expect_EQ(KTgS_OK, FCN(AppendVF)( szTest_0, KTgMAX_RSIZE, mbzFormatLiteral, vaList ));
+    va_end( vaList );
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, sizeof szTest_0, 0, szResult0, sizeof szResult0, 0 )) && (0 == iRet));
+
+    Test__Expect_EQ(KTgS_OK, FCN(Copy)( szTest_0, sizeof szTest_0, TEXT_K("AppendTest"), KTgMAX_RSIZE ));
+    va_start( vaList, mbzFormatLiteral );
+    Test__Expect_EQ(KTgS_OK, FCN(AppendVF)( szTest_0, KTgMAX_RSIZE, mbzFormatLiteral, vaList ));
+    va_end( vaList );
+    Test__Expect_EQ(true, TgSUCCEEDED(FCN(Compare)( &iRet, szTest_0, sizeof szTest_0, 0, szResult1, sizeof szResult1, 0 )) && (0 == iRet));
+
+    return (KTgS_OK);
+}
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Text].h_inc"

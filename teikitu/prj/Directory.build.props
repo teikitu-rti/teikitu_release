@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <LLVMInstallDir>C:\Program Files\LLVM</LLVMInstallDir>
+  </PropertyGroup>
+</Project>
