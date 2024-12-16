@@ -1,0 +1,27 @@
+build_windows
+ - Used to build Teikitu, it's dependencies, and extended dependencies.
+ - Will attempt to compile DEBUG and RELEASE for both Clang and MSVC
+
+ test_windows
+  - This script will only attempt to build Teikitu and linked dependencies
+  - This will be done using Clang only
+  - It will attempt to compile DEBUG, RELEASE, FINAL, TOOL configurations
+  - It will also compile for Rendering NONE, REF, DX12
+
+build_linux
+ - Will attempt to build DEBUG and RELEASE, using Clang only
+
+build_macos
+ - Will attempt to build DEBUG and RELEASE, using Clang only
+ 
+Shell environment on all platforms is powershell.
+
+Parameters for the build scripts
+- TEIKITU: Build only Teikitu and its linked dependencies
+- CMAKE_LOG_LEVEL: Passthru the log level to use on the cmake command
+- GPU: The GPU API to use in the build
+- CLEAN: Delete the build and configure directories prior to executing the cmake command
+- FRESH: Pass the fresh command parameter to cmake
+- CICD_BUILD: Used by the GitHub actions
+- MODULE: Override for the cmake superbuild to build a specific moodule. (For example: MODULE: CMake to build cmake)
+

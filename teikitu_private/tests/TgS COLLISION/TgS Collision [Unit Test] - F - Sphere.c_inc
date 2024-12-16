@@ -1,0 +1,156 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Collision [Unit Test] - F - Box AA.c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.12 | »GUID« 964CB1A6-814D-4E19-8E67-A83FCA98BF05 */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined (ENABLE_RELOAD_GUARD)
+    #define ENABLE_RELOAD_GUARD
+    #if !defined(TEMPLATE__TYPE_SIZE)
+        #if TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE
+            #define TEMPLATE__TYPE_SIZE 64
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+        #endif
+        #define TEMPLATE__TYPE_SIZE 32
+    #endif
+    #undef ENABLE_RELOAD_GUARD
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+
+/* == Collision ================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Unit Test Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_METHOD( FCN_VO(TEST__COLLISION_SPHERE) )
+{
+    VEC_T(1)                            vV0;
+    VEC_OBJ_T(STg2_CO_Packet)           sPK;
+    VEC_OBJ_T(STg2_CO_Clip_List)        sCL;
+    VEC_OBJ_T(TgDELTA)                  sDT;
+    VEC_OBJ_T(TgLINE)                   sLN0;
+    VEC_OBJ_T(TgRAY)                    sRY0;
+    VEC_OBJ_T(TgSEGMENT)                sSG0;
+    VEC_OBJ_T(TgETRI)                   sET0;
+    VEC_OBJ_T(TgSTRI)                   sST0;
+    VEC_OBJ_T(TgPLANE)                  sPN0;
+    VEC_OBJ_T(TgSPHERE)                 sSP0;
+
+    vV0 = FCN_V(tgMH_Init_Vector_ELEM)( FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)() );
+
+    /* Sphere - Point                                                                                                                                                               */
+    FCN_VO(tgCO_SP_DistSq_PT)( &sSP0, vV0 );
+    FCN_VO(tgCO_SP_Dist_PT)( &sSP0, vV0 );
+    FCN_VO(tgCO_SP_ClosestSq_PT)( &vV0, &sSP0, vV0 );
+    FCN_VO(tgCO_SP_Closest_PT)( &vV0, &sSP0, vV0 );
+    FCN_VO(tgCO_SP_Test_PT)( &sSP0, vV0 );
+
+    FCN_VO(tgCO_SP_Penetrate_PT)( &sPK, &sSP0, vV0 );
+    FCN_VO(tgCO_SP_Sweep_PT)( &sPK, &vV0, 0, &sSP0, vV0, &sDT );
+    FCN_VO(tgCO_PT_Sweep_SP)( &sPK, &vV0, 0, vV0, &sSP0, &sDT );
+
+    /* Sphere - Line                                                                                                                                                               */
+    FCN_VO(tgCO_SP_DistSq_LN)( &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_Dist_LN)( &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_ClosestSq_LN)( &vV0, &vV0, &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_Closest_LN)( &vV0, &vV0, &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_ClosestSq_PM_LN)( &vV0, &vV0, &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_Closest_PM_LN)( &vV0, &vV0, &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_Test_LN)( &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_Intersect_LN)( &sPK, &sSP0, &sLN0 );
+    FCN_VO(tgCO_LN_Sweep_SP)( &sPK, &vV0, 0, &sLN0, &sSP0, &sDT );
+    FCN_VO(tgCO_SP_Clip_PM_LN)( &vV0, &vV0, &sSP0, &sLN0 );
+    FCN_VO(tgCO_SP_Clip_LN)( &sCL, &sSP0, &sLN0 );
+
+    FCN_VO(tgCO_SP_Intersect_LR00)( &sPK, &sSP0, vV0, vV0 );
+    FCN_VO(tgCO_SP_Sweep_LR00)( &sPK, &vV0, 0, &sSP0, vV0, vV0, &sDT );
+
+    /* Sphere - Ray                                                                                                                                                                */
+    FCN_VO(tgCO_SP_DistSq_RY)( &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_Dist_RY)( &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_ClosestSq_RY)( &vV0, &vV0, &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_Closest_RY)( &vV0, &vV0, &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_ClosestSq_PM_RY)( &vV0, &vV0, &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_Closest_PM_RY)( &vV0, &vV0, &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_Test_RY)( &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_Intersect_RY)( &sPK, &sSP0, &sRY0 );
+    FCN_VO(tgCO_RY_Sweep_SP)( &sPK, &vV0, 0, &sRY0, &sSP0, &sDT );
+    FCN_VO(tgCO_SP_Clip_PM_RY)( &vV0, &vV0, &sSP0, &sRY0 );
+    FCN_VO(tgCO_SP_Clip_RY)( &sCL, &sSP0, &sRY0 );
+
+    FCN_VO(tgCO_SP_Intersect_LR10)( &sPK, &sSP0, vV0, vV0 );
+    FCN_VO(tgCO_SP_Sweep_LR10)( &sPK, &vV0, 0, &sSP0, vV0, vV0, &sDT );
+
+    /* Sphere - Segment                                                                                                                                                            */
+    FCN_VO(tgCO_SP_DistSq_SG)( &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_Dist_SG)( &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_ClosestSq_SG)( &vV0, &vV0, &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_Closest_SG)( &vV0, &vV0, &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_ClosestSq_PM_SG)( &vV0, &vV0, &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_Closest_PM_SG)( &vV0, &vV0, &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_Test_SG)( &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_Intersect_SG)( &sPK, &sSP0, &sSG0 );
+    FCN_VO(tgCO_SG_Sweep_SP)( &sPK, &vV0, 0, &sSG0, &sSP0, &sDT );
+    FCN_VO(tgCO_SP_Clip_PM_SG)( &vV0, &vV0, &sSP0, &sSG0 );
+    FCN_VO(tgCO_SP_Clip_SG)( &sCL, &sSP0, &sSG0 );
+
+    FCN_VO(tgCO_SP_Intersect_LR11)( &sPK, &sSP0, vV0, vV0 );
+    FCN_VO(tgCO_SP_Sweep_LR11)( &sPK, &vV0, 0, &sSP0, vV0, vV0, &sDT );
+
+    /* Sphere - Plane                                                                                                                                                              */
+    FCN_VO(tgCO_SP_DistSq_PN)( &sSP0, &sPN0 );
+    FCN_VO(tgCO_SP_Dist_PN)( &sSP0, &sPN0 );
+    FCN_VO(tgCO_SP_ClosestSq_PN)( &vV0, &vV0, &sSP0, &sPN0 );
+    FCN_VO(tgCO_SP_Closest_PN)( &vV0, &vV0, &sSP0, &sPN0 );
+    FCN_VO(tgCO_SP_Test_PN)( &sSP0, &sPN0 );
+
+    FCN_VO(tgCO_SP_Penetrate_PN)( &sPK, &sSP0, &sPN0 );
+    FCN_VO(tgCO_PN_Penetrate_SP)( &sPK, &sPN0, &sSP0 );
+    FCN_VO(tgCO_PN_Sweep_SP)( &sPK, &vV0, &sPN0, &sSP0, &sDT );
+
+    /* Sphere - Triangle                                                                                                                                                           */
+    FCN_VO(tgCO_SP_DistSq_ET)( &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_Dist_ET)( &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_ClosestSq_ET)( &vV0, &vV0, &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_Closest_ET)( &vV0, &vV0, &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_ClosestSq_PM_ET)( &vV0, &vV0, &vV0, &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_Closest_PM_ET)( &vV0, &vV0, &vV0, &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_Test_ET)( &sSP0, &sET0 );
+    FCN_VO(tgCO_SP_Penetrate_ST)( &sPK, &sSP0, &sST0 );
+    FCN_VO(tgCO_ST_Penetrate_SP)( &sPK, &sST0, &sSP0 );
+
+    FCN_VO(tgCO_SP_Sweep_ST)( &sPK, &vV0, &sSP0, &sST0, &sDT );
+
+    FCN_VO(tgCO_ST_Penetrate_SP)( &sPK, &sST0, &sSP0 );
+
+    /* Sphere - Sphere                                                                                                                                                             */
+    FCN_VO(tgCO_SP_DistSq_SP)( &sSP0, &sSP0 );
+    FCN_VO(tgCO_SP_Dist_SP)( &sSP0, &sSP0 );
+    FCN_VO(tgCO_SP_ClosestSq_SP)( &vV0, &vV0, &sSP0, &sSP0 );
+    FCN_VO(tgCO_SP_Test_SP)( &sSP0, &sSP0 );
+    FCN_VO(tgCO_SP_Test_Sweep_SP)( &sSP0, &sSP0, &sDT );
+
+    FCN_VO(tgCO_SP_Closest_SP)( &vV0, &vV0, &sSP0, &sSP0 );
+    FCN_VO(tgCO_SP_Penetrate_SP)( &sPK, &sSP0, &sSP0 );
+    FCN_VO(tgCO_SP_Sweep_SP)( &sPK, &vV0, &sSP0, &sSP0, &sDT );
+
+    /* Sphere - Utility                                                                                                                                                            */
+    FCN_VO(tgCO_SP_Clip_Points)( &vV0, &vV0, &sSP0, vV0, vV0 );
+    FCN_VO(tgCO_SP_Clip)( &sCL, &sSP0 );
+
+    return (KTgS_OK);
+}
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"

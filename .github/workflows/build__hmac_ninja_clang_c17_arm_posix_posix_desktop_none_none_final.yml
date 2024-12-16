@@ -1,0 +1,21 @@
+name: Final
+run-name: "Ninja-MAC-None-None-C17-POSIX-POSIX-ARM64-FINAL"
+on:
+  workflow_dispatch:
+
+env:
+  BUILD_URL: "https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git"
+
+defaults:
+  run:
+    shell: pwsh
+    working-directory: build_scripts
+
+jobs:
+  tagcheck:
+    name: Final MacOS ARM None
+    runs-on: [self-hosted, macos, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Teikitu
+        run: ./cmake_command.ps1 -VERBOSE -CICD_BUILD -TEIKITU -IDE:NINJA -COMPILER:CLANG -THREAD:POSIX -OS:POSIX -DEVICE:DESKTOP -CPU:C17_ARM -GPU:NONE -BUILD_TYPE:FINAL

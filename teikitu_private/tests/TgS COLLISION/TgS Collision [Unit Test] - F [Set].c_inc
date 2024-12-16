@@ -1,0 +1,66 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Collision [Unit Test] - F [Set].c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   4.51 | »GUID« A9981407-3EC9-42AF-8B6F-8BE6DD919615                                                                                                                 */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/* == Collision ================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Unit Test Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Box.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Box AA.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Capsule.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Circle.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Cylinder.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Disk.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Ellipse.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Line.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Mesh.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Parallelogram.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Plane.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Ray.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Rectangle.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Segment.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Sphere.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Triangle.c_inc"
+
+#define TEMPLATE__VECTOR_DIM 4
+#include "TgS Collision [Unit Test] - F - Tube.c_inc"

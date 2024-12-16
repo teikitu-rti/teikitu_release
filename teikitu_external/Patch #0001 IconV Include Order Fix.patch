@@ -1,0 +1,83 @@
+From ff1cd6e4ceb28009a2810fd3bcfcc1a006def3d2 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <andrew.aye@gmail.com>
+Date: Thu, 14 Sep 2023 10:34:32 -0700
+Subject: [PATCH] Fix for include path ordering.
+
+---
+ CMakeLists.txt | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c77633b..352e437 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.0.0)
++cmake_minimum_required(VERSION 3.5.0)
+ project(libiconv C)
+ 
+ #if (BUILD_SHARED_LIBS)
+@@ -144,10 +144,10 @@ else (WIN32)
+ endif ()
+ 
+ include_directories(
+-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
++        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
++        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+ )
+ 
+ # We use binary directory as it will work for multiple tool chains.
+@@ -189,11 +189,11 @@ target_include_directories(libcharset PUBLIC
+         $<BUILD_INTERFACE:${LIBICONV_INCLUDE_DIR}>
+         )
+ 
+-add_library(libiconv-static STATIC
++add_library(libiconv STATIC
+         "${CMAKE_CURRENT_SOURCE_DIR}/lib/iconv.c"
+         "${CMAKE_CURRENT_SOURCE_DIR}/lib/relocatable.c")
+ 
+-target_include_directories(libiconv-static PUBLIC
++target_include_directories(libiconv PUBLIC
+         "${INCLUDE_DIRECTORIES}"
+         $<BUILD_INTERFACE:${LIBICHARSET_INCLUDE_DIR}>
+         $<BUILD_INTERFACE:${LIBICONV_INCLUDE_DIR}>
+@@ -203,17 +203,17 @@ target_include_directories(libiconv-static PUBLIC
+ 
+ 
+ if (WIN32)
+-    target_compile_definitions(libiconv-static PRIVATE
++    target_compile_definitions(libiconv PRIVATE
+             -Dset_relocation_prefix=libiconv_set_relocation_prefix
+             -Drelocate=libiconv_relocate -Drelocate2=libiconv_relocate2
+             )
+ endif ()
+-target_link_libraries(libiconv-static PUBLIC libcharset)
+-add_dependencies(libiconv-static libcharset)
++target_link_libraries(libiconv PUBLIC libcharset)
++add_dependencies(libiconv libcharset)
+ 
+ 
+-install(TARGETS libcharset libiconv-static
+-        EXPORT libiconv-static
++install(TARGETS libcharset libiconv
++        EXPORT libiconv
+         PUBLIC_HEADER DESTINATION include/iconv
+         RUNTIME DESTINATION bin
+         LIBRARY DESTINATION lib
+@@ -231,8 +231,8 @@ endif ()
+ 
+ # install the export info
+ install(
+-        EXPORT libiconv-static
+-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
++        EXPORT libiconv
++        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/iconv
+         NAMESPACE iconv::
+         FILE iconv-config.cmake
+ )
+-- 
+2.40.1.windows.1
+

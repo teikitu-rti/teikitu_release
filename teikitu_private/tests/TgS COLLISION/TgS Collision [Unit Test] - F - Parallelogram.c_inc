@@ -1,0 +1,137 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Collision [Unit Test] - F - Box AA.c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.12 | »GUID« 964CB1A6-814D-4E19-8E67-A83FCA98BF05 */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined (ENABLE_RELOAD_GUARD)
+    #define ENABLE_RELOAD_GUARD
+    #if !defined(TEMPLATE__TYPE_SIZE)
+        #if TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE
+            #define TEMPLATE__TYPE_SIZE 64
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+        #endif
+        #define TEMPLATE__TYPE_SIZE 32
+    #endif
+    #undef ENABLE_RELOAD_GUARD
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+
+/* == Collision ================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Unit Test Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_METHOD( FCN_VO(TEST__COLLISION_PARALLELOGRAM) )
+{
+    VEC_T(1)                            vV0;
+    VEC_OBJ_T(STg2_CO_Clip_List)        sCL;
+    VEC_OBJ_T(TgLINE)                   sLN0;
+    VEC_OBJ_T(TgRAY)                    sRY0;
+    VEC_OBJ_T(TgSEGMENT)                sSG0;
+    VEC_OBJ_T(TgSTRI)                   sST0;
+    VEC_OBJ_T(TgRECTANGLE)              sRT0;
+    VEC_OBJ_T(TgPARALLELOGRAM)          sPE0;
+
+    vV0 = FCN_V(tgMH_Init_Vector_ELEM)( FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)() );
+
+    FCN_VO(tgCO_Clip_PE)( &sCL, &sPE0 );
+
+    /* Parallelogram - Point                                                                                                                                                       */
+    FCN_VO(tgCO_PE_DistSq_PT)( &sPE0, vV0 );
+    FCN_VO(tgCO_PE_Dist_PT)( &sPE0, vV0 );
+    FCN_VO(tgCO_PE_ClosestSq_PT)( &vV0, &sPE0, vV0 );
+    FCN_VO(tgCO_PE_Closest_PT)( &vV0, &sPE0, vV0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_PT)( &vV0, &vV0, &sPE0, vV0 );
+    FCN_VO(tgCO_PE_Closest_PM_PT)( &vV0, &vV0, &sPE0, vV0 );
+    FCN_VO(tgCO_Clip_PE)( &sCL, &sPE0 );
+
+    /* Parallelogram - Line                                                                                                                                                        */
+    FCN_VO(tgCO_PE_DistSq_LN)( &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_Dist_LN)( &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_ClosestSq_LN)( &vV0, &vV0, &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_Closest_LN)( &vV0, &vV0, &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_LN)( &vV0, &vV0, &vV0, &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_Closest_PM_LN)( &vV0, &vV0, &vV0, &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_Test_LN)( &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_Clip_PM_LN)( &vV0, &vV0, &sPE0, &sLN0 );
+    FCN_VO(tgCO_PE_Clip_LN)( &sCL, &sPE0, &sLN0 );
+
+    FCN_VO(tgCO_PE_Test_LR00)( &sPE0, vV0, vV0 );
+
+    FCN_VO(tgCO_PE_Closest_PM_LR00)( &vV0, &vV0, &vV0, &sPE0, vV0, vV0 );
+    FCN_VO(tgCO_PE_Clip_PM_LR00)( &vV0, &vV0, &sPE0, vV0, vV0 );
+
+    /* Parallelogram - Ray                                                                                                                                                         */
+    FCN_VO(tgCO_PE_DistSq_RY)( &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_Dist_RY)( &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_ClosestSq_RY)( &vV0, &vV0, &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_Closest_RY)( &vV0, &vV0, &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_RY)( &vV0, &vV0, &vV0, &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_Closest_PM_RY)( &vV0, &vV0, &vV0, &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_Test_RY)( &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_Clip_PM_RY)( &vV0, &vV0, &sPE0, &sRY0 );
+    FCN_VO(tgCO_PE_Clip_RY)( &sCL, &sPE0, &sRY0 );
+
+    FCN_VO(tgCO_PE_Test_LR10)( &sPE0, vV0, vV0 );
+
+    FCN_VO(tgCO_PE_Closest_PM_LR10)( &vV0, &vV0, &vV0, &sPE0, vV0, vV0 );
+    FCN_VO(tgCO_PE_Clip_PM_LR10)( &vV0, &vV0, &sPE0, vV0, vV0 );
+
+    /* Parallelogram - Segment                                                                                                                                                     */
+    FCN_VO(tgCO_PE_DistSq_SG)( &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_Dist_SG)( &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_ClosestSq_SG)( &vV0, &vV0, &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_Closest_SG)( &vV0, &vV0, &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_SG)( &vV0, &vV0, &vV0, &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_Closest_PM_SG)( &vV0, &vV0, &vV0, &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_Test_SG)( &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_Clip_PM_SG)( &vV0, &vV0, &sPE0, &sSG0 );
+    FCN_VO(tgCO_PE_Clip_SG)( &sCL, &sPE0, &sSG0 );
+
+    FCN_VO(tgCO_PE_Test_LR11)( &sPE0, vV0, vV0 );
+
+    FCN_VO(tgCO_PE_Closest_PM_LR11)( &vV0, &vV0, &vV0, &sPE0, vV0, vV0 );
+    FCN_VO(tgCO_PE_Clip_Points)( &vV0, &vV0, &sPE0, vV0, vV0 );
+    FCN_VO(tgCO_PE_Clip_PM_LR11)( &vV0, &vV0, &sPE0, vV0, vV0 );
+
+    /* Parallelogram - Triangle                                                                                                                                                    */
+    FCN_VO(tgCO_PE_DistSq_ST)( &sPE0, &sST0 );
+    FCN_VO(tgCO_PE_Dist_ST)( &sPE0, &sST0 );
+    FCN_VO(tgCO_PE_ClosestSq_ST)( &vV0, &vV0, &sPE0, &sST0 );
+    FCN_VO(tgCO_PE_Closest_ST)( &vV0, &vV0, &sPE0, &sST0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_ST)( &vV0, &vV0, &vV0, &vV0, &sPE0, &sST0 );
+    FCN_VO(tgCO_PE_Closest_PM_ST)( &vV0, &vV0, &vV0, &vV0, &sPE0, &sST0 );
+
+    /* Parallelogram - Rectangle                                                                                                                                                   */
+    FCN_VO(tgCO_PE_DistSq_RT)( &sPE0, &sRT0 );
+    FCN_VO(tgCO_PE_Dist_RT)( &sPE0, &sRT0 );
+    FCN_VO(tgCO_PE_ClosestSq_RT)( &vV0, &vV0, &sPE0, &sRT0 );
+    FCN_VO(tgCO_PE_Closest_RT)( &vV0, &vV0, &sPE0, &sRT0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_RT)( &vV0, &vV0, &vV0, &vV0, &sPE0, &sRT0 );
+    FCN_VO(tgCO_PE_Closest_PM_RT)( &vV0, &vV0, &vV0, &vV0, &sPE0, &sRT0 );
+
+    /* Parallelogram - Parallelogram                                                                                                                                               */
+    FCN_VO(tgCO_PE_DistSq_PE)( &sPE0, &sPE0 );
+    FCN_VO(tgCO_PE_Dist_PE)( &sPE0, &sPE0 );
+    FCN_VO(tgCO_PE_ClosestSq_PE)( &vV0, &vV0, &sPE0, &sPE0 );
+    FCN_VO(tgCO_PE_Closest_PE)( &vV0, &vV0, &sPE0, &sPE0 );
+    FCN_VO(tgCO_PE_ClosestSq_PM_PE)( &vV0, &vV0, &vV0, &vV0, &sPE0, &sPE0 );
+    FCN_VO(tgCO_PE_Closest_PM_PE)( &vV0, &vV0, &vV0, &vV0, &sPE0, &sPE0 );
+
+    return (KTgS_OK);
+}
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"

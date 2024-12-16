@@ -1,0 +1,155 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Collision [Unit Test] - F - Box AA.c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.12 | »GUID« 964CB1A6-814D-4E19-8E67-A83FCA98BF05 */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined (ENABLE_RELOAD_GUARD)
+    #define ENABLE_RELOAD_GUARD
+    #if !defined(TEMPLATE__TYPE_SIZE)
+        #if TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE
+            #define TEMPLATE__TYPE_SIZE 64
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+        #endif
+        #define TEMPLATE__TYPE_SIZE 32
+    #endif
+    #undef ENABLE_RELOAD_GUARD
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+
+/* == Collision ================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Unit Test Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_METHOD( FCN_VO(TEST__COLLISION_BOX) )
+{
+    VEC_T(1)                            vV0;
+    VEC_OBJ_T(STg2_CO_Packet)           sPK;
+    VEC_OBJ_T(STg2_CO_Clip_List)        sCL;
+    VEC_OBJ_T(STg2_CO_Axis_Project)     sAP;
+    VEC_T(1)                            vT0;
+    TgSINT_E32                          iI0;
+    VEC_OBJ_T(TgLINE)                   sLN0;
+    VEC_OBJ_T(TgRAY)                    sRY0;
+    VEC_OBJ_T(TgSEGMENT)                sSG0;
+    VEC_OBJ_T(TgPTRI)                   sPT0;
+    VEC_OBJ_T(TgSTRI)                   sST0;
+    VEC_OBJ_T(TgPLANE)                  sPN0;
+    VEC_OBJ_T(TgSPHERE)                 sSP0;
+    VEC_OBJ_T(TgBOX)                    sBX0;
+
+    vV0 = FCN_V(tgMH_Init_Vector_ELEM)( FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)() );
+    vT0 = FCN_V(tgMH_Init_Vector_ELEM)( FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)() );
+    iI0 = 0;
+
+    /* Box - Point                                                                                                                                                                 */
+    FCN_VO(tgCO_BX_DistSq_PT)( &sBX0, vV0 );
+    FCN_VO(tgCO_BX_Dist_PT)( &sBX0, vV0 );
+    FCN_VO(tgCO_BX_ClosestSq_PT)( &vV0, &sBX0, vV0 );
+    FCN_VO(tgCO_BX_Closest_PT)( &vV0, &sBX0, vV0 );
+    FCN_VO(tgCO_BX_ClosestSq_PM_PT)( &vT0, &vT0, &vT0, &sBX0, vV0 );
+    FCN_VO(tgCO_BX_Closest_PM_PT)( &vT0, &vT0, &vT0, &sBX0, vV0 );
+
+    /* Box - Line                                                                                                                                                                  */
+    FCN_VO(tgCO_BX_DistSq_LN)( &sBX0, &sLN0 );
+    FCN_VO(tgCO_BX_Dist_LN)( &sBX0, &sLN0 );
+    FCN_VO(tgCO_BX_ClosestSq_LN)( &vV0, &vV0, &sBX0, &sLN0 );
+    FCN_VO(tgCO_BX_Closest_LN)( &vV0, &vV0, &sBX0, &sLN0 );
+
+    FCN_VO(tgCO_BX_ClosestSq_PM_LN)( &vT0, &vT0, &vT0, &vT0, &sBX0, &sLN0 );
+    FCN_VO(tgCO_BX_Closest_PM_LN)( &vT0, &vT0, &vT0, &vT0, &sBX0, &sLN0 );
+    FCN_VO(tgCO_BX_Closest_PM_LR00)( &vT0, &vT0, &vT0, &vT0, &sBX0, vV0, vV0 );
+
+    FCN_VO(tgCO_BX_Clip_PM_LN)( &vT0, &vT0, &sBX0, &sLN0 );
+    FCN_VO(tgCO_BXF_Clip_PM_LN)( &vT0, &vT0, &sBX0, iI0, &sLN0 );
+    FCN_VO(tgCO_BX_Clip_LN)( &sCL, &sBX0, &sLN0 );
+    FCN_VO(tgCO_BXF_Clip_LN)( &sCL, &sBX0, iI0, &sLN0 );
+
+    FCN_VO(tgCO_BX_Clip_LR00)( &sCL, &sBX0, vV0, vV0 );
+    FCN_VO(tgCO_BXF_Clip_PM_LR00)( &vT0, &vT0, &sBX0, iI0, vV0, vV0 );
+    FCN_VO(tgCO_BX_Clip_PM_LR00)( &vT0, &vT0, &sBX0, vV0, vV0 );
+
+    /* Box - Ray                                                                                                                                                                   */
+    FCN_VO(tgCO_BX_DistSq_RY)( &sBX0, &sRY0 );
+    FCN_VO(tgCO_BX_Dist_RY)( &sBX0, &sRY0 );
+    FCN_VO(tgCO_BX_ClosestSq_RY)( &vV0, &vV0, &sBX0, &sRY0 );
+    FCN_VO(tgCO_BX_Closest_RY)( &vV0, &vV0, &sBX0, &sRY0 );
+
+    FCN_VO(tgCO_BX_ClosestSq_PM_RY)( &vT0, &vT0, &vT0, &vT0, &sBX0, &sRY0 );
+    FCN_VO(tgCO_BX_Closest_PM_RY)( &vT0, &vT0, &vT0, &vT0, &sBX0, &sRY0 );
+    FCN_VO(tgCO_BX_Closest_PM_LR10)( &vT0, &vT0, &vT0, &vT0, &sBX0, vV0, vV0 );
+
+    FCN_VO(tgCO_BX_Clip_PM_RY)( &vT0, &vT0, &sBX0, &sRY0 );
+    FCN_VO(tgCO_BXF_Clip_PM_RY)( &vT0, &vT0, &sBX0, iI0, &sRY0 );
+    FCN_VO(tgCO_BX_Clip_RY)( &sCL, &sBX0, &sRY0 );
+    FCN_VO(tgCO_BXF_Clip_RY)( &sCL, &sBX0, iI0, &sRY0 );
+
+    FCN_VO(tgCO_BX_Clip_LR10)( &sCL, &sBX0, vV0, vV0 );
+    FCN_VO(tgCO_BXF_Clip_PM_LR10)( &vT0, &vT0, &sBX0, iI0, vV0, vV0 );
+    FCN_VO(tgCO_BX_Clip_PM_LR10)( &vT0, &vT0, &sBX0, vV0, vV0 );
+
+    /* Box - Segment                                                                                                                                                               */
+    FCN_VO(tgCO_BX_DistSq_SG)( &sBX0, &sSG0 );
+    FCN_VO(tgCO_BX_Dist_SG)( &sBX0, &sSG0 );
+    FCN_VO(tgCO_BX_ClosestSq_SG)( &vV0, &vV0, &sBX0, &sSG0 );
+    FCN_VO(tgCO_BX_Closest_SG)( &vV0, &vV0, &sBX0, &sSG0 );
+
+    FCN_VO(tgCO_BX_ClosestSq_PM_SG)( &vT0, &vT0, &vT0, &vT0, &sBX0, &sSG0 );
+    FCN_VO(tgCO_BX_Closest_PM_SG)( &vT0, &vT0, &vT0, &vT0, &sBX0, &sSG0 );
+    FCN_VO(tgCO_BX_Closest_PM_LR11)( &vT0, &vT0, &vT0, &vT0, &sBX0, vV0, vV0 );
+
+    FCN_VO(tgCO_BX_Clip_PM_SG)( &vT0, &vT0, &sBX0, &sSG0 );
+    FCN_VO(tgCO_BXF_Clip_PM_SG)( &vT0, &vT0, &sBX0, iI0, &sSG0 );
+    FCN_VO(tgCO_BX_Clip_SG)( &sCL, &sBX0, &sSG0 );
+    FCN_VO(tgCO_BXF_Clip_SG)( &sCL, &sBX0, iI0, &sSG0 );
+
+    FCN_VO(tgCO_BX_Clip_LR11)( &sCL, &sBX0, vV0, vV0 );
+    FCN_VO(tgCO_BXF_Clip_PM_LR11)( &vT0, &vT0, &sBX0, iI0, vV0, vV0 );
+    FCN_VO(tgCO_BX_Clip_PM_LR11)( &vT0, &vT0, &sBX0, vV0, vV0 );
+
+    /* Box - Plane                                                                                                                                                                 */
+    FCN_VO(tgCO_BX_DistSq_PN)( &sBX0, &sPN0 );
+    FCN_VO(tgCO_BX_Dist_PN)( &sBX0, &sPN0 );
+    FCN_VO(tgCO_BX_ClosestSq_PN)( &vV0, &vV0, &sBX0, &sPN0 );
+    FCN_VO(tgCO_BX_Closest_PN)( &vV0, &vV0, &sBX0, &sPN0 );
+    FCN_VO(tgCO_BX_ClosestSq_PM_PN)( &vT0, &vT0, &vT0, &vV0, &sBX0, &sPN0 );
+    FCN_VO(tgCO_BX_Closest_PM_PN)( &vT0, &vT0, &vT0, &vV0, &sBX0, &sPN0 );
+    FCN_VO(tgCO_PN_Penetrate_BX)( &sPK, &sPN0, &sBX0 );
+
+    /* Box - Sphere                                                                                                                                                                */
+    FCN_VO(tgCO_BX_DistSq_SP)( &sBX0, &sSP0 );
+    FCN_VO(tgCO_BX_Dist_SP)( &sBX0, &sSP0 );
+    FCN_VO(tgCO_BX_ClosestSq_SP)( &vV0, &vV0, &sBX0, &sSP0 );
+    FCN_VO(tgCO_BX_Closest_SP)( &vV0, &vV0, &sBX0, &sSP0 );
+    FCN_VO(tgCO_BX_ClosestSq_PM_SP)( &vT0, &vT0, &vT0, &vV0, &sBX0, &sSP0 );
+    FCN_VO(tgCO_BX_Closest_PM_SP)( &vT0, &vT0, &vT0, &vV0, &sBX0, &sSP0 );
+    FCN_VO(tgCO_BX_Penetrate_SP)( &sPK, &sBX0, &sSP0 );
+    FCN_VO(tgCO_SP_Penetrate_BX)( &sPK, &sSP0, &sBX0 );
+
+    /* Box - Triangle                                                                                                                                                              */
+    FCN_VO(tgCO_ST_Penetrate_BX)( &sPK, &sST0, &sBX0 );
+
+    /* Utility                                                                                                                                                                     */
+    FCN_VO(tgCO_BX_Clip_Points)( &vT0, &vT0, &sBX0, vV0, vV0 );
+    FCN_VO(tgCO_BX_Clip)( &sCL, &sBX0 );
+    FCN_VO(tgCO_BXF_Clip)( &sCL, &sBX0, iI0);
+    FCN_VO(tgCO_BXF_Clip_PT)( &sCL, &sBX0, iI0, &sPT0 );
+    FCN_VO(tgCO_BX_Axis_ProjInfo)( &sAP, vV0, &sBX0 );
+
+    return (KTgS_OK);
+}
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"

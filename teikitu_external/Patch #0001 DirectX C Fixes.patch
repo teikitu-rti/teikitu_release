@@ -1,0 +1,31 @@
+From d8823653603be19e116a3024123ed688a51780c5 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Fri, 6 Dec 2024 13:57:55 -0800
+Subject: [PATCH 1/2] Stuff
+
+---
+ .gitattributes | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+ create mode 100644 .gitattributes
+
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..0332e03
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1,12 @@
++# default behavior is to always use unix style line endings
++* text eol=lf
++*.png binary
++*.pdn binary
++*.jpg binary
++*.sln binary
++*.suo binary
++*.vcproj binary
++*.patch binary
++*.dll binary
++*.lib binary
++*.exe binary
+-- 
+2.47.1.windows.1
+

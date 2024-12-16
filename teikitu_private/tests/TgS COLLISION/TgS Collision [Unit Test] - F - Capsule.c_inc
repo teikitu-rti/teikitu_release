@@ -1,0 +1,178 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Collision [Unit Test] - F - Box AA.c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.12 | »GUID« 964CB1A6-814D-4E19-8E67-A83FCA98BF05 */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined (ENABLE_RELOAD_GUARD)
+    #define ENABLE_RELOAD_GUARD
+    #if !defined(TEMPLATE__TYPE_SIZE)
+        #if TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE
+            #define TEMPLATE__TYPE_SIZE 64
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+        #endif
+        #define TEMPLATE__TYPE_SIZE 32
+    #endif
+    #undef ENABLE_RELOAD_GUARD
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+
+/* == Collision ================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Unit Test Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_METHOD( FCN_VO(TEST__COLLISION_CAPSULE) )
+{
+    VEC_T(1)                            vV0;
+    VEC_OBJ_T(STg2_CO_Packet)           sPK;
+    VEC_OBJ_T(STg2_CO_Clip_List)        sCL;
+    VEC_OBJ_T(TgDELTA)                  sDT;
+    VEC_OBJ_T(TgLINE)                   sLN0;
+    VEC_OBJ_T(TgRAY)                    sRY0;
+    VEC_OBJ_T(TgSEGMENT)                sSG0;
+    VEC_OBJ_T(TgSTRI)                   sST0;
+    VEC_OBJ_T(TgPLANE)                  sPN0;
+    VEC_OBJ_T(TgSPHERE)                 sSP0;
+    VEC_OBJ_T(TgTUBE)                   sTB0;
+
+    vV0 = FCN_V(tgMH_Init_Vector_ELEM)( FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)() );
+
+    /* Capsule - Point                                                                                                                                                             */
+    FCN_VO(tgCO_CP_DistSq_PT)( &sTB0, vV0 );
+    FCN_VO(tgCO_CP_Dist_PT)( &sTB0, vV0 );
+    FCN_VO(tgCO_CP_ClosestSq_PT)( &vV0, &sTB0, vV0 );
+    FCN_VO(tgCO_CP_Closest_PT)( &vV0, &sTB0, vV0 );
+    FCN_VO(tgCO_CP_Test_PT)( &sTB0, vV0 );
+    FCN_VO(tgCO_PT_Penetrate_CP)( &sPK, vV0, &sTB0 );
+
+    /* Capsule - Line                                                                                                                                                              */
+    FCN_VO(tgCO_CP_DistSq_LN)( &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_Dist_LN)( &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_ClosestSq_LN)( &vV0, &vV0, &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_Closest_LN)( &vV0, &vV0, &sTB0, &sLN0 );
+
+    FCN_VO(tgCO_CP_ClosestSq_PM_LN)( &vV0, &vV0, &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_Closest_PM_LN)( &vV0, &vV0, &sTB0, &sLN0 );
+
+    FCN_VO(tgCO_CP_Test_LN)( &sTB0, &sLN0 );
+
+    FCN_VO(tgCO_CP_Intersect_LN)( &sPK, &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_Intersect_LR00)( &sPK, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_LN_Penetrate_CP)( &sPK, &sLN0, &sTB0 );
+    FCN_VO(tgCO_CP_Penetrate_LR00)( &sPK, vV0, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_CP_Clip_PM_LN)( &vV0, &vV0, &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_Clip_LN)( &sCL, &sTB0, &sLN0 );
+    FCN_VO(tgCO_CP_Clip_PM_LR11)( &vV0, &vV0, &sTB0, vV0, vV0 );
+    FCN_VO(tgCO_CP_Clip_LR11)( &sCL, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_CP_Contact_LR00)( &vV0, &vV0, &vV0, &vV0, &sTB0, vV0, vV0 );
+
+    /* Capsule - Ray                                                                                                                                                               */
+    FCN_VO(tgCO_CP_DistSq_RY)( &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_Dist_RY)( &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_ClosestSq_RY)( &vV0, &vV0, &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_Closest_RY)( &vV0, &vV0, &sTB0, &sRY0 );
+
+    FCN_VO(tgCO_CP_ClosestSq_PM_RY)( &vV0, &vV0, &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_Closest_PM_RY)( &vV0, &vV0, &sTB0, &sRY0 );
+
+    FCN_VO(tgCO_CP_Test_RY)( &sTB0, &sRY0 );
+
+    FCN_VO(tgCO_CP_Intersect_RY)( &sPK, &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_Intersect_LR10)( &sPK, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_RY_Penetrate_CP)( &sPK, &sRY0, &sTB0 );
+    FCN_VO(tgCO_CP_Penetrate_LR10)( &sPK, vV0, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_CP_Clip_PM_RY)( &vV0, &vV0, &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_Clip_RY)( &sCL, &sTB0, &sRY0 );
+    FCN_VO(tgCO_CP_Clip_PM_LR11)( &vV0, &vV0, &sTB0, vV0, vV0 );
+    FCN_VO(tgCO_CP_Clip_LR11)( &sCL, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_CP_Contact_LR10)( &vV0, &vV0, &vV0, &vV0, &sTB0, vV0, vV0 );
+
+    /* Capsule - Segment                                                                                                                                                           */
+    FCN_VO(tgCO_CP_DistSq_SG)( &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_Dist_SG)( &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_ClosestSq_SG)( &vV0, &vV0, &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_Closest_SG)( &vV0, &vV0, &sTB0, &sSG0 );
+
+    FCN_VO(tgCO_CP_ClosestSq_PM_SG)( &vV0, &vV0, &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_Closest_PM_SG)( &vV0, &vV0, &sTB0, &sSG0 );
+
+    FCN_VO(tgCO_CP_Test_SG)( &sTB0, &sSG0 );
+
+    FCN_VO(tgCO_CP_Intersect_SG)( &sPK, &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_Intersect_LR11)( &sPK, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_SG_Penetrate_CP)( &sPK, &sSG0, &sTB0 );
+    FCN_VO(tgCO_CP_Penetrate_LR11)( &sPK, vV0, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_CP_Clip_PM_SG)( &vV0, &vV0, &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_Clip_SG)( &sCL, &sTB0, &sSG0 );
+    FCN_VO(tgCO_CP_Clip_PM_LR11)( &vV0, &vV0, &sTB0, vV0, vV0 );
+    FCN_VO(tgCO_CP_Clip_LR11)( &sCL, &sTB0, vV0, vV0 );
+
+    FCN_VO(tgCO_CP_Contact_LR11)( &vV0, &vV0, &vV0, &vV0, &sTB0, vV0, vV0 );
+
+    /* Capsule - Capsule                                                                                                                                                           */
+    FCN_VO(tgCO_CP_DistSq_CP)( &sTB0, &sTB0 );
+    FCN_VO(tgCO_CP_Dist_CP)( &sTB0, &sTB0 );
+    FCN_VO(tgCO_CP_ClosestSq_CP)( &vV0, &vV0, &sTB0, &sTB0 );
+    FCN_VO(tgCO_CP_Closest_CP)( &vV0, &vV0, &sTB0, &sTB0 );
+    FCN_VO(tgCO_CP_Test_CP)( &sTB0, &sTB0 );
+    FCN_VO(tgCO_CP_Test_Sweep_CP)( &sTB0, &sTB0, &sDT );
+    FCN_VO(tgCO_CP_Penetrate_CP)( &sPK, &sTB0, &sTB0 );
+    FCN_VO(tgCO_Penetrate_Parallel)( &sPK, &sTB0, &sTB0, vV0, vV0);
+    FCN_VO(tgCO_Penetrate_NonParallel)( &sPK, &sTB0, &sTB0, vV0 );
+
+    /* Capsule - Triangle                                                                                                                                                          */
+    FCN_VO(tgCO_CP_DistSq_ST)( &sTB0, &sST0 );
+    FCN_VO(tgCO_CP_Dist_ST)( &sTB0, &sST0 );
+    FCN_VO(tgCO_CP_ClosestSq_ST)( &vV0, &vV0, &sTB0, &sST0 );
+    FCN_VO(tgCO_CP_Closest_ST)( &vV0, &vV0, &sTB0, &sST0 );
+    FCN_VO(tgCO_CP_ClosestSq_PM_ST)( &vV0, &vV0, &vV0, &sTB0, &sST0 );
+    FCN_VO(tgCO_CP_Closest_PM_ST)( &vV0, &vV0, &vV0, &sTB0, &sST0 );
+    FCN_VO(tgCO_CP_Test_ST)( &sTB0, &sST0 );
+    FCN_VO(tgCO_ST_Penetrate_CP)( &sPK, &sST0, &sTB0 );
+
+    /* Capsule - Plane                                                                                                                                                             */
+    FCN_VO(tgCO_CP_DistSq_PN)( &sTB0, &sPN0 );
+    FCN_VO(tgCO_CP_Dist_PN)( &sTB0, &sPN0 );
+    FCN_VO(tgCO_CP_ClosestSq_PN)( &vV0, &vV0, &sTB0, &sPN0 );
+    FCN_VO(tgCO_CP_Closest_PN)( &vV0, &vV0, &sTB0, &sPN0 );
+    FCN_VO(tgCO_CP_Test_PN)( &sTB0, &sPN0 );
+    FCN_VO(tgCO_PN_Penetrate_CP)( &sPK, &sPN0, &sTB0 );
+    FCN_VO(tgCO_PN_Sweep_CP)( &sPK, &vV0, &sPN0, &sTB0, &sDT );
+
+    /* Capsule - Sphere                                                                                                                                                            */
+    FCN_VO(tgCO_CP_DistSq_SP)( &sTB0, &sSP0 );
+    FCN_VO(tgCO_CP_Dist_SP)( &sTB0, &sSP0 );
+    FCN_VO(tgCO_CP_ClosestSq_SP)( &vV0, &vV0, &sTB0, &sSP0 );
+    FCN_VO(tgCO_CP_Closest_SP)( &vV0, &vV0, &sTB0, &sSP0 );
+    FCN_VO(tgCO_CP_Test_SP)( &sTB0, &sSP0 );
+    FCN_VO(tgCO_CP_Penetrate_SP)( &sPK, &sTB0, &sSP0 );
+
+    /* Capsule - Utility                                                                                                                                                           */
+    FCN_VO(tgCO_CP_Clip_Points)( &vV0, &vV0, &sTB0, vV0, vV0 );
+    FCN_VO(tgCO_CP_Clip)( &sCL, &sTB0 );
+
+    return (KTgS_OK);
+}
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"

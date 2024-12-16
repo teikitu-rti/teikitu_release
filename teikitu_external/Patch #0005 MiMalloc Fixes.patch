@@ -1,0 +1,89 @@
+From d8750b47d19bbfea896cfc534bbb5704a3441686 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Thu, 21 Nov 2024 13:59:02 -0800
+Subject: [PATCH] i
+
+---
+ src/prim/windows/prim.c | 35 ++++++++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 7 deletions(-)
+
+diff --git a/src/prim/windows/prim.c b/src/prim/windows/prim.c
+index edc2b226..808e938a 100644
+--- a/src/prim/windows/prim.c
++++ b/src/prim/windows/prim.c
+@@ -57,10 +57,24 @@ typedef VOID (__stdcall *PGetCurrentProcessorNumberEx)(MI_PROCESSOR_NUMBER* Proc
+ typedef BOOL (__stdcall *PGetNumaProcessorNodeEx)(MI_PROCESSOR_NUMBER* Processor, PUSHORT NodeNumber);
+ typedef BOOL (__stdcall* PGetNumaNodeProcessorMaskEx)(USHORT Node, PGROUP_AFFINITY ProcessorMask);
+ typedef BOOL (__stdcall *PGetNumaProcessorNode)(UCHAR Processor, PUCHAR NodeNumber);
++typedef BOOL (__stdcall *PCloseHandle)( HANDLE ); // Kernel32
++typedef DWORD (__stdcall *PGetLastError)( VOID ); // Kernel32
++typedef HANDLE (__stdcall *PGetCurrentProcess)( VOID );
++typedef BOOL (__stdcall *POpenProcessToken)(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
++typedef BOOL (__stdcall *PLookupPrivilegeValueA)(LPCSTR lpSystemName, LPCSTR lpName, PLUID  lpLuid);
++typedef BOOL (__stdcall *PAdjustTokenPrivileges)(HANDLE TokenHandle, BOOL DisableAllPrivileges, PTOKEN_PRIVILEGES NewState, DWORD BufferLength, PTOKEN_PRIVILEGES PreviousState, PDWORD ReturnLength);
++typedef SIZE_T (__stdcall *PGetLargePageMinimum)( VOID );
+ static PGetCurrentProcessorNumberEx pGetCurrentProcessorNumberEx = NULL;
+ static PGetNumaProcessorNodeEx      pGetNumaProcessorNodeEx = NULL;
+ static PGetNumaNodeProcessorMaskEx  pGetNumaNodeProcessorMaskEx = NULL;
+ static PGetNumaProcessorNode        pGetNumaProcessorNode = NULL;
++static PCloseHandle                 pCloseHandle = NULL;
++static PGetLastError                pGetLastError = NULL;
++static PGetCurrentProcess           pGetCurrentProcess = NULL;
++static POpenProcessToken            pOpenProcessToken = NULL;
++static PLookupPrivilegeValueA       pLookupPrivilegeValueA = NULL;
++static PAdjustTokenPrivileges       pAdjustTokenPrivileges = NULL;
++static PGetLargePageMinimum         pGetLargePageMinimum = NULL;
+ 
+ //---------------------------------------------
+ // Enable large page support dynamically (if possible)
+@@ -78,26 +92,26 @@ static bool win_enable_large_os_pages(size_t* large_page_size)
+   // <https://devblogs.microsoft.com/oldnewthing/20110128-00/?p=11643>
+   unsigned long err = 0;
+   HANDLE token = NULL;
+-  BOOL ok = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token);
++  BOOL ok = pOpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token);
+   if (ok) {
+     TOKEN_PRIVILEGES tp;
+-    ok = LookupPrivilegeValue(NULL, TEXT("SeLockMemoryPrivilege"), &tp.Privileges[0].Luid);
++    ok = pLookupPrivilegeValueA(NULL, TEXT("SeLockMemoryPrivilege"), &tp.Privileges[0].Luid);
+     if (ok) {
+       tp.PrivilegeCount = 1;
+       tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+-      ok = AdjustTokenPrivileges(token, FALSE, &tp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
++      ok = pAdjustTokenPrivileges(token, FALSE, &tp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+       if (ok) {
+-        err = GetLastError();
++        err = pGetLastError();
+         ok = (err == ERROR_SUCCESS);
+         if (ok && large_page_size != NULL) {
+-          *large_page_size = GetLargePageMinimum();
++          *large_page_size = pGetLargePageMinimum();
+         }
+       }
+     }
+-    CloseHandle(token);
++    pCloseHandle(token);
+   }
+   if (!ok) {
+-    if (err == 0) err = GetLastError();
++    if (err == 0) err = pGetLastError();
+     _mi_warning_message("cannot enable large OS page support, error %lu\n", err);
+   }
+   return (ok!=0);
+@@ -140,6 +154,13 @@ void _mi_prim_mem_init( mi_os_mem_config_t* config )
+     pGetNumaProcessorNodeEx = (PGetNumaProcessorNodeEx)(void (*)(void))GetProcAddress(hDll, "GetNumaProcessorNodeEx");
+     pGetNumaNodeProcessorMaskEx = (PGetNumaNodeProcessorMaskEx)(void (*)(void))GetProcAddress(hDll, "GetNumaNodeProcessorMaskEx");
+     pGetNumaProcessorNode = (PGetNumaProcessorNode)(void (*)(void))GetProcAddress(hDll, "GetNumaProcessorNode");
++    pCloseHandle = (PCloseHandle)(void (*)(void))GetProcAddress(hDll, "CloseHandle");
++    pGetLastError = (PGetLastError)(void (*)(void))GetProcAddress(hDll, "GetLastError");
++    pGetCurrentProcess = (PGetCurrentProcess)(void (*)(void))GetProcAddress(hDll, "GetCurrentProcess");
++    pOpenProcessToken = (POpenProcessToken)(void (*)(void))GetProcAddress(hDll, "OpenProcessToken");
++    pLookupPrivilegeValueA = (PLookupPrivilegeValueA)(void (*)(void))GetProcAddress(hDll, "LookupPrivilegeValueA");
++    pAdjustTokenPrivileges = (PAdjustTokenPrivileges)(void (*)(void))GetProcAddress(hDll, "AdjustTokenPrivileges");
++    pGetLargePageMinimum = (PGetLargePageMinimum)(void (*)(void))GetProcAddress(hDll, "GetLargePageMinimum");
+     FreeLibrary(hDll);
+   }
+   if (mi_option_is_enabled(mi_option_allow_large_os_pages) || mi_option_is_enabled(mi_option_reserve_huge_os_pages)) {
+-- 
+2.46.2.windows.1
+

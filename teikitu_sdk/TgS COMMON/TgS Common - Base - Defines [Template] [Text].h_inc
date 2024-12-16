@@ -1,0 +1,148 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Common - Base - Defines [Template] [Text].h_inc
+    »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
+    »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/* == Common ===================================================================================================================================================================== */
+
+#if defined(TEMPLATE__TEST_AND_UNLOAD_TEMPLATE_MACROS)
+
+    /* Test to see if any of the macro definitions used for code generation have been defined for other reasons. */
+    #if defined(FCN)
+        #error macro should not be defined
+    #endif
+    #if defined(FCN_CHAR)
+        #error macro should not be defined
+    #endif
+    #if defined(FCN_IO)
+        #error macro should not be defined
+    #endif
+    #if defined(CHAR_K)
+        #error macro should not be defined
+    #endif
+    #if defined(CHAR)
+        #error macro should not be defined
+    #endif
+
+
+    /* Force all of the file macros to unload (keep any of the input or calling macro definitions) */
+    #undef TEMPLATE__TEST_AND_UNLOAD_TEMPLATE_MACROS
+    #define GENERATE__UNLOAD_TEMPLATE_MACROS
+    #if defined(ENABLE_RELOAD_GUARD)
+        #include __FILE__
+    #else
+        #define ENABLE_RELOAD_GUARD
+        #include __FILE__
+        #undef ENABLE_RELOAD_GUARD
+    #endif
+#endif
+
+
+/** @brief INPUT MACROS for Code generation include utility
+*/
+
+
+/* OUTPUT MACROS used by the client files
+
+    Listed in the #undef section of the file (read below)
+
+*/
+
+
+#if !defined(GENERATE__UNLOAD_TEMPLATE_MACROS)
+
+    #define GENERATE__UNLOAD_TEMPLATE_MACROS
+
+    #if defined(GENERATE__NSZ)
+        #define FCN(A)                                      tgNSZ_##A
+        #define FCN_CHAR(A)                                 tgNC_##A
+        #define FCN_IO(A)                                   tgIO_##A##_NSZ
+
+        #define FCN_UT(A)                                   UNIT_TEST__TEST__NSZ_##A
+        #define FCN_UT_CHAR(A)                              UNIT_TEST__TEST__NC_##A
+        #define FCN_UT_IO(A)                                UNIT_TEST__TEST__IO_##A##_NSZ
+
+        #define TEXT_K(A)                                   A
+        #define CHAR_K(A)                                   A
+
+        #define CHAR(...)                                   MULTI_MACRO(CHAR, __VA_ARGS__)
+        #define CHAR_0()                                    TgCHAR_NC
+        #define CHAR_1(MOD)                                 TgCHAR_NC_##MOD
+
+    #endif
+
+    #if defined(GENERATE__WSZ)
+        #define FCN(A)                                      tgWSZ_##A
+        #define FCN_CHAR(A)                                 tgWC_##A
+        #define FCN_IO(A)                                   tgIO_##A##_WSZ
+
+        #define FCN_UT(A)                                   UNIT_TEST__TEST__WSZ_##A
+        #define FCN_UT_CHAR(A)                              UNIT_TEST__TEST__WC_##A
+        #define FCN_UT_IO(A)                                UNIT_TEST__TEST__IO_##A##_WSZ
+
+        #define TEXT_K(A)                                   L##A
+        #define CHAR_K(A)                                   L##A
+
+        #define CHAR(...)                                   MULTI_MACRO(CHAR, __VA_ARGS__)
+        #define CHAR_0()                                    TgCHAR_WC
+        #define CHAR_1(MOD)                                 TgCHAR_WC_##MOD
+
+    #endif
+
+    #if defined(GENERATE__USZ)
+        #define FCN(A)                                      tgUSZ_##A
+        #define FCN_CHAR(A)                                 tgU8_##A
+        #define FCN_IO(A)                                   tgIO_##A
+
+        #define FCN_UT(A)                                   UNIT_TEST__TEST__USZ_##A
+        #define FCN_UT_CHAR(A)                              UNIT_TEST__TEST__MB_##A
+        #define FCN_UT_IO(A)                                UNIT_TEST__TEST__IO_##A
+
+        #define TEXT_K(A)                                   u8##A
+        #define CHAR_K(A)                                   A
+
+        #define CHAR(...)                                   MULTI_MACRO(CHAR, __VA_ARGS__)
+        #define CHAR_0()                                    TgCHAR_U8
+        #define CHAR_1(MOD)                                 TgCHAR_U8_##MOD
+
+    #endif
+
+
+#else
+
+    /* MACROS defined in this file */
+
+    #undef FCN
+    #undef FCN_CHAR
+    #undef FCN_IO
+
+    #undef FCN_UT
+    #undef FCN_UT_CHAR
+    #undef FCN_UT_IO
+
+    #undef TEXT_K
+    #undef CHAR_K
+    #undef CHAR
+    #undef CHAR_0
+    #undef CHAR_1
+
+
+    /* Macros used in the process of creating the generation macros */
+
+    #undef GENERATE__UNLOAD_TEMPLATE_MACROS
+
+
+    /* MACROS defined in including file (inputs) */
+
+    #if !defined(ENABLE_RELOAD_GUARD)
+        #undef GENERATE__NSZ
+        #undef GENERATE__WSZ
+        #undef GENERATE__USZ
+    #endif
+
+#endif
