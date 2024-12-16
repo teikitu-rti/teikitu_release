@@ -1,2 +1,0 @@
-cmake -G "Visual Studio 16 2019" -T "ClangCL" -S . -B .\msvc2019.clang.win\ -DCMAKE_BUILD_TYPE=DEBUG -DMK_BUILD__OS__WIN=1 -DMK_BUILD__THREAD__WIN=1
-cmake -G "Ninja" -S . -B .\ninja.msvc.win\ -DCMAKE_BUILD_TYPE=DEBUG -DMK_BUILD__OS__WIN=1 -DMK_BUILD__THREAD__WIN=1 -DCMAKE_VS_PLATFORM_TOOLSET="ClangCL"

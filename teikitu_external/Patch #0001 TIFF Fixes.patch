@@ -1,0 +1,299 @@
+From ae5f13a7f0fa3d215e31888bf4ccdc76e2f1f4b8 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Sat, 14 Dec 2024 13:22:10 -0800
+Subject: [PATCH] Fixes for compilation.
+
+---
+ CMakeLists.txt             | 14 ++++++++----
+ cmake/CompilerChecks.cmake |  2 ++
+ cmake/FileSupport.cmake    | 47 ++++++++++++++++++++++++++++++++++++++
+ cmake/TiffConfig.cmake.in  |  6 ++---
+ cmake/WindowsSupport.cmake | 10 --------
+ libtiff/CMakeLists.txt     | 22 +++++++++---------
+ libtiff/tif_open.c         |  6 ++---
+ libtiff/tiffio.h           |  7 ++++--
+ libtiff/tiffiop.h          |  4 +---
+ 9 files changed, 81 insertions(+), 37 deletions(-)
+ create mode 100644 cmake/FileSupport.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 31ae5f64..6b5f20b5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -98,25 +98,28 @@ include(LargeFileSupport)
+ include(InternalCodecs)
+ 
+ # Check for Deflate codec
+-include(DeflateCodec)
++# include(DeflateCodec)
++
++# File IO support
++include(FileSupport)
+ 
+ # Check for PixarLog codec
+ include(PixarLogCodec)
+ 
+ # Check for JPEG codec
+-include(JPEGCodec)
++# include(JPEGCodec) - Disabled as it is detected on GitHub Runner Image but not defined in the calling project.
+ 
+ # Check for JBIG codec
+-include(JBIGCodec)
++# include(JBIGCodec)
+ 
+ # Check for LERC codec
+ include(LERCCodec)
+ 
+ # Check for LZMA codec
+-include(LZMACodec)
++# include(LZMACodec) - Disabled as it is detected on MacOS but not defined in the calling project.
+ 
+ # Check for ZSTD codec
+-include(ZSTDCodec)
++# include(ZSTDCodec)
+ 
+ # Check for WebP codec
+ include(WebPCodec)
+@@ -183,6 +186,7 @@ message(STATUS "  Build deprecated features:          ${tiff-deprecated}")
+ message(STATUS "  Enable linker symbol versioning:    ${HAVE_LD_VERSION_SCRIPT}")
+ message(STATUS "  Support Microsoft Document Imaging: ${mdi}")
+ message(STATUS "  Use win32 IO:                       ${USE_WIN32_FILEIO}")
++message(STATUS "  Use unix IO:                        ${USE_UNIX_FILEIO}")
+ message(STATUS "")
+ message(STATUS " Support for internal codecs:")
+ message(STATUS "  CCITT Group 3 & 4 algorithms:       ${ccitt}")
+diff --git a/cmake/CompilerChecks.cmake b/cmake/CompilerChecks.cmake
+index 8ac5564b..a69e4a2f 100644
+--- a/cmake/CompilerChecks.cmake
++++ b/cmake/CompilerChecks.cmake
+@@ -122,3 +122,5 @@ foreach(flag ${test_flags})
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
+     endif (${test_c_flag})
+ endforeach(flag ${test_flags})
++
++SET (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+diff --git a/cmake/FileSupport.cmake b/cmake/FileSupport.cmake
+new file mode 100644
+index 00000000..d99c55c7
+--- /dev/null
++++ b/cmake/FileSupport.cmake
+@@ -0,0 +1,47 @@
++# Fil IO support
++#
++# Copyright © 2015 Open Microscopy Environment / University of Dundee
++# Copyright © 2021 Roger Leigh <rleigh@codelibre.net>
++# Written by Roger Leigh <rleigh@codelibre.net>
++#
++# Permission to use, copy, modify, distribute, and sell this software and
++# its documentation for any purpose is hereby granted without fee, provided
++# that (i) the above copyright notices and this permission notice appear in
++# all copies of the software and related documentation, and (ii) the names of
++# Sam Leffler and Silicon Graphics may not be used in any advertising or
++# publicity relating to the software without the specific, prior written
++# permission of Sam Leffler and Silicon Graphics.
++#
++# THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
++# EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
++# WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
++#
++# IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++# ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++# OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++# WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
++# LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
++# OF THIS SOFTWARE.
++
++# Win32 file I/O
++set(win32_io_default OFF)
++if(WIN32)
++    set(win32_io_default ON)
++endif()
++
++option(win32-io "Use Win32 I/O" ${win32_io_default})
++
++set(USE_WIN32_FILEIO ${win32-io})
++
++# Unix file I/O
++set(unix_io_default OFF)
++if(NOT WIN32)
++    set(unix_io_default ON)
++endif()
++
++option(unix-io "Use Unix I/O" ${unix_io_default})
++
++set(USE_UNIX_FILEIO ${unix-io})
++
++# If both are disabled then the client application must implement
++# the necessary IO functions.
+\ No newline at end of file
+diff --git a/cmake/TiffConfig.cmake.in b/cmake/TiffConfig.cmake.in
+index d59dc58c..8a8efdd6 100644
+--- a/cmake/TiffConfig.cmake.in
++++ b/cmake/TiffConfig.cmake.in
+@@ -17,10 +17,10 @@ get_filename_component(_ROOT "${_DIR}/@PROJECT_ROOT_DIR@" ABSOLUTE)
+ set_variable_from_rel_or_absolute_path("TIFF_INCLUDE_DIR" "${_ROOT}" "@CMAKE_INSTALL_INCLUDEDIR@")
+ set(TIFF_INCLUDE_DIRS ${TIFF_INCLUDE_DIR})
+ 
+-set(TIFF_LIBRARIES TIFF::tiff)
++set(TIFF_LIBRARIES tiff::tiff)
+ 
+-if(NOT TARGET TIFF::tiff)
+-    include("${CMAKE_CURRENT_LIST_DIR}/TiffTargets.cmake")
++if(NOT TARGET tiff::tiff)
++    include("${CMAKE_CURRENT_LIST_DIR}/tiffTargets.cmake")
+ endif()
+ 
+ unset (_ROOT)
+diff --git a/cmake/WindowsSupport.cmake b/cmake/WindowsSupport.cmake
+index a60bba9b..87d677fc 100644
+--- a/cmake/WindowsSupport.cmake
++++ b/cmake/WindowsSupport.cmake
+@@ -35,13 +35,3 @@ if(MSVC)
+     # Don't warn about use of deprecated functions
+     add_compile_options(/wd4996)
+ endif()
+-
+-# Win32 file I/O
+-set(win32_io_default OFF)
+-if(WIN32)
+-    set(win32_io_default ON)
+-endif()
+-
+-option(win32-io "Use Win32 I/O" ${win32_io_default})
+-
+-set(USE_WIN32_FILEIO ${win32-io})
+diff --git a/libtiff/CMakeLists.txt b/libtiff/CMakeLists.txt
+index 2762fab7..b805bebd 100755
+--- a/libtiff/CMakeLists.txt
++++ b/libtiff/CMakeLists.txt
+@@ -50,7 +50,7 @@ set(tiff_private_HEADERS
+ 
+ 
+ add_library(tiff libtiff.def)
+-add_library(TIFF::tiff ALIAS tiff)
++add_library(tiff::tiff ALIAS tiff)
+ 
+ target_sources(tiff PRIVATE
+         ${tiff_public_HEADERS}
+@@ -211,8 +211,8 @@ if(HAVE_LD_VERSION_SCRIPT)
+ endif()
+ 
+ if(tiff-install)
+-  export(TARGETS tiff NAMESPACE TIFF:: FILE "${CMAKE_CURRENT_BINARY_DIR}/libtiffTargets.cmake")
+-  install(TARGETS tiff EXPORT TiffTargets
++  export(TARGETS tiff NAMESPACE tiff:: FILE "${CMAKE_CURRENT_BINARY_DIR}/libtiffTargets.cmake")
++  install(TARGETS tiff EXPORT tiffTargets
+           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+@@ -221,22 +221,22 @@ if(tiff-install)
+           DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+ 
+   set(TIFF_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/tiff)
+-  install(EXPORT TiffTargets
+-          FILE TiffTargets.cmake
+-          NAMESPACE TIFF::
++  install(EXPORT tiffTargets
++          FILE tiffTargets.cmake
++          NAMESPACE tiff::
+           DESTINATION ${TIFF_CONFIGDIR}
+   )
+ 
+   include(CMakePackageConfigHelpers)
+   write_basic_package_version_file(
+-    TiffConfigVersion.cmake
++    tiffConfigVersion.cmake
+     VERSION ${LIBTIFF_VERSION}
+     COMPATIBILITY SameMajorVersion)
+-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TiffConfigVersion.cmake DESTINATION ${TIFF_CONFIGDIR})
++  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tiffConfigVersion.cmake DESTINATION ${TIFF_CONFIGDIR})
+ 
+   configure_file(${PROJECT_SOURCE_DIR}/cmake/TiffConfig.cmake.in
+-                 ${CMAKE_CURRENT_BINARY_DIR}/TiffConfig.cmake @ONLY)
+-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TiffConfig.cmake DESTINATION ${TIFF_CONFIGDIR})
++                 ${CMAKE_CURRENT_BINARY_DIR}/tiffConfig.cmake @ONLY)
++  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tiffConfig.cmake DESTINATION ${TIFF_CONFIGDIR})
+ endif()
+ 
+ if(CXX_SUPPORT)
+@@ -250,7 +250,7 @@ if(CXX_SUPPORT)
+       add_library(tiffxx ../placeholder.h)
+   endif()
+ 
+-  add_library(TIFF::CXX ALIAS tiffxx)
++  add_library(tiff::CXX ALIAS tiffxx)
+ 
+   target_sources(tiffxx PRIVATE
+           ${tiffxx_HEADERS}
+diff --git a/libtiff/tif_open.c b/libtiff/tif_open.c
+index 3c1eb6ba..2bdfd239 100644
+--- a/libtiff/tif_open.c
++++ b/libtiff/tif_open.c
+@@ -810,14 +810,14 @@ const char *TIFFSetFileName(TIFF *tif, const char *name)
+ /*
+  * Return open file's I/O descriptor.
+  */
+-int TIFFFileno(TIFF *tif) { return (tif->tif_fd); }
++intptr_t TIFFFileno(TIFF *tif) { return (tif->tif_fd); }
+ 
+ /*
+  * Set open file's I/O descriptor, and return previous value.
+  */
+-int TIFFSetFileno(TIFF *tif, int fd)
++intptr_t TIFFSetFileno(TIFF *tif, intptr_t fd)
+ {
+-    int old_fd = tif->tif_fd;
++    intptr_t old_fd = tif->tif_fd;
+     tif->tif_fd = fd;
+     return old_fd;
+ }
+diff --git a/libtiff/tiffio.h b/libtiff/tiffio.h
+index 0034fe85..f333898b 100644
+--- a/libtiff/tiffio.h
++++ b/libtiff/tiffio.h
+@@ -397,8 +397,8 @@ extern "C"
+     extern tmsize_t TIFFVTileSize(TIFF *tif, uint32_t nrows);
+     extern uint32_t TIFFDefaultStripSize(TIFF *tif, uint32_t request);
+     extern void TIFFDefaultTileSize(TIFF *, uint32_t *, uint32_t *);
+-    extern int TIFFFileno(TIFF *);
+-    extern int TIFFSetFileno(TIFF *, int);
++    extern intptr_t TIFFFileno(TIFF *);
++    extern intptr_t TIFFSetFileno(TIFF *, intptr_t);
+     extern thandle_t TIFFClientdata(TIFF *);
+     extern thandle_t TIFFSetClientdata(TIFF *, thandle_t);
+     extern int TIFFGetMode(TIFF *);
+@@ -519,6 +519,9 @@ extern int TIFFReadRGBAImageOriented(TIFF *, uint32_t, uint32_t, uint32_t *,
+                                          TIFFErrorHandlerExtR handler,
+                                          void *warnhandler_user_data);
+ 
++    extern TIFFErrorHandler _TIFFwarningHandler;
++    extern TIFFErrorHandler _TIFFerrorHandler;
++
+     extern TIFF *TIFFOpen(const char *, const char *);
+     extern TIFF *TIFFOpenExt(const char *, const char *, TIFFOpenOptions *opts);
+ #ifdef _WIN32
+diff --git a/libtiff/tiffiop.h b/libtiff/tiffiop.h
+index 90986ee4..d5a22bcd 100644
+--- a/libtiff/tiffiop.h
++++ b/libtiff/tiffiop.h
+@@ -112,7 +112,7 @@ typedef union
+ struct tiff
+ {
+     char *tif_name; /* name of open file */
+-    int tif_fd;     /* open file descriptor */
++    intptr_t tif_fd;/* open file descriptor */
+     int tif_mode;   /* open mode (O_*) */
+     uint32_t tif_flags;
+ #define TIFF_FILLORDER 0x00003U   /* natural bit fill order for machine */
+@@ -447,8 +447,6 @@ extern "C"
+     extern void _TIFFprintAscii(FILE *, const char *);
+     extern void _TIFFprintAsciiTag(FILE *, const char *, const char *);
+ 
+-    extern TIFFErrorHandler _TIFFwarningHandler;
+-    extern TIFFErrorHandler _TIFFerrorHandler;
+     extern TIFFErrorHandlerExt _TIFFwarningHandlerExt;
+     extern TIFFErrorHandlerExt _TIFFerrorHandlerExt;
+     void _TIFFErrorEarly(TIFFOpenOptions *opts, thandle_t clientdata,
+-- 
+2.47.1.windows.1
+

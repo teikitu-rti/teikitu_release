@@ -1,17 +1,36 @@
+# Ignore MacOS files
+.DS_Store
+
+# Ignore all Visual Studio temp files.
+*.suo
+*.opensdf
+*.sdf
+.vscode
+.editorconfig
+**/.vs
+CMakeSettings.json
+
+# Ignore all CMake temp files.
 CMakeCache.txt
 CMakeSettings.json
 
-.vs
+# Ignore generated directories
+**/bin
+**/bld
+**/lib
+**/obj
 
-compare/*
-
-teikitu/.vs
-teikitu/bin
-teikitu/bld
-teikitu/doc
-teikitu/lib
-teikitu/obj
-
-samples
-teikitu/DerivedData
-teikitu/teikitu.xcworkspace
+# Ignore Local Directories
+/build
+/teikitu_assets
+/teikitu_external/_*
+/teikitu_private/src/TgS KERNEL/DEBUG/*
+/teikitu_private/src/TgS KERNEL/RELEASE/*
+/teikitu_private/src/TgS KERNEL/FINAL/*
+/teikitu_private/src/TgS KERNEL/TOOLS_DEBUG/*
+/teikitu_private/src/TgS KERNEL/TOOLS_RELEASE/*
+/teikitu_private/tests/TgS KERNEL/DEBUG/*
+/teikitu_private/tests/TgS KERNEL/RELEASE/*
+/teikitu_private/tests/TgS KERNEL/FINAL/*
+/teikitu_private/tests/TgS KERNEL/TOOLS_DEBUG/*
+/teikitu_private/tests/TgS KERNEL/TOOLS_RELEASE/*

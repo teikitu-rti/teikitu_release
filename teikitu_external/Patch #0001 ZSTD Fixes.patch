@@ -1,0 +1,65 @@
+From 8cc7e84e0b0529c76cdd65c446ebba61799ae29e Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Sat, 16 Nov 2024 11:40:02 -0800
+Subject: [PATCH] WTF
+
+---
+ build/VS2010/libzstd-dll/libzstd-dll.rc | 2 +-
+ build/VS2010/zstd/zstd.rc               | 2 +-
+ lib/common/compiler.h                   | 1 +
+ lib/common/mem.h                        | 1 +
+ 4 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/build/VS2010/libzstd-dll/libzstd-dll.rc b/build/VS2010/libzstd-dll/libzstd-dll.rc
+index 13e8746..c9ffd19 100644
+--- a/build/VS2010/libzstd-dll/libzstd-dll.rc
++++ b/build/VS2010/libzstd-dll/libzstd-dll.rc
+@@ -1,7 +1,7 @@
+ // Microsoft Visual C++ generated resource script.
+ //
+ 
+-#include "zstd.h" /* ZSTD_VERSION_STRING */
++#include "..\..\..\lib\zstd.h" /* ZSTD_VERSION_STRING */
+ #define APSTUDIO_READONLY_SYMBOLS
+ #include "verrsrc.h"
+ #undef APSTUDIO_READONLY_SYMBOLS
+diff --git a/build/VS2010/zstd/zstd.rc b/build/VS2010/zstd/zstd.rc
+index a2118c2..122cb77 100644
+--- a/build/VS2010/zstd/zstd.rc
++++ b/build/VS2010/zstd/zstd.rc
+@@ -1,7 +1,7 @@
+ // Microsoft Visual C++ generated resource script.
+ //
+ 
+-#include "zstd.h" /* ZSTD_VERSION_STRING */
++#include "..\..\..\lib\zstd.h" /* ZSTD_VERSION_STRING */
+ #define APSTUDIO_READONLY_SYMBOLS
+ #include "verrsrc.h"
+ #undef APSTUDIO_READONLY_SYMBOLS
+diff --git a/lib/common/compiler.h b/lib/common/compiler.h
+index 31880ec..da5da0d 100644
+--- a/lib/common/compiler.h
++++ b/lib/common/compiler.h
+@@ -136,6 +136,7 @@
+ #  define PREFETCH_L2(ptr)  do { (void)(ptr); } while (0)  /* disabled */
+ #else
+ #  if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86)) && !defined(_M_ARM64EC)  /* _mm_prefetch() is not defined outside of x86/x64 */
++#    pragma warning(disable : 4391) /* incorrect return type for intrinsic function, expected 'unsigned char' */
+ #    include <mmintrin.h>   /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
+ #    define PREFETCH_L1(ptr)  _mm_prefetch((const char*)(ptr), _MM_HINT_T0)
+ #    define PREFETCH_L2(ptr)  _mm_prefetch((const char*)(ptr), _MM_HINT_T1)
+diff --git a/lib/common/mem.h b/lib/common/mem.h
+index 096f4be..6150ec8 100644
+--- a/lib/common/mem.h
++++ b/lib/common/mem.h
+@@ -28,6 +28,7 @@ extern "C" {
+ *  Compiler specifics
+ ******************************************/
+ #if defined(_MSC_VER)   /* Visual Studio */
++#   pragma warning(disable : 4391) /* incorrect return type for intrinsic function, expected 'unsigned char' */
+ #   include <stdlib.h>  /* _byteswap_ulong */
+ #   include <intrin.h>  /* _byteswap_* */
+ #endif
+-- 
+2.46.2.windows.1
+

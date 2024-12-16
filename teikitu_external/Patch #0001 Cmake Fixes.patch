@@ -1,0 +1,320 @@
+From 2879b4c244c4ee6a7ca2e21d3071cf28be7fa418 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Fri, 29 Nov 2024 11:03:41 -0800
+Subject: [PATCH] Fixes for a C compilation.
+
+---
+ Modules/Compiler/Clang-CXX.cmake           |  8 +--
+ Source/cmGeneratorTarget.cxx               |  7 +++
+ Source/cmGeneratorTarget.h                 |  3 +-
+ Source/cmGlobalXCodeGenerator.cxx          | 31 ++++++-----
+ Source/cmNinjaTargetGenerator.cxx          | 12 +++--
+ Source/cmStateTypes.h                      |  4 +-
+ Source/cmVisualStudio10TargetGenerator.cxx | 13 +++--
+ Source/cmcmd.cxx                           | 60 ++++++++++++++++++++++
+ Source/kwsys/SystemTools.cxx               | 20 ++++++++
+ 9 files changed, 131 insertions(+), 27 deletions(-)
+
+diff --git a/Modules/Compiler/Clang-CXX.cmake b/Modules/Compiler/Clang-CXX.cmake
+index 46fc48d68..57ac69597 100644
+--- a/Modules/Compiler/Clang-CXX.cmake
++++ b/Modules/Compiler/Clang-CXX.cmake
+@@ -52,20 +52,20 @@ if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
+       " <CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS>"
+       " -x c++ <SOURCE> -c -o <OBJECT>"
+       "${_clang_scan_deps_resource_dir}"
+-      " -MT <DYNDEP_FILE>"
++      " -MT \"<DYNDEP_FILE>\""
+       " -MD -MF <DEP_FILE>"
+       # Write to a temporary file. If the scan fails, we do not want to update
+       # the actual output file as `ninja` (at least) assumes that failed
+       # commands either delete or leave output files alone. See Issue#25419.
+-      " > <DYNDEP_FILE>.tmp"
++      " > \"<DYNDEP_FILE>.tmp\""
+       # We cannot use `copy_if_different` as the rule does not have a feature
+       # analogous to `ninja`'s `restat = 1`. It would also leave behind the
+       # `.tmp` file.
+-      " && ${_clang_scan_deps_mv} <DYNDEP_FILE>.tmp <DYNDEP_FILE>")
++      " && ${_clang_scan_deps_mv} \"<DYNDEP_FILE>.tmp\" \"<DYNDEP_FILE>\"")
+     unset(_clang_scan_deps_resource_dir)
+     unset(_clang_scan_deps_mv)
+     set(CMAKE_CXX_MODULE_MAP_FORMAT "clang")
+-    set(CMAKE_CXX_MODULE_MAP_FLAG "@<MODULE_MAP_FILE>")
++    set(CMAKE_CXX_MODULE_MAP_FLAG "\"@<MODULE_MAP_FILE>\"")
+     set(CMAKE_CXX_MODULE_BMI_ONLY_FLAG "--precompile")
+   endif()
+ endif()
+diff --git a/Source/cmGeneratorTarget.cxx b/Source/cmGeneratorTarget.cxx
+index fb92771b0..ad7a645b5 100644
+--- a/Source/cmGeneratorTarget.cxx
++++ b/Source/cmGeneratorTarget.cxx
+@@ -4224,6 +4224,10 @@ std::string cmGeneratorTarget::GetDirectory(
+         return info->OutDir;
+       case cmStateEnums::ImportLibraryArtifact:
+         return info->ImpDir;
++      case cmStateEnums::RuntimeDebugArtifact:
++          return info->PdbDir;
++      case cmStateEnums::RuntimeObjectArtifact:
++          return info->IntDir;
+     }
+   }
+   return "";
+@@ -4278,6 +4282,9 @@ cmGeneratorTarget::OutputInfo const* cmGeneratorTarget::GetOutputInfo(
+     if (!this->ComputePDBOutputDir("PDB", config, info.PdbDir)) {
+       info.PdbDir = info.OutDir;
+     }
++    if (!this->ComputePDBOutputDir("INTERMEDIATE", config, info.IntDir)) {
++        info.IntDir.clear();
++    }
+ 
+     // Now update the previously-prepared map entry.
+     i->second = info;
+diff --git a/Source/cmGeneratorTarget.h b/Source/cmGeneratorTarget.h
+index 8ae98e8ea..1a7a25205 100644
+--- a/Source/cmGeneratorTarget.h
++++ b/Source/cmGeneratorTarget.h
+@@ -763,10 +763,11 @@ public:
+     std::string OutDir;
+     std::string ImpDir;
+     std::string PdbDir;
++    std::string IntDir;
+     bool empty() const
+     {
+       return this->OutDir.empty() && this->ImpDir.empty() &&
+-        this->PdbDir.empty();
++        this->PdbDir.empty() && this->IntDir.empty();
+     }
+   };
+ 
+diff --git a/Source/cmGlobalXCodeGenerator.cxx b/Source/cmGlobalXCodeGenerator.cxx
+index 7fa21d037..f26a20b21 100644
+--- a/Source/cmGlobalXCodeGenerator.cxx
++++ b/Source/cmGlobalXCodeGenerator.cxx
+@@ -1706,19 +1706,24 @@ void cmGlobalXCodeGenerator::ForceLinkerLanguage(cmGeneratorTarget* gtgt)
+   // Add an empty source file to the target that compiles with the
+   // linker language.  This should convince Xcode to choose the proper
+   // language.
+-  cmMakefile* mf = gtgt->Target->GetMakefile();
+-  std::string fname = cmStrCat(
+-    gtgt->GetLocalGenerator()->GetCurrentBinaryDirectory(), "/CMakeFiles/",
+-    gtgt->GetName(), "-CMakeForceLinker.", cmSystemTools::LowerCase(llang));
+-  {
+-    cmGeneratedFileStream fout(fname);
+-    fout << '\n';
+-  }
+-  if (cmSourceFile* sf = mf->GetOrCreateSource(fname)) {
+-    sf->SetProperty("LANGUAGE", llang);
+-    sf->SetProperty("CXX_SCAN_FOR_MODULES", "0");
+-    gtgt->AddSource(fname);
+-  }
++
++  // Need to do something more intelligent here to distinguish between
++  // C and C++ projects since the linker itself will be insufficient.
++  // In the mean time, I don't give a shit about this crap. AA_NOTE
++
++  // cmMakefile* mf = gtgt->Target->GetMakefile();
++  // std::string fname = cmStrCat(
++  //   gtgt->GetLocalGenerator()->GetCurrentBinaryDirectory(), "/CMakeFiles/",
++  //   gtgt->GetName(), "-CMakeForceLinker.", cmSystemTools::LowerCase(llang));
++  // {
++  //   cmGeneratedFileStream fout(fname);
++  //   fout << '\n';
++  // }
++  // if (cmSourceFile* sf = mf->GetOrCreateSource(fname)) {
++  //   sf->SetProperty("LANGUAGE", llang);
++  //   sf->SetProperty("CXX_SCAN_FOR_MODULES", "0");
++  //   gtgt->AddSource(fname);
++  // }
+ }
+ 
+ bool cmGlobalXCodeGenerator::IsHeaderFile(cmSourceFile* sf)
+diff --git a/Source/cmNinjaTargetGenerator.cxx b/Source/cmNinjaTargetGenerator.cxx
+index 720020dcd..f167061cc 100644
+--- a/Source/cmNinjaTargetGenerator.cxx
++++ b/Source/cmNinjaTargetGenerator.cxx
+@@ -592,10 +592,12 @@ std::string GetScanCommand(
+   cm::string_view srcFile, cm::string_view ddiFile,
+   cm::optional<cm::string_view> srcOrigFile = cm::nullopt)
+ {
+-  return cmStrCat(cmakeCmd, " -E cmake_ninja_depends --tdi=", tdi,
+-                  " --lang=", lang, " --src=", srcFile, " --out=$out",
+-                  " --dep=$DEP_FILE --obj=$OBJ_FILE --ddi=", ddiFile,
+-                  srcOrigFile ? cmStrCat(" --src-orig=", *srcOrigFile) : "");
++  std::string ret = cmStrCat(cmakeCmd, " -E cmake_ninja_depends --tdi=", tdi,
++                  " --lang=", lang, " --src= \"", srcFile, "\" --out=$out",
++                  " --dep=\"$DEP_FILE\" --obj=\"$OBJ_FILE\" --ddi=\"", ddiFile,
++                  srcOrigFile ? cmStrCat("\" --src-orig=", *srcOrigFile) : "\"");
++  printf("******************************************** %s\n",ret.c_str());
++  return ret;
+ }
+ 
+ // Helper function to create dependency scanning rule that may or may
+@@ -623,7 +625,7 @@ cmNinjaRule GetScanRule(
+   scanVars.CMTargetName = vars.CMTargetName;
+   scanVars.CMTargetType = vars.CMTargetType;
+   scanVars.Language = vars.Language;
+-  scanVars.Object = "$OBJ_FILE";
++  scanVars.Object = "\"$OBJ_FILE\"";
+   scanVars.PreprocessedSource = ppFileName.c_str();
+   scanVars.DynDepFile = "$DYNDEP_INTERMEDIATE_FILE";
+   scanVars.DependencyFile = rule.DepFile.c_str();
+diff --git a/Source/cmStateTypes.h b/Source/cmStateTypes.h
+index 24b809b57..46921285a 100644
+--- a/Source/cmStateTypes.h
++++ b/Source/cmStateTypes.h
+@@ -57,7 +57,9 @@ enum CacheEntryType
+ enum ArtifactType
+ {
+   RuntimeBinaryArtifact,
+-  ImportLibraryArtifact
++  ImportLibraryArtifact,
++  RuntimeDebugArtifact,
++  RuntimeObjectArtifact
+ };
+ }
+ 
+diff --git a/Source/cmVisualStudio10TargetGenerator.cxx b/Source/cmVisualStudio10TargetGenerator.cxx
+index 694976e58..a85efdda9 100644
+--- a/Source/cmVisualStudio10TargetGenerator.cxx
++++ b/Source/cmVisualStudio10TargetGenerator.cxx
+@@ -3076,9 +3076,16 @@ void cmVisualStudio10TargetGenerator::WritePathAndIncrementalLinkOptions(
+         }
+       }
+ 
+-      std::string intermediateDir = cmStrCat(
+-        this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget), '/',
+-        config, '/');
++      std::string intermediateDir = this->GeneratorTarget->GetDirectory(
++            config,cmStateEnums::RuntimeObjectArtifact);
++      if (intermediateDir.empty()) {
++        intermediateDir = cmStrCat(
++              this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget), '/',
++              config, '/');
++      } else {
++          intermediateDir +=  "/";
++      }
++
+       std::string outDir;
+       std::string targetNameFull;
+       if (ttype == cmStateEnums::OBJECT_LIBRARY) {
+diff --git a/Source/cmcmd.cxx b/Source/cmcmd.cxx
+index c82cb32da..51ae14242 100644
+--- a/Source/cmcmd.cxx
++++ b/Source/cmcmd.cxx
+@@ -725,6 +725,66 @@ int cmcmd::ExecuteCMakeCommand(std::vector<std::string> const& args,
+       return return_value;
+     }
+ 
++    if (args[1] == "copy_with_retry" && args.size() > 3) {
++      // If multiple source files specified,
++      // then destination must be directory
++      if ((args.size() > 4) &&
++          (!cmSystemTools::FileIsDirectory(args.back()))) {
++        std::cerr << "Error: Target (for copy_if_different command) \""
++                  << args.back() << "\" is not a directory.\n";
++        return 1;
++      }
++      // If error occurs we want to continue copying next files.
++      bool return_value = false;
++      for (auto const& arg : cmMakeRange(args).advance(2).retreat(1)) {
++        bool copy_succeeded = false;
++        for (int retry_count = 0; retry_count < 5 && !copy_succeeded; ++retry_count) {
++          if (!cmSystemTools::CopyFileIfDifferent(arg, args.back())) {
++            return_value = true;
++            cmSystemTools::Delay(5000);
++            continue;
++          } else {
++            copy_succeeded = true;
++          }
++        }
++        if (!copy_succeeded) {
++          std::cerr << "Error copying file (if different) from \"" << arg
++          << "\" to \"" << args.back() << "\".\n";
++        }
++      }
++      return return_value;
++    }
++
++    // Copy file if different.
++    if (args[1] == "copy_if_different_with_retry" && args.size() > 3) {
++      // If multiple source files specified,
++      // then destination must be directory
++      if ((args.size() > 4) &&
++          (!cmSystemTools::FileIsDirectory(args.back()))) {
++        std::cerr << "Error: Target (for copy_if_different command) \""
++                  << args.back() << "\" is not a directory.\n";
++        return 1;
++      }
++      // If error occurs we want to continue copying next files.
++      bool return_value = false;
++      for (auto const& arg : cmMakeRange(args).advance(2).retreat(1)) {
++        bool copy_succeeded = false;
++        for (int retry_count = 0; retry_count < 5 && !copy_succeeded; ++retry_count) {
++          if (!cmSystemTools::CopyFileIfDifferent(arg, args.back())) {
++            return_value = true;
++            cmSystemTools::Delay(5000);
++          } else {
++            copy_succeeded = true;
++          }
++        }
++        if (!copy_succeeded) {
++          std::cerr << "Error copying file (if different) from \"" << arg
++                    << "\" to \"" << args.back() << "\".\n";
++        }
++      }
++      return return_value;
++    }
++
+     // Copy directory contents
+     if ((args[1] == "copy_directory" ||
+          args[1] == "copy_directory_if_different") &&
+diff --git a/Source/kwsys/SystemTools.cxx b/Source/kwsys/SystemTools.cxx
+index 6cc103df5..e239dd439 100644
+--- a/Source/kwsys/SystemTools.cxx
++++ b/Source/kwsys/SystemTools.cxx
+@@ -2427,8 +2427,18 @@ bool SystemTools::FilesDiffer(const std::string& source,
+ 
+ #if defined(_WIN32)
+   kwsys::ifstream finSource(source.c_str(), (std::ios::binary | std::ios::in));
++  for (int niWait = 0; niWait < 60*1000/100; ++niWait) {
++      if (finSource) break;
++      Delay(100);
++      finSource.open(source.c_str(), (std::ios::binary | std::ios::in));
++  }
+   kwsys::ifstream finDestination(destination.c_str(),
+                                  (std::ios::binary | std::ios::in));
++  for (int niWait = 0; niWait < 60*1000/100; ++niWait) {
++      if (finDestination) break;
++      Delay(100);
++      finDestination.open(destination.c_str(), (std::ios::binary | std::ios::in));
++  }
+ #else
+   kwsys::ifstream finSource(source.c_str());
+   kwsys::ifstream finDestination(destination.c_str());
+@@ -2500,6 +2510,11 @@ SystemTools::CopyStatus SystemTools::CopyFileContentBlockwise(
+ {
+   // Open files
+   kwsys::ifstream fin(source.c_str(), std::ios::in | std::ios::binary);
++  for (int niWait = 0; niWait < 60*1000/100; ++niWait) {
++      if (fin) break;
++      Delay(100);
++      fin.open(source.c_str(), (std::ios::binary | std::ios::in));
++  }
+   if (!fin) {
+     return CopyStatus{ Status::POSIX_errno(), CopyStatus::SourcePath };
+   }
+@@ -2512,6 +2527,11 @@ SystemTools::CopyStatus SystemTools::CopyFileContentBlockwise(
+ 
+   kwsys::ofstream fout(destination.c_str(),
+                        std::ios::out | std::ios::trunc | std::ios::binary);
++  for (int niWait = 0; niWait < 60*1000/100; ++niWait) {
++      if (fout) break;
++      Delay(100);
++      fout.open(destination.c_str(), (std::ios::out | std::ios::trunc | std::ios::binary));
++  }
+   if (!fout) {
+     return CopyStatus{ Status::POSIX_errno(), CopyStatus::DestPath };
+   }
+-- 
+2.47.0.windows.2
+

@@ -1,0 +1,12 @@
+name: Release
+run-name: "Ninja-WIN-None-None-C17-WIN-WIN-X64-RELEASE"
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/configure__github_runner_image_runtime.yml
+    with:
+      os: windows-latest
+      cmake_command: -VERBOSE -CICD_BUILD -TEIKITU -IDE:NINJA -COMPILER:CLANG -THREAD:WINDOWS -OS:WINDOWS -DEVICE:DESKTOP -CPU:C17_X64 -GPU:NONE -BUILD_TYPE:RELEASE
+    secrets: inherit

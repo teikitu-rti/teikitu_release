@@ -1,0 +1,88 @@
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+/*  »Project«   Teikitu Gaming System (TgS) (∂)
+    »File«      TgS Collision [Unit Test] - F - Box AA.c_inc
+    »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
+    »Version«   5.12 | »GUID« 964CB1A6-814D-4E19-8E67-A83FCA98BF05 */
+/*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+    This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
+    visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+
+#if !defined (ENABLE_RELOAD_GUARD)
+    #define ENABLE_RELOAD_GUARD
+    #if !defined(TEMPLATE__TYPE_SIZE)
+        #if TgCOMPILE__NON_NATIVE_VECTOR_AS_NATIVE
+            #define TEMPLATE__TYPE_SIZE 64
+            #include __FILE__
+            #undef TEMPLATE__TYPE_SIZE
+        #endif
+        #define TEMPLATE__TYPE_SIZE 32
+    #endif
+    #undef ENABLE_RELOAD_GUARD
+#endif
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"
+
+
+/* == Collision ================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Unit Test Functions                                                                                                                                                            */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+TEST_METHOD( FCN_VO(TEST__COLLISION_SEGMENT) )
+{
+    VEC_T(1)                            vV0;
+    VEC_OBJ_T(TgLINE)                   sLN0;
+    VEC_OBJ_T(TgRAY)                    sRY0;
+    VEC_OBJ_T(TgSEGMENT)                sSG0;
+
+    vV0 = FCN_V(tgMH_Init_Vector_ELEM)( FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)(), FCN_F(tgCM_RAND)() );
+
+    /* Segment - Point                                                                                                                                                             */
+    FCN_VO(tgCO_SG_DistSq_PT)( &sSG0, vV0 );
+    FCN_VO(tgCO_SG_Dist_PT)( &sSG0, vV0 );
+    FCN_VO(tgCO_SG_ClosestSq_PT)( &vV0, &sSG0, vV0 );
+    FCN_VO(tgCO_SG_Closest_PT)( &vV0, &sSG0, vV0 );
+    FCN_VO(tgCO_SG_ClosestSq_PM_PT)( &vV0, &sSG0, vV0 );
+    FCN_VO(tgCO_SG_Closest_PM_PT)( &vV0, &sSG0, vV0 );
+    FCN_VO(tgCO_LR11_ClosestSq_PM_PT)( &vV0, vV0, vV0, vV0 );
+
+    /* Segment - Line                                                                                                                                                              */
+    FCN_VO(tgCO_SG_DistSq_LN)( &sSG0, &sLN0 );
+    FCN_VO(tgCO_SG_Dist_LN)( &sSG0, &sLN0 );
+    FCN_VO(tgCO_SG_ClosestSq_LN)( &vV0, &vV0, &sSG0, &sLN0 );
+    FCN_VO(tgCO_SG_Closest_LN)( &vV0, &vV0, &sSG0, &sLN0 );
+    FCN_VO(tgCO_SG_ClosestSq_PM_LN)( &vV0, &vV0, &sSG0, &sLN0 );
+    FCN_VO(tgCO_SG_Closest_PM_LN)( &vV0, &vV0, &sSG0, &sLN0 );
+    FCN_VO(tgCO_SG_Test_LN)( &sSG0, &sLN0 );
+    FCN_VO(tgCO_LR11_ClosestSq_PM_LR00)( &vV0, &vV0, vV0, vV0, vV0, vV0 );
+
+    /* Segment - Ray                                                                                                                                                               */
+    FCN_VO(tgCO_SG_DistSq_RY)( &sSG0, &sRY0 );
+    FCN_VO(tgCO_SG_Dist_RY)( &sSG0, &sRY0 );
+    FCN_VO(tgCO_SG_ClosestSq_RY)( &vV0, &vV0, &sSG0, &sRY0 );
+    FCN_VO(tgCO_SG_Closest_RY)( &vV0, &vV0, &sSG0, &sRY0 );
+    FCN_VO(tgCO_SG_ClosestSq_PM_RY)( &vV0, &vV0, &sSG0, &sRY0 );
+    FCN_VO(tgCO_SG_Closest_PM_RY)( &vV0, &vV0, &sSG0, &sRY0 );
+    FCN_VO(tgCO_SG_Test_RY)( &sSG0, &sRY0 );
+    FCN_VO(tgCO_LR11_ClosestSq_PM_LR10)( &vV0, &vV0, vV0, vV0, vV0, vV0 );
+
+    /* Segment - Segment                                                                                                                                                           */
+    FCN_VO(tgCO_SG_DistSq_SG)( &sSG0, &sSG0 );
+    FCN_VO(tgCO_SG_Dist_SG)( &sSG0, &sSG0 );
+    FCN_VO(tgCO_SG_ClosestSq_SG)( &vV0, &vV0, &sSG0, &sSG0 );
+    FCN_VO(tgCO_SG_Closest_SG)( &vV0, &vV0, &sSG0, &sSG0 );
+    FCN_VO(tgCO_SG_ClosestSq_PM_SG)( &vV0, &vV0, &sSG0, &sSG0 );
+    FCN_VO(tgCO_SG_Closest_PM_SG)( &vV0, &vV0, &sSG0, &sSG0 );
+    FCN_VO(tgCO_SG_Test_SG)( &sSG0, &sSG0 );
+    FCN_VO(tgCO_LR11_ClosestSq_PM_LR11)( &vV0, &vV0, vV0, vV0, vV0, vV0 );
+
+    return (KTgS_OK);
+}
+
+
+/* =============================================================================================================================================================================== */
+
+#include "TgS COMMON/TgS Common - Base - Defines [Template] [Math].h_inc"

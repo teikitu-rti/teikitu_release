@@ -1,0 +1,52 @@
+From 9b44ef5ed430c0a53252821d3afcbd7d09d0ba15 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Tue, 12 Nov 2024 08:13:26 -0800
+Subject: [PATCH 3/4] Update CMakeLists.txt
+
+---
+ CMakeLists.txt | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4729e5b..8455b43 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -295,7 +295,7 @@ if(MI_USE_CXX)
+   set_source_files_properties(${mi_sources} PROPERTIES LANGUAGE CXX )
+   set_source_files_properties(src/static.c test/test-api.c test/test-api-fill test/test-stress PROPERTIES LANGUAGE CXX )
+   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
+-    list(APPEND mi_cflags -Wno-deprecated)
++    list(APPEND mi_cflags -Wno-deprecated -Wno-strict-prototypes)
+   endif()
+   if(CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM")
+     list(APPEND mi_cflags -Kc++)
+@@ -426,7 +426,7 @@ set(mi_install_bindir       "${CMAKE_INSTALL_BINDIR}")
+ # static libraries and object files, includes, and cmake config files
+ # are either installed at top level, or use versioned directories for side-by-side installation (default)
+ if (MI_INSTALL_TOPLEVEL)
+-  set(mi_install_objdir     "${CMAKE_INSTALL_LIBDIR}")
++  set(mi_install_objdir     "${CMAKE_INSTALL_LIBDIR}/${CMAKE_BUILD_TYPE}")
+   set(mi_install_incdir     "${CMAKE_INSTALL_INCLUDEDIR}")
+   set(mi_install_cmakedir   "${CMAKE_INSTALL_LIBDIR}/cmake/mimalloc")
+ else()
+@@ -543,6 +543,17 @@ install(FILES include/mimalloc-new-delete.h DESTINATION ${mi_install_incdir})
+ install(FILES cmake/mimalloc-config.cmake DESTINATION ${mi_install_cmakedir})
+ install(FILES cmake/mimalloc-config-version.cmake DESTINATION ${mi_install_cmakedir})
+ 
++if (WIN32)
++    # Used a batch file from the internet (dll2lib.bat) which uses dumpbin to export a def file, cleans it up, and then uses lib to create a lib from the def.
++    # This is a renamed mimalloc-redirect.lib/dll set of files for Teikitu. Since you then need to wrap mimalloc in a dll for symbol hiding to avoid multiple
++    # definitions when using the redirector (it is dependent on importing specific function names), only the static targets are assumed to exist.
++    add_custom_command(TARGET mimalloc-static POST_BUILD
++      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/bin/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.lib" $<TARGET_FILE_DIR:mimalloc-static>
++      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/bin/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.dll" $<TARGET_FILE_DIR:mimalloc-static>
++      COMMENT "Copy mimalloc-redirect${MIMALLOC_REDIRECT_SUFFIX}.dll to output directory")
++    install(FILES "$<TARGET_FILE_DIR:mimalloc-static>/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.lib" DESTINATION ${mi_install_libdir})
++    install(FILES "$<TARGET_FILE_DIR:mimalloc-static>/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.dll" DESTINATION ${mi_install_libdir})
++endif()
+ 
+ # single object file for more predictable static overriding
+ if (MI_BUILD_OBJECT)
+-- 
+2.46.2.windows.1
+

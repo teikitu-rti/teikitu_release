@@ -1,0 +1,473 @@
+From 7e7ed3c1dc3ae0a575c2d8c3153d206cfb231669 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Sun, 17 Nov 2024 15:34:48 -0800
+Subject: [PATCH] Removal of ifdef __cplusplus blocks.
+
+---
+ include/mimalloc.h        | 145 --------------------------------------
+ include/mimalloc/atomic.h |   7 +-
+ src/alloc-override.c      | 101 --------------------------
+ src/alloc.c               |  27 -------
+ test/test-api.c           |  60 ----------------
+ test/test-stress.c        |   7 --
+ 6 files changed, 1 insertion(+), 346 deletions(-)
+
+diff --git a/include/mimalloc.h b/include/mimalloc.h
+index e5133c96..1e55c4bf 100644
+--- a/include/mimalloc.h
++++ b/include/mimalloc.h
+@@ -441,149 +441,4 @@ mi_decl_nodiscard mi_decl_export mi_decl_restrict void* mi_heap_alloc_new_n(mi_h
+ }
+ #endif
+ 
+-// ---------------------------------------------------------------------------------------------
+-// Implement the C++ std::allocator interface for use in STL containers.
+-// (note: see `mimalloc-new-delete.h` for overriding the new/delete operators globally)
+-// ---------------------------------------------------------------------------------------------
+-#ifdef __cplusplus
+-
+-#include <cstddef>     // std::size_t
+-#include <cstdint>     // PTRDIFF_MAX
+-#if (__cplusplus >= 201103L) || (_MSC_VER > 1900)  // C++11
+-#include <type_traits> // std::true_type
+-#include <utility>     // std::forward
+-#endif
+-
+-template<class T> struct _mi_stl_allocator_common {
+-  typedef T                 value_type;
+-  typedef std::size_t       size_type;
+-  typedef std::ptrdiff_t    difference_type;
+-  typedef value_type&       reference;
+-  typedef value_type const& const_reference;
+-  typedef value_type*       pointer;
+-  typedef value_type const* const_pointer;
+-
+-  #if ((__cplusplus >= 201103L) || (_MSC_VER > 1900))  // C++11
+-  using propagate_on_container_copy_assignment = std::true_type;
+-  using propagate_on_container_move_assignment = std::true_type;
+-  using propagate_on_container_swap            = std::true_type;
+-  template <class U, class ...Args> void construct(U* p, Args&& ...args) { ::new(p) U(std::forward<Args>(args)...); }
+-  template <class U> void destroy(U* p) mi_attr_noexcept { p->~U(); }
+-  #else
+-  void construct(pointer p, value_type const& val) { ::new(p) value_type(val); }
+-  void destroy(pointer p) { p->~value_type(); }
+-  #endif
+-
+-  size_type     max_size() const mi_attr_noexcept { return (PTRDIFF_MAX/sizeof(value_type)); }
+-  pointer       address(reference x) const        { return &x; }
+-  const_pointer address(const_reference x) const  { return &x; }
+-};
+-
+-template<class T> struct mi_stl_allocator : public _mi_stl_allocator_common<T> {
+-  using typename _mi_stl_allocator_common<T>::size_type;
+-  using typename _mi_stl_allocator_common<T>::value_type;
+-  using typename _mi_stl_allocator_common<T>::pointer;
+-  template <class U> struct rebind { typedef mi_stl_allocator<U> other; };
+-
+-  mi_stl_allocator()                                             mi_attr_noexcept = default;
+-  mi_stl_allocator(const mi_stl_allocator&)                      mi_attr_noexcept = default;
+-  template<class U> mi_stl_allocator(const mi_stl_allocator<U>&) mi_attr_noexcept { }
+-  mi_stl_allocator  select_on_container_copy_construction() const { return *this; }
+-  void              deallocate(T* p, size_type) { mi_free(p); }
+-
+-  #if (__cplusplus >= 201703L)  // C++17
+-  mi_decl_nodiscard T* allocate(size_type count) { return static_cast<T*>(mi_new_n(count, sizeof(T))); }
+-  mi_decl_nodiscard T* allocate(size_type count, const void*) { return allocate(count); }
+-  #else
+-  mi_decl_nodiscard pointer allocate(size_type count, const void* = 0) { return static_cast<pointer>(mi_new_n(count, sizeof(value_type))); }
+-  #endif
+-
+-  #if ((__cplusplus >= 201103L) || (_MSC_VER > 1900))  // C++11
+-  using is_always_equal = std::true_type;
+-  #endif
+-};
+-
+-template<class T1,class T2> bool operator==(const mi_stl_allocator<T1>& , const mi_stl_allocator<T2>& ) mi_attr_noexcept { return true; }
+-template<class T1,class T2> bool operator!=(const mi_stl_allocator<T1>& , const mi_stl_allocator<T2>& ) mi_attr_noexcept { return false; }
+-
+-
+-#if (__cplusplus >= 201103L) || (_MSC_VER >= 1900)  // C++11
+-#define MI_HAS_HEAP_STL_ALLOCATOR 1
+-
+-#include <memory>      // std::shared_ptr
+-
+-// Common base class for STL allocators in a specific heap
+-template<class T, bool _mi_destroy> struct _mi_heap_stl_allocator_common : public _mi_stl_allocator_common<T> {
+-  using typename _mi_stl_allocator_common<T>::size_type;
+-  using typename _mi_stl_allocator_common<T>::value_type;
+-  using typename _mi_stl_allocator_common<T>::pointer;
+-
+-  _mi_heap_stl_allocator_common(mi_heap_t* hp) : heap(hp, [](mi_heap_t*) {}) {}    /* will not delete nor destroy the passed in heap */
+-
+-  #if (__cplusplus >= 201703L)  // C++17
+-  mi_decl_nodiscard T* allocate(size_type count) { return static_cast<T*>(mi_heap_alloc_new_n(this->heap.get(), count, sizeof(T))); }
+-  mi_decl_nodiscard T* allocate(size_type count, const void*) { return allocate(count); }
+-  #else
+-  mi_decl_nodiscard pointer allocate(size_type count, const void* = 0) { return static_cast<pointer>(mi_heap_alloc_new_n(this->heap.get(), count, sizeof(value_type))); }
+-  #endif
+-
+-  #if ((__cplusplus >= 201103L) || (_MSC_VER > 1900))  // C++11
+-  using is_always_equal = std::false_type;
+-  #endif
+-
+-  void collect(bool force) { mi_heap_collect(this->heap.get(), force); }
+-  template<class U> bool is_equal(const _mi_heap_stl_allocator_common<U, _mi_destroy>& x) const { return (this->heap == x.heap); }
+-
+-protected:
+-  std::shared_ptr<mi_heap_t> heap;
+-  template<class U, bool D> friend struct _mi_heap_stl_allocator_common;
+-  
+-  _mi_heap_stl_allocator_common() {
+-    mi_heap_t* hp = mi_heap_new();
+-    this->heap.reset(hp, (_mi_destroy ? &heap_destroy : &heap_delete));  /* calls heap_delete/destroy when the refcount drops to zero */
+-  }
+-  _mi_heap_stl_allocator_common(const _mi_heap_stl_allocator_common& x) mi_attr_noexcept : heap(x.heap) { }
+-  template<class U> _mi_heap_stl_allocator_common(const _mi_heap_stl_allocator_common<U, _mi_destroy>& x) mi_attr_noexcept : heap(x.heap) { }
+-
+-private:
+-  static void heap_delete(mi_heap_t* hp)  { if (hp != NULL) { mi_heap_delete(hp); } }
+-  static void heap_destroy(mi_heap_t* hp) { if (hp != NULL) { mi_heap_destroy(hp); } }
+-};
+-
+-// STL allocator allocation in a specific heap
+-template<class T> struct mi_heap_stl_allocator : public _mi_heap_stl_allocator_common<T, false> {
+-  using typename _mi_heap_stl_allocator_common<T, false>::size_type;
+-  mi_heap_stl_allocator() : _mi_heap_stl_allocator_common<T, false>() { } // creates fresh heap that is deleted when the destructor is called
+-  mi_heap_stl_allocator(mi_heap_t* hp) : _mi_heap_stl_allocator_common<T, false>(hp) { }  // no delete nor destroy on the passed in heap 
+-  template<class U> mi_heap_stl_allocator(const mi_heap_stl_allocator<U>& x) mi_attr_noexcept : _mi_heap_stl_allocator_common<T, false>(x) { }
+-
+-  mi_heap_stl_allocator select_on_container_copy_construction() const { return *this; }
+-  void deallocate(T* p, size_type) { mi_free(p); }
+-  template<class U> struct rebind { typedef mi_heap_stl_allocator<U> other; };
+-};
+-
+-template<class T1, class T2> bool operator==(const mi_heap_stl_allocator<T1>& x, const mi_heap_stl_allocator<T2>& y) mi_attr_noexcept { return (x.is_equal(y)); }
+-template<class T1, class T2> bool operator!=(const mi_heap_stl_allocator<T1>& x, const mi_heap_stl_allocator<T2>& y) mi_attr_noexcept { return (!x.is_equal(y)); }
+-
+-
+-// STL allocator allocation in a specific heap, where `free` does nothing and
+-// the heap is destroyed in one go on destruction -- use with care!
+-template<class T> struct mi_heap_destroy_stl_allocator : public _mi_heap_stl_allocator_common<T, true> {
+-  using typename _mi_heap_stl_allocator_common<T, true>::size_type;
+-  mi_heap_destroy_stl_allocator() : _mi_heap_stl_allocator_common<T, true>() { } // creates fresh heap that is destroyed when the destructor is called
+-  mi_heap_destroy_stl_allocator(mi_heap_t* hp) : _mi_heap_stl_allocator_common<T, true>(hp) { }  // no delete nor destroy on the passed in heap 
+-  template<class U> mi_heap_destroy_stl_allocator(const mi_heap_destroy_stl_allocator<U>& x) mi_attr_noexcept : _mi_heap_stl_allocator_common<T, true>(x) { }
+-
+-  mi_heap_destroy_stl_allocator select_on_container_copy_construction() const { return *this; }
+-  void deallocate(T*, size_type) { /* do nothing as we destroy the heap on destruct. */ }
+-  template<class U> struct rebind { typedef mi_heap_destroy_stl_allocator<U> other; };
+-};
+-
+-template<class T1, class T2> bool operator==(const mi_heap_destroy_stl_allocator<T1>& x, const mi_heap_destroy_stl_allocator<T2>& y) mi_attr_noexcept { return (x.is_equal(y)); }
+-template<class T1, class T2> bool operator!=(const mi_heap_destroy_stl_allocator<T1>& x, const mi_heap_destroy_stl_allocator<T2>& y) mi_attr_noexcept { return (!x.is_equal(y)); }
+-
+-#endif // C++11
+-
+-#endif // __cplusplus
+-
+ #endif
+diff --git a/include/mimalloc/atomic.h b/include/mimalloc/atomic.h
+index 3a0d4892..ed5dce68 100644
+--- a/include/mimalloc/atomic.h
++++ b/include/mimalloc/atomic.h
+@@ -338,12 +338,7 @@ typedef _Atomic(uintptr_t) mi_atomic_guard_t;
+ // Yield
+ // ----------------------------------------------------------------------
+ 
+-#if defined(__cplusplus)
+-#include <thread>
+-static inline void mi_atomic_yield(void) {
+-  std::this_thread::yield();
+-}
+-#elif defined(_WIN32)
++#if defined(_WIN32)
+ static inline void mi_atomic_yield(void) {
+   YieldProcessor();
+ }
+diff --git a/src/alloc-override.c b/src/alloc-override.c
+index 82a98b80..52c93bd5 100644
+--- a/src/alloc-override.c
++++ b/src/alloc-override.c
+@@ -100,20 +100,6 @@ typedef void* mi_nothrow_t;
+     #endif
+   };
+ 
+-  #ifdef __cplusplus
+-  extern "C" {
+-  #endif
+-  void  _ZdlPv(void* p);   // delete
+-  void  _ZdaPv(void* p);   // delete[]
+-  void  _ZdlPvm(void* p, size_t n);  // delete
+-  void  _ZdaPvm(void* p, size_t n);  // delete[]
+-  void* _Znwm(size_t n);  // new
+-  void* _Znam(size_t n);  // new[]
+-  void* _ZnwmRKSt9nothrow_t(size_t n, mi_nothrow_t tag); // new nothrow
+-  void* _ZnamRKSt9nothrow_t(size_t n, mi_nothrow_t tag); // new[] nothrow
+-  #ifdef __cplusplus
+-  }
+-  #endif
+   __attribute__((used)) static struct mi_interpose_s _mi_cxx_interposes[]  __attribute__((section("__DATA, __interpose"))) =
+   {
+     MI_INTERPOSE_FUN(_ZdlPv,mi_free),
+@@ -149,93 +135,6 @@ typedef void* mi_nothrow_t;
+ #pragma GCC visibility push(default)
+ #endif
+ 
+-// ------------------------------------------------------
+-// Override new/delete
+-// This is not really necessary as they usually call
+-// malloc/free anyway, but it improves performance.
+-// ------------------------------------------------------
+-#ifdef __cplusplus
+-  // ------------------------------------------------------
+-  // With a C++ compiler we override the new/delete operators.
+-  // see <https://en.cppreference.com/w/cpp/memory/new/operator_new>
+-  // ------------------------------------------------------
+-  #include <new>
+-
+-  #ifndef MI_OSX_IS_INTERPOSED
+-    void operator delete(void* p) noexcept              MI_FORWARD0(mi_free,p)
+-    void operator delete[](void* p) noexcept            MI_FORWARD0(mi_free,p)
+-
+-    void* operator new(std::size_t n) noexcept(false)   MI_FORWARD1(mi_new,n)
+-    void* operator new[](std::size_t n) noexcept(false) MI_FORWARD1(mi_new,n)
+-
+-    void* operator new  (std::size_t n, const std::nothrow_t& tag) noexcept { MI_UNUSED(tag); return mi_new_nothrow(n); }
+-    void* operator new[](std::size_t n, const std::nothrow_t& tag) noexcept { MI_UNUSED(tag); return mi_new_nothrow(n); }
+-
+-    #if (__cplusplus >= 201402L || _MSC_VER >= 1916)
+-    void operator delete  (void* p, std::size_t n) noexcept MI_FORWARD02(mi_free_size,p,n)
+-    void operator delete[](void* p, std::size_t n) noexcept MI_FORWARD02(mi_free_size,p,n)
+-    #endif
+-  #endif
+-
+-  #if (__cplusplus > 201402L && defined(__cpp_aligned_new)) && (!defined(__GNUC__) || (__GNUC__ > 5))
+-  void operator delete  (void* p, std::align_val_t al) noexcept { mi_free_aligned(p, static_cast<size_t>(al)); }
+-  void operator delete[](void* p, std::align_val_t al) noexcept { mi_free_aligned(p, static_cast<size_t>(al)); }
+-  void operator delete  (void* p, std::size_t n, std::align_val_t al) noexcept { mi_free_size_aligned(p, n, static_cast<size_t>(al)); };
+-  void operator delete[](void* p, std::size_t n, std::align_val_t al) noexcept { mi_free_size_aligned(p, n, static_cast<size_t>(al)); };
+-  void operator delete  (void* p, std::align_val_t al, const std::nothrow_t&) noexcept { mi_free_aligned(p, static_cast<size_t>(al)); }
+-  void operator delete[](void* p, std::align_val_t al, const std::nothrow_t&) noexcept { mi_free_aligned(p, static_cast<size_t>(al)); }
+-
+-  void* operator new( std::size_t n, std::align_val_t al)   noexcept(false) { return mi_new_aligned(n, static_cast<size_t>(al)); }
+-  void* operator new[]( std::size_t n, std::align_val_t al) noexcept(false) { return mi_new_aligned(n, static_cast<size_t>(al)); }
+-  void* operator new  (std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept { return mi_new_aligned_nothrow(n, static_cast<size_t>(al)); }
+-  void* operator new[](std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept { return mi_new_aligned_nothrow(n, static_cast<size_t>(al)); }
+-  #endif
+-
+-#elif (defined(__GNUC__) || defined(__clang__))
+-  // ------------------------------------------------------
+-  // Override by defining the mangled C++ names of the operators (as
+-  // used by GCC and CLang).
+-  // See <https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling>
+-  // ------------------------------------------------------
+-
+-  void _ZdlPv(void* p)            MI_FORWARD0(mi_free,p) // delete
+-  void _ZdaPv(void* p)            MI_FORWARD0(mi_free,p) // delete[]
+-  void _ZdlPvm(void* p, size_t n) MI_FORWARD02(mi_free_size,p,n)
+-  void _ZdaPvm(void* p, size_t n) MI_FORWARD02(mi_free_size,p,n)
+-  
+-  void _ZdlPvSt11align_val_t(void* p, size_t al)            { mi_free_aligned(p,al); }
+-  void _ZdaPvSt11align_val_t(void* p, size_t al)            { mi_free_aligned(p,al); }
+-  void _ZdlPvmSt11align_val_t(void* p, size_t n, size_t al) { mi_free_size_aligned(p,n,al); }
+-  void _ZdaPvmSt11align_val_t(void* p, size_t n, size_t al) { mi_free_size_aligned(p,n,al); }
+-
+-  void _ZdlPvRKSt9nothrow_t(void* p, mi_nothrow_t tag)      { MI_UNUSED(tag); mi_free(p); }  // operator delete(void*, std::nothrow_t const&) 
+-  void _ZdaPvRKSt9nothrow_t(void* p, mi_nothrow_t tag)      { MI_UNUSED(tag); mi_free(p); }  // operator delete[](void*, std::nothrow_t const&)
+-  void _ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t al, mi_nothrow_t tag) { MI_UNUSED(tag); mi_free_aligned(p,al); } // operator delete(void*, std::align_val_t, std::nothrow_t const&) 
+-  void _ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t al, mi_nothrow_t tag) { MI_UNUSED(tag); mi_free_aligned(p,al); } // operator delete[](void*, std::align_val_t, std::nothrow_t const&) 
+-  
+-  #if (MI_INTPTR_SIZE==8)
+-    void* _Znwm(size_t n)                             MI_FORWARD1(mi_new,n)  // new 64-bit
+-    void* _Znam(size_t n)                             MI_FORWARD1(mi_new,n)  // new[] 64-bit
+-    void* _ZnwmRKSt9nothrow_t(size_t n, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_nothrow(n); }
+-    void* _ZnamRKSt9nothrow_t(size_t n, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_nothrow(n); }
+-    void* _ZnwmSt11align_val_t(size_t n, size_t al)   MI_FORWARD2(mi_new_aligned, n, al)
+-    void* _ZnamSt11align_val_t(size_t n, size_t al)   MI_FORWARD2(mi_new_aligned, n, al)
+-    void* _ZnwmSt11align_val_tRKSt9nothrow_t(size_t n, size_t al, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_aligned_nothrow(n,al); }
+-    void* _ZnamSt11align_val_tRKSt9nothrow_t(size_t n, size_t al, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_aligned_nothrow(n,al); }
+-  #elif (MI_INTPTR_SIZE==4)
+-    void* _Znwj(size_t n)                             MI_FORWARD1(mi_new,n)  // new 64-bit
+-    void* _Znaj(size_t n)                             MI_FORWARD1(mi_new,n)  // new[] 64-bit
+-    void* _ZnwjRKSt9nothrow_t(size_t n, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_nothrow(n); }
+-    void* _ZnajRKSt9nothrow_t(size_t n, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_nothrow(n); }
+-    void* _ZnwjSt11align_val_t(size_t n, size_t al)   MI_FORWARD2(mi_new_aligned, n, al)
+-    void* _ZnajSt11align_val_t(size_t n, size_t al)   MI_FORWARD2(mi_new_aligned, n, al)
+-    void* _ZnwjSt11align_val_tRKSt9nothrow_t(size_t n, size_t al, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_aligned_nothrow(n,al); }
+-    void* _ZnajSt11align_val_tRKSt9nothrow_t(size_t n, size_t al, mi_nothrow_t tag) { MI_UNUSED(tag); return mi_new_aligned_nothrow(n,al); }
+-  #else
+-    #error "define overloads for new/delete for this platform (just for performance, can be skipped)"
+-  #endif
+-#endif // __cplusplus
+-
+ // ------------------------------------------------------
+ // Further Posix & Unix functions definitions
+ // ------------------------------------------------------
+diff --git a/src/alloc.c b/src/alloc.c
+index 119dfe75..843ecac2 100644
+--- a/src/alloc.c
++++ b/src/alloc.c
+@@ -460,32 +460,6 @@ use a C compiler we cannot throw a `bad_alloc` exception
+ but we call `exit` instead (i.e. not returning).
+ -------------------------------------------------------*/
+ 
+-#ifdef __cplusplus
+-#include <new>
+-static bool mi_try_new_handler(bool nothrow) {
+-  #if defined(_MSC_VER) || (__cplusplus >= 201103L)
+-    std::new_handler h = std::get_new_handler();
+-  #else
+-    std::new_handler h = std::set_new_handler();
+-    std::set_new_handler(h);
+-  #endif
+-  if (h==NULL) {
+-    _mi_error_message(ENOMEM, "out of memory in 'new'");
+-    #if defined(_CPPUNWIND) || defined(__cpp_exceptions)  // exceptions are not always enabled
+-    if (!nothrow) {
+-      throw std::bad_alloc();
+-    }
+-    #else
+-    MI_UNUSED(nothrow);
+-    #endif
+-    return false;
+-  }
+-  else {
+-    h();
+-    return true;
+-  }
+-}
+-#else
+ typedef void (*std_new_handler_t)(void);
+ 
+ #if (defined(__GNUC__) || (defined(__clang__) && !defined(_MSC_VER)))  // exclude clang-cl, see issue #631
+@@ -516,7 +490,6 @@ static bool mi_try_new_handler(bool nothrow) {
+     return true;
+   }
+ }
+-#endif
+ 
+ mi_decl_export mi_decl_noinline void* mi_heap_try_new(mi_heap_t* heap, size_t size, bool nothrow ) {
+   void* p = NULL;
+diff --git a/test/test-api.c b/test/test-api.c
+index 15484544..4b8d75fe 100644
+--- a/test/test-api.c
++++ b/test/test-api.c
+@@ -28,10 +28,6 @@ we therefore test the API over various inputs. Please add more tests :-)
+ #include <stdint.h>
+ #include <errno.h>
+ 
+-#ifdef __cplusplus
+-#include <vector>
+-#endif
+-
+ #include "mimalloc.h"
+ // #include "mimalloc/internal.h"
+ #include "mimalloc/types.h" // for MI_DEBUG and MI_BLOCK_ALIGNMENT_MAX
+@@ -380,83 +376,27 @@ bool test_heap2(void) {
+ }
+ 
+ bool test_stl_allocator1(void) {
+-#ifdef __cplusplus
+-  std::vector<int, mi_stl_allocator<int> > vec;
+-  vec.push_back(1);
+-  vec.pop_back();
+-  return vec.size() == 0;
+-#else
+   return true;
+-#endif
+ }
+ 
+ struct some_struct  { int i; int j; double z; };
+ 
+ bool test_stl_allocator2(void) {
+-#ifdef __cplusplus
+-  std::vector<some_struct, mi_stl_allocator<some_struct> > vec;
+-  vec.push_back(some_struct());
+-  vec.pop_back();
+-  return vec.size() == 0;
+-#else
+   return true;
+-#endif
+ }
+ 
+ bool test_stl_heap_allocator1(void) {
+-#ifdef __cplusplus
+-  std::vector<some_struct, mi_heap_stl_allocator<some_struct> > vec;
+-  vec.push_back(some_struct());
+-  vec.pop_back();
+-  return vec.size() == 0;
+-#else
+   return true;
+-#endif
+ }
+ 
+ bool test_stl_heap_allocator2(void) {
+-#ifdef __cplusplus
+-  std::vector<some_struct, mi_heap_destroy_stl_allocator<some_struct> > vec;
+-  vec.push_back(some_struct());
+-  vec.pop_back();
+-  return vec.size() == 0;
+-#else
+   return true;
+-#endif
+ }
+ 
+ bool test_stl_heap_allocator3(void) {
+-#ifdef __cplusplus
+-	mi_heap_t* heap = mi_heap_new();
+-	bool good = false;
+-	{
+-		mi_heap_stl_allocator<some_struct> myAlloc(heap);
+-		std::vector<some_struct, mi_heap_stl_allocator<some_struct> > vec(myAlloc);
+-		vec.push_back(some_struct());
+-		vec.pop_back();
+-		good = vec.size() == 0;
+-	}
+-	mi_heap_delete(heap);
+-  return good;
+-#else
+   return true;
+-#endif
+ }
+ 
+ bool test_stl_heap_allocator4(void) {
+-#ifdef __cplusplus
+-	mi_heap_t* heap = mi_heap_new();
+-	bool good = false;
+-	{
+-		mi_heap_destroy_stl_allocator<some_struct> myAlloc(heap);
+-		std::vector<some_struct, mi_heap_destroy_stl_allocator<some_struct> > vec(myAlloc);
+-		vec.push_back(some_struct());
+-		vec.pop_back();
+-		good = vec.size() == 0;
+-	}
+-	mi_heap_destroy(heap);
+-  return good;
+-#else
+   return true;
+-#endif
+ }
+diff --git a/test/test-stress.c b/test/test-stress.c
+index 30ad0e77..2ebae36d 100644
+--- a/test/test-stress.c
++++ b/test/test-stress.c
+@@ -386,16 +386,9 @@ static void run_os_threads(size_t nthreads, void (*fun)(intptr_t)) {
+   custom_free(threads);
+ }
+ 
+-#ifdef __cplusplus
+-#include <atomic>
+-static void* atomic_exchange_ptr(volatile void** p, void* newval) {
+-  return std::atomic_exchange((volatile std::atomic<void*>*)p, newval);
+-}
+-#else
+ #include <stdatomic.h>
+ static void* atomic_exchange_ptr(volatile void** p, void* newval) {
+   return atomic_exchange((volatile _Atomic(void*)*)p, newval);
+ }
+-#endif
+ 
+ #endif
+-- 
+2.46.2.windows.1
+

@@ -1,0 +1,11 @@
+name: Debug
+run-name: "Ninja-MAC-None-None-C17-POSIX-POSIX-ARM64-DEBUG"
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/configure__github_runner_image_runtime_mac.yml
+    with:
+      cmake_command: -VERBOSE -CICD_BUILD -TEIKITU -IDE:NINJA -COMPILER:CLANG -THREAD:POSIX -OS:POSIX -DEVICE:DESKTOP -CPU:C17_A64 -GPU:NONE -BUILD_TYPE:DEBUG
+    secrets: inherit

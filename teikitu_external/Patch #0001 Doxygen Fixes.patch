@@ -1,0 +1,336 @@
+From fde1868a120a6e46e934abab236671f0cf4a22c4 Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Sat, 14 Dec 2024 18:39:55 -0800
+Subject: [PATCH] Build Fixes.
+
+---
+ CMakeLists.txt                       | 30 +++++++++------
+ cmake/CompilerWarnings.cmake         | 56 ++++++++++++++++++++++++++--
+ cmake/WindowsEncoding.cmake          |  2 +-
+ deps/sqlite3/CMakeLists.txt          |  2 +-
+ deps/sqlite3/sqlite3.c               |  4 ++
+ src/CMakeLists.txt                   | 15 ++++++--
+ src/constexp.y                       |  2 +-
+ src/trace.h                          |  2 +-
+ vhdlparser/TokenMgrError.cc          |  8 ++--
+ vhdlparser/VhdlParserTokenManager.cc |  2 +-
+ 10 files changed, 96 insertions(+), 27 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3adf456b..57344984 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -11,7 +11,7 @@
+ # Documents produced by Doxygen are derivative works derived from the
+ # input used in their production; they are not affected by this license.
+ 
+-cmake_minimum_required(VERSION 3.14)
++cmake_minimum_required(VERSION 3.21)
+ project(doxygen)
+ 
+ option("ENABLE_CLANG_TIDY" "Enable static analysis with clang-tidy" OFF)
+@@ -23,12 +23,20 @@ option(build_search    "Build external search tools (doxysearch and doxyindexer)
+ option(build_doc       "Build user manual (HTML and PDF)" OFF)
+ option(build_doc_chm   "Build user manual (CHM)" OFF)
+ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+-    option(use_libc++  "Use libc++ as C++ standard library." ON)
++    option(use_libc++  "Use libc++ as C++ standard library." OFF)
++    if (WIN32)
++        option(use_libclang    "Add support for libclang parsing." OFF)
++        option(static_libclang "Link to a statically compiled version of LLVM/libclang." OFF)
++    ELSE ()
++        option(use_libclang    "Add support for libclang parsing." ON)
++        option(static_libclang "Link to a statically compiled version of LLVM/libclang." ON)
++    ENDIF ()
++else ()
++    option(use_libclang    "Add support for libclang parsing." OFF)
++    option(static_libclang "Link to a statically compiled version of LLVM/libclang." OFF)
+ endif()
+-option(use_libclang    "Add support for libclang parsing." OFF)
+ option(use_sys_spdlog  "Use system spdlog library instead of the one bundled." OFF)
+ option(use_sys_sqlite3 "Use system sqlite3 library instead of the one bundled." OFF)
+-option(static_libclang "Link to a statically compiled version of LLVM/libclang." OFF)
+ option(win_static      "Link with /MT in stead of /MD on windows" OFF)
+ option(enable_console  "Enable that executables on Windows get the CONSOLE bit set for the doxywizard executable [development]"  OFF)
+ option(enable_coverage "Enable coverage reporting for gcc/clang [development]" OFF)
+@@ -59,11 +67,11 @@ else()
+     set(depfile_supported  "1" CACHE INTERNAL "DEPFILE is supported")
+ endif()
+ 
+-set(clang    "0" CACHE INTERNAL "used in settings.h")
++set(clang "0" CACHE INTERNAL "used in settings.h")
+ 
+ set(MACOS_VERSION_MIN 10.14)
+ if (use_libclang)
+-	set(clang    "1" CACHE INTERNAL "used in settings.h")
++	set(clang "1" CACHE INTERNAL "used in settings.h")
+         find_package(LLVM CONFIG REQUIRED)
+         find_package(Clang CONFIG REQUIRED)
+ endif()
+@@ -81,8 +89,8 @@ if (build_wizard)
+     endif()
+ endif()
+ 
+-# use C++17 standard for compiling
+-set(CMAKE_CXX_STANDARD 17)
++# use C++20 standard for compiling
++set(CMAKE_CXX_STANDARD 20)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_CXX_EXTENSIONS ON)
+ 
+@@ -117,8 +125,10 @@ endif()
+ 
+ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_LIBCPP_ENABLE_ASSERTIONS=1")
++    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE")
+ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_ASSERTIONS")
++    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE")
+ endif()
+ 
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSQLITE_OMIT_LOAD_EXTENSION=1")
+@@ -136,7 +146,6 @@ if (WIN32)
+         endif()
+         set(CMAKE_REQUIRED_DEFINITIONS "-DLIBICONV_STATIC")
+         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj") # needed for language.cpp on 64bit
+-        add_definitions(-DLIBICONV_STATIC -D_CRT_SECURE_NO_WARNINGS)
+         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
+     endif()
+     if (CMAKE_GENERATOR MATCHES "NMake Makefiles")
+@@ -170,7 +179,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+ endif()
+ 
+ # needed for JavaCC
+-set(JAVA_CC_EXTRA_FLAGS "-DJAVACC_CHAR_TYPE=\"unsigned char\"")
++set(JAVA_CC_EXTRA_FLAGS "-DJAVACC_CHAR_TYPE=\"char8_t\"")
+ set(CMAKE_CXX_FLAGS       "${CMAKE_CXX_FLAGS}       ${JAVA_CC_EXTRA_FLAGS}")
+ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${JAVA_CC_EXTRA_FLAGS}")
+ 
+@@ -212,7 +221,6 @@ if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR enable_lex_debug)
+   set(LEX_FLAGS "${LEX_FLAGS} -d")
+ endif()
+ 
+-find_package(Iconv REQUIRED)
+ include_directories(${Iconv_INCLUDE_DIRS})
+ 
+ 
+diff --git a/cmake/CompilerWarnings.cmake b/cmake/CompilerWarnings.cmake
+index 96e0cde2..3368960d 100644
+--- a/cmake/CompilerWarnings.cmake
++++ b/cmake/CompilerWarnings.cmake
+@@ -4,6 +4,10 @@
+ function(set_project_warnings project_name)
+ 
+   set(MSVC_WARNINGS
++      /wd4005 # macro redefinition
++      /wd4391 # incorrect return type for intrinsic function, expected 'unsigned char'
++      /wd4333 # '>>': right shift by too large amount, data loss
++
+       #/W4 # Baseline reasonable warnings
+       /w14242 # 'identfier': conversion from 'type1' to 'type1', possible loss
+               # of data
+@@ -41,10 +45,8 @@ function(set_project_warnings project_name)
+   )
+ 
+   set(CLANG_WARNINGS
+-      -Wall
++      -Weverything # Enable all warnings
+       -Wextra # reasonable and standard
+-      -Wshadow # warn the user if a variable declaration shadows one from a
+-               # parent context
+       $<$<COMPILE_LANGUAGE:CXX>:-Wnon-virtual-dtor>
+                # warn the user if a class with virtual functions has a
+                # non-virtual destructor. This helps catch hard to
+@@ -67,6 +69,54 @@ function(set_project_warnings project_name)
+       -Wno-sign-conversion
+       -Wno-format-nonliteral
+       -Wno-shorten-64-to-32
++      -Wno-language-extension-token
++      -Wno-misleading-indentation
++      -Wno-unused-but-set-variable
++      -Wno-microsoft-enum-value
++      -Wno-sign-compare
++      -Wno-shadow
++      -Wno-nested-anon-types
++      -Wno-cast-function-type-mismatch
++      -Wno-unsafe-buffer-usage
++      -Wno-reserved-macro-identifier
++      -Wno-undef
++      -Wno-missing-prototypes
++      -Wno-cast-qual
++      -Wno-c++98-compat
++      -Wno-extra-semi-stmt
++      -Wno-unreachable-code-break
++      -Wno-exit-time-destructors
++      -Wno-c++98-compat-pedantic
++      -Wno-suggest-destructor-override
++      -Wno-suggest-override
++      -Wno-switch-default
++      -Wno-extra-semi
++      -Wno-documentation-unknown-command
++      -Wno-unused-macros
++      -Wno-comma
++      -Wno-global-constructors
++      -Wno-missing-variable-declarations
++      -Wno-switch-enum
++      -Wno-class-varargs
++      -Wno-inconsistent-missing-destructor-override
++      -Wno-covered-switch-default
++      -Wno-zero-as-null-pointer-constant
++      -Wno-old-style-cast
++      -Wno-documentation
++      -Wno-implicit-fallthrough
++      -Wno-newline-eof
++      -Wno-c++20-compat
++      -Wno-reserved-identifier
++      -Wno-nonportable-system-include-path
++      -Wno-ctad-maybe-unsupported
++      -Wno-shadow-field
++      -Wno-missing-noreturn
++      -Wno-unreachable-code
++      -Wno-deprecated-dynamic-exception-spec
++      -Wno-missing-template-arg-list-after-template-kw
++      -Wno-float-equal
++      -Wno-cast-function-type-strict
++      -Wno-missing-braces
+ 
+       # allow comma removal for empty __VA_ARGS__ in ,##__VA_ARGS__
+       -Wno-gnu-zero-variadic-macro-arguments
+diff --git a/cmake/WindowsEncoding.cmake b/cmake/WindowsEncoding.cmake
+index 8f31bf04..55e342eb 100644
+--- a/cmake/WindowsEncoding.cmake
++++ b/cmake/WindowsEncoding.cmake
+@@ -1,5 +1,5 @@
+ if(CMAKE_C_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+-  include(FindPythonInterp)
++  include(FindPython3)
+   execute_process(
+     COMMAND ${Python_EXECUTABLE} "${CMAKE_SOURCE_DIR}/cmake/QueryCodePage.py"
+     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+diff --git a/deps/sqlite3/CMakeLists.txt b/deps/sqlite3/CMakeLists.txt
+index 3bc0eb4a..09541d09 100644
+--- a/deps/sqlite3/CMakeLists.txt
++++ b/deps/sqlite3/CMakeLists.txt
+@@ -1,3 +1,3 @@
+ add_library(sqlite3 STATIC
+-sqlite3.c
++    sqlite3.c
+ )
+diff --git a/deps/sqlite3/sqlite3.c b/deps/sqlite3/sqlite3.c
+index dd3b5c57..97295884 100644
+--- a/deps/sqlite3/sqlite3.c
++++ b/deps/sqlite3/sqlite3.c
+@@ -17,6 +17,10 @@
+ ** language. The code for the "sqlite3" command-line shell is also in a
+ ** separate file. This file contains only code for the core SQLite library.
+ */
++#ifdef _MSC_VER
++__pragma(warning(disable : 4391))
++#endif
++
+ #define SQLITE_CORE 1
+ #define SQLITE_AMALGAMATION 1
+ #ifndef SQLITE_PRIVATE
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 1e989ee6..d10f9b31 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,4 +1,5 @@
+ # vim:ts=4:sw=4:expandtab:autoindent:
++cmake_minimum_required(VERSION 3.21)
+ 
+ include_directories(
+     ${PROJECT_SOURCE_DIR}/deps/TinyDeflate
+@@ -337,6 +338,12 @@ if (NOT MSVC)
+ set_source_files_properties(clangparser.cpp PROPERTIES COMPILE_FLAGS "-Wno-shadow -Wno-cast-align -Wno-bitfield-enum-conversion")
+ endif()
+ 
++if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
++    foreach(lex_cpp_file ${LEX_FILES_CPP})
++        set_source_files_properties(${lex_cpp_file} PROPERTIES COMPILE_FLAGS "-Wno-misleading-indentation")
++    endforeach()
++endif()
++
+ ##foreach(lex_file ${LEX_FILES})
+ ##add_library(doxymain STATIC ${GENERATED_SRC}/${lex_file}.l.h)
+ ##endforeach()
+@@ -378,9 +385,9 @@ if (use_libclang)
+ endif()
+ 
+ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR enable_tracing)
+-    target_compile_definitions(doxycfg  PRIVATE -DENABLE_TRACING=1)
+-    target_compile_definitions(doxymain PRIVATE -DENABLE_TRACING=1)
+-    target_compile_definitions(doxygen  PRIVATE -DENABLE_TRACING=1)
++    target_compile_definitions(doxycfg  PRIVATE -DENABLE_TRACING=0)
++    target_compile_definitions(doxymain PRIVATE -DENABLE_TRACING=0)
++    target_compile_definitions(doxygen  PRIVATE -DENABLE_TRACING=0)
+ endif()
+ 
+ target_link_libraries(doxygen PRIVATE
+@@ -409,4 +416,4 @@ set_project_coverage(doxycfg)
+ set_project_coverage(doxymain)
+ set_project_coverage(doxygen)
+ 
+-install(TARGETS doxygen DESTINATION bin)
++install(TARGETS doxygen DESTINATION bin/${CMAKE_BUILD_TYPE})
+diff --git a/src/constexp.y b/src/constexp.y
+index 91a522ff..111a53b0 100644
+--- a/src/constexp.y
++++ b/src/constexp.y
+@@ -33,7 +33,7 @@ int constexpYYerror(yyscan_t yyscanner, const char *s)
+ 
+ %}
+ 
+-%name-prefix "constexpYY"
++%define api.prefix {constexpYY}
+ %define api.pure full
+ %lex-param {yyscan_t yyscanner}
+ %parse-param {yyscan_t yyscanner}
+diff --git a/src/trace.h b/src/trace.h
+index 13a81665..04c5d7a7 100644
+--- a/src/trace.h
++++ b/src/trace.h
+@@ -140,7 +140,7 @@ class AutoTrace
+ };
+ 
+ #if ENABLE_TRACING
+-#define AUTO_TRACE(...)      AutoTrace trace_{spdlog::source_loc{__FILE__,__LINE__,SPDLOG_FUNCTION},__VA_ARGS__}
++#define AUTO_TRACE(...)      AutoTrace trace_{spdlog::source_loc{__FILE__,__LINE__,SPDLOG_FUNCTION}}
+ #define AUTO_TRACE_ADD(...)  trace_.add(spdlog::source_loc{__FILE__,__LINE__,SPDLOG_FUNCTION},__VA_ARGS__)
+ #define AUTO_TRACE_EXIT(...) trace_.setExit(__VA_ARGS__)
+ #else
+diff --git a/vhdlparser/TokenMgrError.cc b/vhdlparser/TokenMgrError.cc
+index 69f3b031..f18df0aa 100644
+--- a/vhdlparser/TokenMgrError.cc
++++ b/vhdlparser/TokenMgrError.cc
+@@ -103,10 +103,10 @@ JJSimpleString addUnicodeEscapes(const JJString& str) {
+           continue;
+         }
+         retval.append("\\u");
+-        retval += (hexChar(ch >> 12));
+-        retval += (hexChar((ch & 0x0f00) >> 8));
+-        retval += (hexChar((ch & 0x00f0) >> 4));
+-        retval += (hexChar(ch & 0x000f));
++        retval += (hexChar(((unsigned short)ch) >> 12));
++        retval += (hexChar((((unsigned short)ch) & 0x0f00) >> 8));
++        retval += (hexChar((((unsigned short)ch) & 0x00f0) >> 4));
++        retval += (hexChar(((unsigned short)ch) & 0x000f));
+         continue;
+     }
+   }
+diff --git a/vhdlparser/VhdlParserTokenManager.cc b/vhdlparser/VhdlParserTokenManager.cc
+index fde4ad7c..b80a83c0 100644
+--- a/vhdlparser/VhdlParserTokenManager.cc
++++ b/vhdlparser/VhdlParserTokenManager.cc
+@@ -3276,7 +3276,7 @@ int VhdlParserTokenManager::jjMoveNfa_0(int startState, int curPos){
+       }
+       else
+       {
+-         int hiByte = (curChar >> 8);
++         int hiByte = (((short)curChar) >> 8);
+          int i1 = hiByte >> 6;
+          unsigned long long l1 = 1ULL << (hiByte & 077);
+          int i2 = (curChar & 0xff) >> 6;
+-- 
+2.47.1.windows.1
+
