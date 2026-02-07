@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -46,12 +46,20 @@ TgTYPE_UNION( STg2_CN_Var_Data, )
 };
 TgCOMPILER_ASSERT( sizeof( STg2_CN_Var_Data ) == 64, 0 );
 
-TgTYPE_STRUCT(STg2_CN_Command_Variable,)
+TgTYPE_UNION(STg2_CN_Command_Variable,)
 {
-    STg2_CN_Command_Common                      m_sCommon;
-    STg2_CN_Var_Data                            m_sData;
-    TgCN_VAR_ID_SINGLETON                       m_xtiVar_Singleton;
-    TgUINT_E64                                  m_uiPad;
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct 
+    {
+        TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        STg2_CN_Command_Common                      m_sCommon;
+        STg2_CN_Var_Data                            m_sData;
+        TgCN_VAR_ID_SINGLETON                       m_xtiVar_Singleton;
+    #if 0 != (120 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad0[120 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
+    };
+    TgCXX_CONSTRUCTOR(STg2_CN_Command_Variable(): m_xtiVar_Singleton() {})
 };
 
 
@@ -194,7 +202,7 @@ TgVOID tgCN_Var_Save_Config( STg2_Output_PC psOutput )
     TgSINT_E32                          iIndex;
     STg2_CN_Command_Variable_P          psCmd_Var;
 
-    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     for (iIndex = 0; iIndex < KTgCN_MAX_COMMAND_VAR; ++iIndex)
     {
@@ -263,7 +271,7 @@ TgVOID tgCN_Var_Save_Config( STg2_Output_PC psOutput )
         };
     };
 
-    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock.m_sLock );
 }
 
 
@@ -303,7 +311,7 @@ TgVOID tgCN_Print_Command_Variables( STg2_Output_P psOUT )
     TgSINT_E32                          iIndex;
     STg2_CN_Command_Common_P            psCmd;
 
-    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     for (iIndex = 0; iIndex < KTgCN_MAX_COMMAND_VAR; ++iIndex)
     {
@@ -316,7 +324,7 @@ TgVOID tgCN_Print_Command_Variables( STg2_Output_P psOUT )
         tgIO_PrintF( psOUT, STD_MSG_LITERAL_3, STD_MSG_POST, psCmd->m_mbzName, u8" - ", psCmd->m_mbzDesc );
     };
 
-    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock.m_sLock );
 }
 
 
@@ -1351,31 +1359,32 @@ static TgCN_VAR_ID tgCN_Insert_Command_Variable( STg2_CN_Command_Variable_P psCm
     TgRESULT                            iRet;
     TgCN_VAR_ID                         tiVar;
 
-    tgCM_UT_LF__RW__Enter_Write_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Write_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     iRet = tgCN_Insert_Command( &psCmd.psRet, &psCmd_Var->m_sCommon );
     if (TgSUCCEEDED( iRet ))
     {
         tiVar = tgCN_VAR_ID_Query_Unsafe( &psCmd_Var->m_xtiVar_Singleton );
-        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
         return (tiVar);
     }
     else if (KTgW_DUPLICATE == iRet)
     {
         tiVar = tgCN_VAR_ID_Query_Unsafe( &psCmd.psVar->m_xtiVar_Singleton );
-        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
         TgWARNING_MSGF( 0, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Duplicate console variable (first values retained)." );
 
         tgMM_Set_U08_0x00( psCmd_Var, sizeof( STg2_CN_Command_Variable ) );
-        tgCM_UT_LF__ST__Push( &s_sCommand_Variable_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)(psCmd_Var) );
+        tgCM_UT_LF__ST__Push( &s_sCommand_Variable_Stack.m_sStack, &psCmd_Var->m_sNode_Stack );
         return (tiVar);
     };
 
-    tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
 
     TgWARNING_MSGF( 0, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Console command name already used." );
     tgMM_Set_U08_0x00( psCmd_Var, sizeof( STg2_CN_Command_Variable ) );
-    tgCM_UT_LF__ST__Push( &s_sCommand_Variable_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)(psCmd_Var) );
+    tgCM_UT_LF__ST__Push( &s_sCommand_Variable_Stack.m_sStack, &psCmd_Var->m_sNode_Stack );
 
-    return (KTgCN_VAR_ID__INVALID);
+    tiVar = KTgCN_VAR_ID__INVALID;
+    return (tiVar);
 }

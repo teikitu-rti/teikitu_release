@@ -1,7 +1,7 @@
-From 7e7ed3c1dc3ae0a575c2d8c3153d206cfb231669 Mon Sep 17 00:00:00 2001
+From 9a76ca88ecbb7cfd09a6633d8501f13814f158b7 Mon Sep 17 00:00:00 2001
 From: Andrew Aye <github.very069@passmail.net>
-Date: Sun, 17 Nov 2024 15:34:48 -0800
-Subject: [PATCH] Removal of ifdef __cplusplus blocks.
+Date: Sat, 30 Aug 2025 00:01:55 -0700
+Subject: [PATCH 2/5] Removal of ifdef __cplusplus blocks.
 
 ---
  include/mimalloc.h        | 145 --------------------------------------
@@ -13,10 +13,10 @@ Subject: [PATCH] Removal of ifdef __cplusplus blocks.
  6 files changed, 1 insertion(+), 346 deletions(-)
 
 diff --git a/include/mimalloc.h b/include/mimalloc.h
-index e5133c96..1e55c4bf 100644
+index f887278a..7dfa1559 100644
 --- a/include/mimalloc.h
 +++ b/include/mimalloc.h
-@@ -441,149 +441,4 @@ mi_decl_nodiscard mi_decl_export mi_decl_restrict void* mi_heap_alloc_new_n(mi_h
+@@ -464,149 +464,4 @@ mi_decl_nodiscard mi_decl_export mi_decl_restrict void* mi_heap_alloc_new_n(mi_h
  }
  #endif
  
@@ -116,7 +116,7 @@ index e5133c96..1e55c4bf 100644
 -protected:
 -  std::shared_ptr<mi_heap_t> heap;
 -  template<class U, bool D> friend struct _mi_heap_stl_allocator_common;
--  
+-
 -  _mi_heap_stl_allocator_common() {
 -    mi_heap_t* hp = mi_heap_new();
 -    this->heap.reset(hp, (_mi_destroy ? &heap_destroy : &heap_delete));  /* calls heap_delete/destroy when the refcount drops to zero */
@@ -133,7 +133,7 @@ index e5133c96..1e55c4bf 100644
 -template<class T> struct mi_heap_stl_allocator : public _mi_heap_stl_allocator_common<T, false> {
 -  using typename _mi_heap_stl_allocator_common<T, false>::size_type;
 -  mi_heap_stl_allocator() : _mi_heap_stl_allocator_common<T, false>() { } // creates fresh heap that is deleted when the destructor is called
--  mi_heap_stl_allocator(mi_heap_t* hp) : _mi_heap_stl_allocator_common<T, false>(hp) { }  // no delete nor destroy on the passed in heap 
+-  mi_heap_stl_allocator(mi_heap_t* hp) : _mi_heap_stl_allocator_common<T, false>(hp) { }  // no delete nor destroy on the passed in heap
 -  template<class U> mi_heap_stl_allocator(const mi_heap_stl_allocator<U>& x) mi_attr_noexcept : _mi_heap_stl_allocator_common<T, false>(x) { }
 -
 -  mi_heap_stl_allocator select_on_container_copy_construction() const { return *this; }
@@ -150,7 +150,7 @@ index e5133c96..1e55c4bf 100644
 -template<class T> struct mi_heap_destroy_stl_allocator : public _mi_heap_stl_allocator_common<T, true> {
 -  using typename _mi_heap_stl_allocator_common<T, true>::size_type;
 -  mi_heap_destroy_stl_allocator() : _mi_heap_stl_allocator_common<T, true>() { } // creates fresh heap that is destroyed when the destructor is called
--  mi_heap_destroy_stl_allocator(mi_heap_t* hp) : _mi_heap_stl_allocator_common<T, true>(hp) { }  // no delete nor destroy on the passed in heap 
+-  mi_heap_destroy_stl_allocator(mi_heap_t* hp) : _mi_heap_stl_allocator_common<T, true>(hp) { }  // no delete nor destroy on the passed in heap
 -  template<class U> mi_heap_destroy_stl_allocator(const mi_heap_destroy_stl_allocator<U>& x) mi_attr_noexcept : _mi_heap_stl_allocator_common<T, true>(x) { }
 -
 -  mi_heap_destroy_stl_allocator select_on_container_copy_construction() const { return *this; }
@@ -167,10 +167,10 @@ index e5133c96..1e55c4bf 100644
 -
  #endif
 diff --git a/include/mimalloc/atomic.h b/include/mimalloc/atomic.h
-index 3a0d4892..ed5dce68 100644
+index e8bac316..4f5b8977 100644
 --- a/include/mimalloc/atomic.h
 +++ b/include/mimalloc/atomic.h
-@@ -338,12 +338,7 @@ typedef _Atomic(uintptr_t) mi_atomic_guard_t;
+@@ -358,12 +358,7 @@ typedef _Atomic(uintptr_t) mi_atomic_guard_t;
  // Yield
  // ----------------------------------------------------------------------
  
@@ -185,11 +185,11 @@ index 3a0d4892..ed5dce68 100644
    YieldProcessor();
  }
 diff --git a/src/alloc-override.c b/src/alloc-override.c
-index 82a98b80..52c93bd5 100644
+index 52ab69c5..959bd343 100644
 --- a/src/alloc-override.c
 +++ b/src/alloc-override.c
-@@ -100,20 +100,6 @@ typedef void* mi_nothrow_t;
-     #endif
+@@ -102,20 +102,6 @@ typedef void* mi_nothrow_t;
+     MI_INTERPOSE_MI(aligned_alloc),
    };
  
 -  #ifdef __cplusplus
@@ -209,7 +209,7 @@ index 82a98b80..52c93bd5 100644
    __attribute__((used)) static struct mi_interpose_s _mi_cxx_interposes[]  __attribute__((section("__DATA, __interpose"))) =
    {
      MI_INTERPOSE_FUN(_ZdlPv,mi_free),
-@@ -149,93 +135,6 @@ typedef void* mi_nothrow_t;
+@@ -151,93 +137,6 @@ typedef void* mi_nothrow_t;
  #pragma GCC visibility push(default)
  #endif
  
@@ -304,10 +304,10 @@ index 82a98b80..52c93bd5 100644
  // Further Posix & Unix functions definitions
  // ------------------------------------------------------
 diff --git a/src/alloc.c b/src/alloc.c
-index 119dfe75..843ecac2 100644
+index 0fed5e75..5f7414ea 100644
 --- a/src/alloc.c
 +++ b/src/alloc.c
-@@ -460,32 +460,6 @@ use a C compiler we cannot throw a `bad_alloc` exception
+@@ -452,32 +452,6 @@ use a C compiler we cannot throw a `bad_alloc` exception
  but we call `exit` instead (i.e. not returning).
  -------------------------------------------------------*/
  
@@ -340,7 +340,7 @@ index 119dfe75..843ecac2 100644
  typedef void (*std_new_handler_t)(void);
  
  #if (defined(__GNUC__) || (defined(__clang__) && !defined(_MSC_VER)))  // exclude clang-cl, see issue #631
-@@ -516,7 +490,6 @@ static bool mi_try_new_handler(bool nothrow) {
+@@ -508,7 +482,6 @@ static bool mi_try_new_handler(bool nothrow) {
      return true;
    }
  }
@@ -349,7 +349,7 @@ index 119dfe75..843ecac2 100644
  mi_decl_export mi_decl_noinline void* mi_heap_try_new(mi_heap_t* heap, size_t size, bool nothrow ) {
    void* p = NULL;
 diff --git a/test/test-api.c b/test/test-api.c
-index 15484544..4b8d75fe 100644
+index 6f5d6722..4769ee04 100644
 --- a/test/test-api.c
 +++ b/test/test-api.c
 @@ -28,10 +28,6 @@ we therefore test the API over various inputs. Please add more tests :-)
@@ -363,7 +363,7 @@ index 15484544..4b8d75fe 100644
  #include "mimalloc.h"
  // #include "mimalloc/internal.h"
  #include "mimalloc/types.h" // for MI_DEBUG and MI_BLOCK_ALIGNMENT_MAX
-@@ -380,83 +376,27 @@ bool test_heap2(void) {
+@@ -384,83 +380,27 @@ bool test_heap2(void) {
  }
  
  bool test_stl_allocator1(void) {
@@ -448,10 +448,10 @@ index 15484544..4b8d75fe 100644
 -#endif
  }
 diff --git a/test/test-stress.c b/test/test-stress.c
-index 30ad0e77..2ebae36d 100644
+index 4f5a3d58..7d947ef4 100644
 --- a/test/test-stress.c
 +++ b/test/test-stress.c
-@@ -386,16 +386,9 @@ static void run_os_threads(size_t nthreads, void (*fun)(intptr_t)) {
+@@ -413,16 +413,9 @@ static void run_os_threads(size_t nthreads, void (*fun)(intptr_t)) {
    custom_free(threads);
  }
  
@@ -469,5 +469,5 @@ index 30ad0e77..2ebae36d 100644
  
  #endif
 -- 
-2.46.2.windows.1
+2.47.1.windows.1
 

@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_PRELOAD_MEMMGR_H)
-#define TGS_COMMON_PRELOAD_MEMMGR_H
+#if !defined(TGS_COMMON_PRELOAD_MEM_MGR_H)
+#define TGS_COMMON_PRELOAD_MEM_MGR_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -32,10 +35,14 @@
 /*  API                                                                                                                                                                            */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
-#if defined(_Ring_0___TgS_COMMON__OS_PRELOAD)
-    #define PREMM_API TgDLL_EXPORT
+#if defined(MK_BUILD__SHARED_LIBRARY)
+    #if defined(_Ring_0___TgS_COMMON__OS_PRELOAD)
+        #define PREMM_API TgDLL_EXPORT
+    #else
+        #define PREMM_API TgDLL_IMPORT
+    #endif
 #else
-    #define PREMM_API TgDLL_IMPORT
+    #define PREMM_API
 #endif
 
 
@@ -48,7 +55,8 @@
            through to the standard operation system allocator and the second is a pool allocator for small allocations. An example of user allocators that could be created
            depending on the needs of the underlying hardware platform: GPU memory, sound memory, a global shared memory pool, and high-speed local memory. */
 
-TgTYPE_ENUM( ETgMM_ALLOCATOR, TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgMM_ALLOCATOR_BEGIN = 0,
     ETgMM_ALLOCATOR_OS = ETgMM_ALLOCATOR_BEGIN,
     ETgMM_ALLOCATOR_POOL,
@@ -59,7 +67,9 @@ TgTYPE_ENUM( ETgMM_ALLOCATOR, TgSINT_E32,
     ETgMM_ALLOCATOR_USER_3,
     ETgMM_ALLOCATOR_END,
     ETgMM_ALLOCATOR_COUNT = ETgMM_ALLOCATOR_END - ETgMM_ALLOCATOR_BEGIN
-);
+} ETgMM_ALLOCATOR;
+TgTYPE_MODIFIER_DEFAULT(ETgMM_ALLOCATOR);
+
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
@@ -168,7 +178,7 @@ TgTYPE_STRUCT(STg2_MM_Preload_Stats,)
 
 /** @brief Set an internal pointer to the console print function. */
 TgEXTN PREMM_API TgVOID
-tgMM_Set_CN_PrintF( TgVOID (*)( TgUINT_E32_C, TgCHAR_U8_CP NONULL, ... ) );
+tgMM_Set_CN_PrintF( TgVOID (*)( TgUINT_E32_C, TgCHAR_U8_CP TgANALYSIS_NO_NULL, ... ) );
 
 /** @brief Standard Module function: State query to determine if the module is in the initialized or booted state.
     @return True if the module has been initialized, and false otherwise. */
@@ -191,7 +201,7 @@ tgMM_Query_Stats( STg2_MM_Preload_Stats_P OUT0 );
     @param [in,out] ARG0 Pointer to a print function.
     @param [in,out] ARG1 Pointer to an output object. */
 TgEXTN PREMM_API TgVOID
-tgMM_Stats_Allocator( TgRSIZE (*ARG0)( STg2_Output_PC NONULL, TgCHAR_U8_CPC NONULL, ... ), STg2_Output_PC ARG1 );
+tgMM_Stats_Allocator( TgRSIZE (*ARG0)( STg2_Output_PC TgANALYSIS_NO_NULL, TgCHAR_U8_CPC TgANALYSIS_NO_NULL, ... ), STg2_Output_PC ARG1 );
 /*# TgS_STAT__COMMON */
 #endif
 
@@ -216,6 +226,12 @@ tgMM_Page_Size( TgVOID );
 TgEXTN PREMM_API TgVOID
 tgMM_Register_Allocator(
     ETgMM_ALLOCATOR_C ARG0, STg2_MM_MGR_P ARG1 );
+
+/** @brief Register an allocator for use through the memory manager
+    @param [in] ARG0 The allocator enumeration to be associated with the allocator */
+TgEXTN PREMM_API TgBOOL
+tgMM_Is_Allocator_Registered(
+    ETgMM_ALLOCATOR_C ARG0 );
 
 /** @brief Return all thread local resources back to global management */
 TgEXTN PREMM_API TgVOID
@@ -260,7 +276,7 @@ tgMM_Reserve(
     @return Pointer to the start of the region committed and nullptr otherwise. */
 TgEXTN PREMM_API TgVOID_P
 tgMM_Commit(
-    ETgMM_ALLOCATOR_C ARG0, TgVOID_P OKNULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3 );
+    ETgMM_ALLOCATOR_C ARG0, TgVOID_P TgANALYSIS_OK_NULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3 );
 
 /** @brief Frees all resources used by the allocation starting at ARG1.
     @param [in] ARG0 Memory allocator to be used for the function call.
@@ -277,7 +293,7 @@ tgMM_Free(
     @return Pointer to the start of the region allocated and nullptr otherwise. */
 TgEXTN PREMM_API TgVOID_P
 tgMM_Realloc(
-    ETgMM_ALLOCATOR_C ARG0, TgVOID_PC OKNULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3 );
+    ETgMM_ALLOCATOR_C ARG0, TgVOID_PC TgANALYSIS_OK_NULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3 );
 
 /** @} TGS_COMMON_MEMORY_MGR */
 

@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Kernel - System [GPU] [Context] [DEVC].c
+    »File«      TgS Kernel [GPU] - System [Context] [DEVC].c
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -16,7 +16,7 @@
 
 /* ---- tgKN_GPU__Device__Init --------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgRESULT tgKN_GPU__Device__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_GPU_Select_CPCU psSelect, TgRSIZE_C uiAdapter_Index )
+TgRESULT tgKN_GPU__Device__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_GPU_Select_CPCU psSelect, TgRSIZE_C idxCXT_HOST_Physical_Device )
 {
     TgRSIZE                             uiDevice_Index_In_Host_Context;
     TgRSIZE                             uiIndex;
@@ -54,7 +54,7 @@ TgRESULT tgKN_GPU__Device__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_G
     tgKN_GPU_CXT_DEVC_ID_Init( &sCXT_DEVC.ps->m_tiCXT_DEVC_S, (TgUINT_E32)(sCXT_DEVC.ps - g_asKN_GPU_CXT_DEVC) );
     tgKN_GPU_CXT_DEVC_ID_Load( &tiCXT_DEVC, &sCXT_DEVC.ps->m_tiCXT_DEVC_S );
 
-    sCXT_DEVC.ps->m_uiAdapter_Index = (TgUINT_E32)psSelect->m_uiEnumeration_Adapter_Index[uiAdapter_Index];
+    sCXT_DEVC.ps->m_idxCXT_HOST_Physical_Device = (TgUINT_E32)psSelect->m_uiEnumeration_Physical_Device_Index[idxCXT_HOST_Physical_Device];
 
     /* API specific additional work. */
     if (TgFAILED(tgKN_GPU_EXT__Device__Init( tiCXT_DEVC )))
@@ -65,7 +65,7 @@ TgRESULT tgKN_GPU__Device__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_G
     /* Initialize all of the execution contexts associated with this device. */
     for (uiIndex = 0; uiIndex < psSelect->m_nuiNode; ++uiIndex)
     {
-        if (psSelect->m_sNode[uiIndex].m_uiAdapter_Index != uiAdapter_Index)
+        if (psSelect->m_sNode[uiIndex].m_idxCXT_HOST_Physical_Device != idxCXT_HOST_Physical_Device)
             continue;
         if ((uiIndex < KTgKN_GPU_MAX_EXEC_CONTEXT) && TgFAILED(tgKN_GPU__Execute__Init( psResult, psSelect, uiIndex, tiCXT_DEVC )))
         {

@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -136,7 +136,6 @@ TgINLINE TgVOID FCN_M(tgMH_Init_Reference_Frame_From_Vector_And_Position)( MAT_T
     MAT_UN_PTR_T()                      uM0;
     VEC_UN_T(1)                         uV0, uV1;
 
-//#TODO VALIDATE
     VEC_UN_PTR_M_MEMBER(uM0) = pmOUT_0;
     VEC_UN_1_MEMBER(uV0) = vARG_1;
     VEC_UN_1_MEMBER(uV1) = vARG_2;
@@ -531,6 +530,17 @@ TgINLINE TgVOID FCN_M(tgMH_CLI)( MAT_T(PC) pmOUT_0 )
 
     VEC_UN_PTR_M_MEMBER(uM0) = pmOUT_0;
     FCN_M(tgMH_CLI_S)( VEC_S_UN_PTR_M_MEMBER(uM0) );
+}
+
+
+/* ---- FCN_M(tgMH_DIAG) --------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgVOID FCN_M(tgMH_DIAG)( MAT_T(PC) pmOUT_0, VAR_T(C) fARG_1 )
+{
+    MAT_UN_PTR_T()                      uM0;
+
+    VEC_UN_PTR_M_MEMBER(uM0) = pmOUT_0;
+    FCN_M(tgMH_DIAG_S)( VEC_S_UN_PTR_M_MEMBER(uM0), fARG_1 );
 }
 
 

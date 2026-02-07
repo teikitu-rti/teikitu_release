@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_MEMMGR_H)
-#define TGS_COMMON_MEMMGR_H
+#if !defined(TGS_COMMON_MEM_MGR_H)
+#define TGS_COMMON_MEM_MGR_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #include "TgS COMMON/TgS Common - Preload - Mem MGR.h"
 
@@ -133,7 +136,7 @@ tgMM_Reserve_With_Trace(
     @return Pointer to the start of the region committed and nullptr otherwise. */
 TgEXTN TgVOID_P
 tgMM_Commit_With_Trace(
-    ETgMM_ALLOCATOR_C ARG0, TgVOID_PC OKNULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3, TgCHAR_U8_CPC ARG4, TgUINT_E32_C ARG5 );
+    ETgMM_ALLOCATOR_C ARG0, TgVOID_PC TgANALYSIS_OK_NULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3, TgCHAR_U8_CPC ARG4, TgUINT_E32_C ARG5 );
 
 /** @brief Frees all resources used by the allocation starting at ARG1.
     @param [in] ARG0 Memory allocator to be used for the function call.
@@ -154,7 +157,7 @@ tgMM_Free_With_Trace(
     @return Pointer to the start of the region allocated and nullptr otherwise. */
 TgEXTN TgVOID_P
 tgMM_Realloc_With_Trace(
-    ETgMM_ALLOCATOR_C ARG0, TgVOID_PC OKNULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3, TgCHAR_U8_CPC ARG4, TgUINT_E32_C ARG5 );
+    ETgMM_ALLOCATOR_C ARG0, TgVOID_PC TgANALYSIS_OK_NULL ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3, TgCHAR_U8_CPC ARG4, TgUINT_E32_C ARG5 );
 
 /*# defined(TgCOMPILE__MEM_TRACK) */
 #endif

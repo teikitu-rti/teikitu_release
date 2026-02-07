@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_GEOMETRY_CONSTANTS_H)
 #define TGS_COMMON_GEOMETRY_CONSTANTS_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -126,8 +129,8 @@
 
 /* ---- Enumerations ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_ENUM( ETgPRIMITIVE, TgSINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgPRIMITIVE_UNKNOWN = 0,
 
     /* 0D Objects in 3D, Points   */
@@ -171,11 +174,13 @@ TgTYPE_ENUM( ETgPRIMITIVE, TgSINT_E32,
     ETgTUBE,                /* TB */
 
     ETgPRIMITIVE_MAX
-);
+} ETgPRIMITIVE;
+TgTYPE_MODIFIER_DEFAULT(ETgPRIMITIVE);
 
 
-TgTYPE_ENUM( ETgPM_SHORT, TgSINT_E32,
 
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgPM_UNKNOWN = 0,
 
     /* 0D Objects in 3D, Points   */
@@ -219,23 +224,38 @@ TgTYPE_ENUM( ETgPM_SHORT, TgSINT_E32,
     ETgPM_TB,
 
     ETgPM_MAX
-);
+} ETgPM_SHORT;
+TgTYPE_MODIFIER_DEFAULT(ETgPM_SHORT);
 
 
-TgTYPE_ENUM( ETgSWEEP_TYPE, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgSWEEP_STATIC,                ETgSWEEP_LINEAR,                ETgSWEEP_ROTATIONAL
-);
+} ETgSWEEP_TYPE;
+TgTYPE_MODIFIER_DEFAULT(ETgSWEEP_TYPE);
 
-TgTYPE_ENUM( ETgFRUSTUM_PLANE, TgSINT_E32,
-    ETgFRUSTUM_PLANE__NEAR,         ETgFRUSTUM_PLANE__FAR,          ETgFRUSTUM_PLANE__LEFT,         ETgFRUSTUM_PLANE__RIGHT,        ETgFRUSTUM_PLANE__TOP,
-    ETgFRUSTUM_PLANE__BOTTOM,       ETgFRUSTUM_PLANE__MAX
-);
+
+typedef enum TgATTRIBUTE_ENUM
+{
+    ETgFRUSTUM_PLANE__START = 0,
+
+    ETgFRUSTUM_PLANE__NEAR = ETgFRUSTUM_PLANE__START,
+    ETgFRUSTUM_PLANE__FAR,
+    ETgFRUSTUM_PLANE__LEFT,
+    ETgFRUSTUM_PLANE__RIGHT,
+    ETgFRUSTUM_PLANE__TOP,
+    ETgFRUSTUM_PLANE__BOTTOM,
+
+    ETgFRUSTUM_PLANE__END,
+    ETgFRUSTUM_PLANE__MAX = ETgFRUSTUM_PLANE__END,
+    ETgFRUSTUM_PLANE__COUNT = ETgFRUSTUM_PLANE__END - ETgFRUSTUM_PLANE__START,
+} ETgFRUSTUM_PLANE;
+TgTYPE_MODIFIER_DEFAULT(ETgFRUSTUM_PLANE);
 
 
 /* ---- Constants ---------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgEXTN TgUINT_E16_C                         KTgGM_CUBE_P_INDEX[36];
-TgEXTN TgVEC_UN_F32_04_1_C                  KTgGM_CUBE_P_INDEX_VERTEX[8];
 TgEXTN TgVEC_UN_F32_04_1_C                  KTgGM_CUBE_PN_TRI_LIST_VERTEX[72];
 
 TgEXTN TgUINT_E16_C                         KTgGM_TETRAHEDRON_P_INDEX[12];

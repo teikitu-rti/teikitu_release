@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_DEFINES_CODE_H)
 #define TGS_COMMON_BASE_DEFINES_CODE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -65,36 +68,46 @@
     #define TgCOMMIT_VIRTUAL(A,B,C)             (A+B)
     #define TgFREE_VIRTUAL(A)                   free( A )
 
-#elif defined(TgCOMPILE__MEM_TRACK)
-    #define TgMALLOC_EXACT(A)                   tgMM_Malloc_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgFREE__EXACT(A)                    tgMM_Free_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgMALLOC_POOL(A)                    tgMM_Malloc_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgFREE_POOL(A)                      tgMM_Free_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgREALLOC_POOL(A,B)                 tgMM_Realloc_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, B, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgMALLOC_TEMP(A)                    tgMM_Malloc_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgFREE_TEMP(A)                      tgMM_Free_With_Trace( ETgMM_ALLOCATOR_MIMALLOC, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgMALLOC_NOTRACE(A)                 tgMM_Malloc( ETgMM_ALLOCATOR_MIMALLOC, A, 16 )
-    #define TgFREE_NOTRACE(A)                   tgMM_Free( ETgMM_ALLOCATOR_MIMALLOC, A )
-    #define TgMALLOC_POOL_COMMENT(A,B)          tgMM_Malloc_With_Trace_Comment( ETgMM_ALLOCATOR_MIMALLOC, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__, B )
-
-    #define TgRESERVE_VIRTUAL(A)                tgMM_Reserve_With_Trace( ETgMM_ALLOCATOR_OS, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgCOMMIT_VIRTUAL(A,B,C)             tgMM_Commit_With_Trace( ETgMM_ALLOCATOR_OS, A, B, C, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
-    #define TgFREE_VIRTUAL(A)                   tgMM_Free_With_Trace( ETgMM_ALLOCATOR_OS, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
 #else
-    #define TgMALLOC_EXACT(A)                   tgMM_Malloc( ETgMM_ALLOCATOR_MIMALLOC, A, 16 )
-    #define TgFREE__EXACT(A)                    tgMM_Free( ETgMM_ALLOCATOR_MIMALLOC, A )
-    #define TgMALLOC_POOL(A)                    tgMM_Malloc( ETgMM_ALLOCATOR_MIMALLOC, A, 16 )
-    #define TgFREE_POOL(A)                      tgMM_Free( ETgMM_ALLOCATOR_MIMALLOC, A )
-    #define TgREALLOC_POOL(A,B)                 tgMM_Realloc( ETgMM_ALLOCATOR_MIMALLOC, A, B, 16 )
-    #define TgMALLOC_TEMP(A)                    tgMM_Malloc( ETgMM_ALLOCATOR_MIMALLOC, A, 16 )
-    #define TgFREE_TEMP(A)                      tgMM_Free( ETgMM_ALLOCATOR_MIMALLOC, A )
-    #define TgMALLOC_NOTRACE(A)                 tgMM_Malloc( ETgMM_ALLOCATOR_MIMALLOC, A, 16 )
-    #define TgFREE_NOTRACE(A)                   tgMM_Free( ETgMM_ALLOCATOR_MIMALLOC, A )
-    #define TgMALLOC_POOL_COMMENT(A,B)          tgMM_Malloc( ETgMM_ALLOCATOR_MIMALLOC, A, 16 )
+    #if defined(TgBUILD_FEATURE__MIMALLOC_DEFAULT)
+        #define TgMACRO_DEFAULT_ALLOCATOR           ETgMM_ALLOCATOR_MIMALLOC
+    #else
+        #define TgMACRO_DEFAULT_ALLOCATOR           ETgMM_ALLOCATOR_POOL
+    #endif
 
-    #define TgRESERVE_VIRTUAL(A)                tgMM_Reserve( ETgMM_ALLOCATOR_OS, A )
-    #define TgCOMMIT_VIRTUAL(A,B,C)             tgMM_Commit( ETgMM_ALLOCATOR_OS, A, B, C )
-    #define TgFREE_VIRTUAL(A)                   tgMM_Free( ETgMM_ALLOCATOR_OS, A )
+    #if defined(TgCOMPILE__MEM_TRACK)
+        #define TgMALLOC_EXACT(A)                   tgMM_Malloc_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgFREE__EXACT(A)                    tgMM_Free_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgMALLOC_POOL_ALIGNED(A,B)          tgMM_Malloc_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, B, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgMALLOC_POOL(A)                    tgMM_Malloc_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgFREE_POOL(A)                      tgMM_Free_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgREALLOC_POOL(A,B)                 tgMM_Realloc_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, B, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgMALLOC_TEMP(A)                    tgMM_Malloc_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgFREE_TEMP(A)                      tgMM_Free_With_Trace( TgMACRO_DEFAULT_ALLOCATOR, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgMALLOC_NOTRACE(A)                 tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, 16 )
+        #define TgFREE_NOTRACE(A)                   tgMM_Free( TgMACRO_DEFAULT_ALLOCATOR, A )
+        #define TgMALLOC_POOL_COMMENT(A,B)          tgMM_Malloc_With_Trace_Comment( TgMACRO_DEFAULT_ALLOCATOR, A, 16, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__, B )
+
+        #define TgRESERVE_VIRTUAL(A)                tgMM_Reserve_With_Trace( ETgMM_ALLOCATOR_OS, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgCOMMIT_VIRTUAL(A,B,C)             tgMM_Commit_With_Trace( ETgMM_ALLOCATOR_OS, A, B, C, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+        #define TgFREE_VIRTUAL(A)                   tgMM_Free_With_Trace( ETgMM_ALLOCATOR_OS, A, TgU8_TEXT_WITH_QUOTE(__FILE__), __LINE__ )
+    #else
+        #define TgMALLOC_EXACT(A)                   tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, 16 )
+        #define TgFREE__EXACT(A)                    tgMM_Free( TgMACRO_DEFAULT_ALLOCATOR, A )
+        #define TgMALLOC_POOL_ALIGNED(A,B)          tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, B )
+        #define TgMALLOC_POOL(A)                    tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, 16 )
+        #define TgFREE_POOL(A)                      tgMM_Free( TgMACRO_DEFAULT_ALLOCATOR, A )
+        #define TgREALLOC_POOL(A,B)                 tgMM_Realloc( TgMACRO_DEFAULT_ALLOCATOR, A, B, 16 )
+        #define TgMALLOC_TEMP(A)                    tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, 16 )
+        #define TgFREE_TEMP(A)                      tgMM_Free( TgMACRO_DEFAULT_ALLOCATOR, A )
+        #define TgMALLOC_NOTRACE(A)                 tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, 16 )
+        #define TgFREE_NOTRACE(A)                   tgMM_Free( TgMACRO_DEFAULT_ALLOCATOR, A )
+        #define TgMALLOC_POOL_COMMENT(A,B)          tgMM_Malloc( TgMACRO_DEFAULT_ALLOCATOR, A, 16 )
+
+        #define TgRESERVE_VIRTUAL(A)                tgMM_Reserve( ETgMM_ALLOCATOR_OS, A )
+        #define TgCOMMIT_VIRTUAL(A,B,C)             tgMM_Commit( ETgMM_ALLOCATOR_OS, A, B, C )
+        #define TgFREE_VIRTUAL(A)                   tgMM_Free( ETgMM_ALLOCATOR_OS, A )
+    #endif
 #endif
 
 #define TgMEMCPY_NOCACHE tgMM_Copy
@@ -108,9 +121,9 @@
 
 #define TgKI_CUSTOM_DECLARE_AND_INLINE_2(A)                                                                                                                                         \
                                                                                                                                                                                     \
-    TgTYPE_STRUCT(Tg##A##_SINGLETON,)                                                                                                                                               \
+    TgTYPE_STRUCT(Tg##A##_SINGLETON, )                                                                                                                                              \
     {                                                                                                                                                                               \
-        TgALIGN(8) TgUINT_E64_A                 m_uiKI;                                                                                                                             \
+        TgUINT_E64_A                                m_uiKI;                                                                                                                         \
         TgCXX_CONSTRUCTOR(Tg##A##_SINGLETON(): m_uiKI(KTgMAX_U64) {})                                                                                                               \
     };                                                                                                                                                                              \
                                                                                                                                                                                     \
@@ -184,7 +197,7 @@
                                                                                                                                                                                     \
     typedef union                                                                                                                                                                   \
     {                                                                                                                                                                               \
-        TgALIGN(8) TgUINT_E64                   m_uiKI;                                                                                                                             \
+        TgUINT_E64                                  m_uiKI;                                                                                                                         \
         struct {                                                                                                                                                                    \
             TgUINT_E32                                  m_uiK;                                                                                                                      \
             TgUINT_E32                                  m_uiI;                                                                                                                      \

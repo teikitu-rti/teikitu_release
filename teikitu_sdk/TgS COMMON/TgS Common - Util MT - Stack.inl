@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_UTIL_MT_STACK_INL)
 #define TGS_COMMON_UTIL_MT_STACK_INL
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -18,6 +21,184 @@
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 /*  Public Functions                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- Atomic Unordered Stack - Unaligned --------------------------------------------------------------------------------------------------------------------------------------- */
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Init ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgVOID tgCM_UT_LF__ST_Unaligned__Init( STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sPTR_TKT;
+
+    sPTR_TKT.m_pHead = nullptr;
+    sPTR_TKT.m_uiTicket = 0;
+
+    TgSTD_ATOMIC(store)( &psST->m_sTop, sPTR_TKT );
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Init_PreLoad --------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgVOID tgCM_UT_LF__ST_Unaligned__Init_PreLoad( STg2_UT_LF__ST_Unaligned_PCU psST, TgVOID_P pData, TgRSIZE_C uiStride, TgRSIZE_C nuiData )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sPTR_TKT;
+    TgUN_PTR                            sPTR;
+
+    TgERROR( uiStride >= sizeof( STg2_UT_ST__ST_Node_Unaligned ));
+
+    sPTR_TKT.m_pHead = (STg2_UT_ST__ST_Node_Unaligned_P)pData;
+    sPTR_TKT.m_uiTicket = 0;
+
+    sPTR.m_pVoid = pData;
+    for (; sPTR_TKT.m_uiTicket + 1 < nuiData; ++sPTR_TKT.m_uiTicket)
+    {
+        *sPTR.m_puiPTR = sPTR.m_uiPTR + uiStride;
+        sPTR.m_uiPTR += uiStride;
+    };
+    *sPTR.m_puiPTR = 0;
+    
+    TgSTD_ATOMIC(store)( &psST->m_sTop, sPTR_TKT );
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Free ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgVOID tgCM_UT_LF__ST_Unaligned__Free( TgATTRIBUTE_UNUSED STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Push ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgVOID tgCM_UT_LF__ST_Unaligned__Push( STg2_UT_LF__ST_Unaligned_PCU psST, STg2_UT_ST__ST_Node_Unaligned_PCU psNode )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sOrig, sNew;
+
+    sOrig = TgSTD_ATOMIC(load_explicit)( &psST->m_sTop, TgSTD_MEMORY_ORDER(relaxed) );
+    do
+    {
+        sNew.m_pHead = psNode;
+        sNew.m_uiTicket = sOrig.m_uiTicket + 1;
+        psNode->m_pNext_Node = sOrig.m_pHead;
+    }
+    while (!TgSTD_ATOMIC(compare_exchange_weak_explicit)( &psST->m_sTop, &sOrig, sNew, TgSTD_MEMORY_ORDER(seq_cst), TgSTD_MEMORY_ORDER(relaxed) ));
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Pop ------------------------------------------------------------------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P tgCM_UT_LF__ST_Unaligned__Pop( STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sOrig, sNew;
+
+    sOrig = TgSTD_ATOMIC(load_explicit)( &psST->m_sTop, TgSTD_MEMORY_ORDER(relaxed) );
+    do
+    {
+        if (nullptr == sOrig.m_pHead)
+        {
+            return (nullptr);
+        };
+        sNew.m_pHead = (STg2_UT_ST__ST_Node_Unaligned_P)sOrig.m_pHead->m_pNext_Node;
+        sNew.m_uiTicket = sOrig.m_uiTicket + 1;
+    }
+    while (!TgSTD_ATOMIC(compare_exchange_weak)( &psST->m_sTop, &sOrig, sNew ));
+    
+    return (sOrig.m_pHead);
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Release -------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P tgCM_UT_LF__ST_Unaligned__Release( STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sOrig, sNew;
+
+    sOrig = TgSTD_ATOMIC(load_explicit)( &psST->m_sTop, TgSTD_MEMORY_ORDER(relaxed) );
+    do
+    {
+        if (nullptr == sOrig.m_pHead)
+        {
+            return (nullptr);
+        };
+        sNew.m_pHead = nullptr;
+        sNew.m_uiTicket = sOrig.m_uiTicket + 1;
+    }
+    while (!TgSTD_ATOMIC(compare_exchange_weak)( &psST->m_sTop, &sOrig, sNew ));
+    
+    return (sOrig.m_pHead);
+
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Merge ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgVOID tgCM_UT_LF__ST_Unaligned__Merge( STg2_UT_LF__ST_Unaligned_PCU psST, STg2_UT_ST__ST_Node_Unaligned_P psHead, STg2_UT_ST__ST_Node_Unaligned_P psTail )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sOrig, sNew;
+
+    sOrig = TgSTD_ATOMIC(load_explicit)( &psST->m_sTop, TgSTD_MEMORY_ORDER(relaxed) );
+    do
+    {
+        sNew.m_pHead = psHead;
+        sNew.m_uiTicket = sOrig.m_uiTicket + 1;
+        psTail->m_pNext_Node = sOrig.m_pHead;
+    }
+    while (!TgSTD_ATOMIC(compare_exchange_weak)( &psST->m_sTop, &sOrig, sNew ));
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Pop_Wait_Yield ------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P tgCM_UT_LF__ST_Unaligned__Pop_Wait_Yield( STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+    STg2_UT_ST__ST_Node_Unaligned_P     pResult;
+
+    while (1)
+    {
+        pResult = tgCM_UT_LF__ST_Unaligned__Pop( psST );
+        if (nullptr != pResult)
+        {
+            break;
+        };
+        tgTR_Yield();
+    }
+
+    return (pResult);
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Pop_Wait_Spin -------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P tgCM_UT_LF__ST_Unaligned__Pop_Wait_Spin( STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+    STg2_UT_ST__ST_Node_Unaligned_P     pResult;
+
+    while (1)
+    {
+        pResult = tgCM_UT_LF__ST_Unaligned__Pop( psST );
+        if (nullptr != pResult)
+        {
+            break;
+        };
+        tgTR_Pause();
+    }
+
+    return (pResult);
+
+}
+
+
+/* ---- tgCM_UT_LF__ST_Unaligned__Is_Empty ------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgINLINE TgBOOL tgCM_UT_LF__ST_Unaligned__Is_Empty( STg2_UT_LF__ST_Unaligned_PCU psST )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned       sOrig;
+
+    sOrig = TgSTD_ATOMIC(load)( &psST->m_sTop );
+
+    return (nullptr == sOrig.m_pHead);
+}
+
 
 /* ---- Atomic Unordered Stack --------------------------------------------------------------------------------------------------------------------------------------------------- */
 

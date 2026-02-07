@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_DEFINES_H)
 #define TGS_COMMON_BASE_DEFINES_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -19,10 +22,6 @@
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 /*  Early Compilation Validations                                                                                                                                                  */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
-
-#if defined(TgIDE__XCODE) && defined(__cplusplus)
-#define TgCOMPILE_FILE__CXX
-#endif
 
 #if !defined(TgCOMPILE_FILE__CXX) && (!defined(__STDC_VERSION__) || (__STDC_VERSION__ < 201112L))
     #error Codebase developed and tested against C17
@@ -189,11 +188,11 @@
     #elif __has_extension(c_static_assert)
         #define TgCOMPILER_ASSERT(x,c)              _Static_assert(x,"")
     #else
-	    #ifdef __COUNTER__
-	        #define TgCOMPILER_ASSERT(e,c)          typedef TgATTRIBUTE_UNUSED char TgMACRO_CONCAT3(COMPILER_ASSERT_,0,__COUNTER__)[(e) != 0]
-	    #else
-	        #define TgCOMPILER_ASSERT(e,c)          typedef TgATTRIBUTE_UNUSED char TgMACRO_CONCAT3(COMPILER_ASSERT_,c,__LINE__)[(e) != 0]
-	    #endif
+        #ifdef __COUNTER__
+            #define TgCOMPILER_ASSERT(e,c)          typedef TgATTRIBUTE_UNUSED char TgMACRO_CONCAT3(COMPILER_ASSERT_,0,__COUNTER__)[(e) != 0]
+        #else
+            #define TgCOMPILER_ASSERT(e,c)          typedef TgATTRIBUTE_UNUSED char TgMACRO_CONCAT3(COMPILER_ASSERT_,c,__LINE__)[(e) != 0]
+        #endif
     #endif
 #elif defined(_MSC_VER) && (_MSC_VER >= 1600) && defined(TgCOMPILE_FILE__CXX)
     #define TgCOMPILER_ASSERT(x,c)              static_assert(x,"")
@@ -247,6 +246,29 @@
     /* Asserts are used in release and debug executables when continuing execution is undesirable.  Most often this is the case similar to above, where the executable would be in
     an illegal state.  These are often used for bounds checking.  The difference is that asserts can be used to validate values and quantities during development that are "assumed"
     to be valid in a final build. */
+    #define TgERROR_GEN_SEV_MSGF( A, SEV, ... ) {                                                                                                                                   \
+                                                    TgANALYSIS_ASSUME(A);                                                                                                           \
+                                                    if (!(A)) TgATTRIBUTE_UNLIKELY                                                                                                  \
+                                                    {                                                                                                                               \
+                                                        TgCHAR_U8 uszBuffer[4096];                                                                                                  \
+                                                        tgUSZ_PrintF(uszBuffer, sizeof(uszBuffer), __VA_ARGS__);                                                                    \
+                                                        tgCN_PrintF( KTgCN_CHANEL_ERROR|SEV, STD_MSG_LITERAL_1X, STD_MSG_POST, uszBuffer );                                         \
+                                                    };                                                                                                                              \
+                                                }
+
+    #define TgERROR_GEN_MSGF( A, ... )          TgERROR_GEN_SEV_MSGF( A, 1, __VA_ARGS__ )
+
+/*# TgCOMPILE_ASSERT && TgCOMPILE_ASSERT__ERROR */
+#else
+    #define TgERROR_GEN_SEV_MSGF( A, B, ... )   { TgANALYSIS_ASSUME(A); ((void)0); }
+    #define TgERROR_GEN_MSGF( A, ... )          { TgANALYSIS_ASSUME(A); ((void)0); }
+/*# TgCOMPILE_ASSERT && TgCOMPILE_ASSERT__ERROR */
+#endif
+
+#if TgCOMPILE_ASSERT && TgCOMPILE_ASSERT__ERROR
+    /* Asserts are used in release and debug executables when continuing execution is undesirable.  Most often this is the case similar to above, where the executable would be in
+    an illegal state.  These are often used for bounds checking.  The difference is that asserts can be used to validate values and quantities during development that are "assumed"
+    to be valid in a final build. */
     #define TgERROR_SEV_MSG( A, SEV, ... )      {                                                                                                                                   \
                                                     TgANALYSIS_ASSUME(A);                                                                                                           \
                                                     if (!(A)) TgATTRIBUTE_UNLIKELY                                                                                                  \
@@ -267,7 +289,7 @@
                                                     TgANALYSIS_ASSUME(A);                                                                                                           \
                                                     if (!(A)) TgATTRIBUTE_UNLIKELY                                                                                                  \
                                                     {                                                                                                                               \
-                                                        tgCN_PrintF( KTgCN_CHANEL_ERROR|SEV, STD_MSG_LITERAL_1X, STD_MSG_POST, "Failed Error: " #A );                               \
+                                                        tgCN_PrintF( KTgCN_CHANEL_ERROR|SEV, STD_MSG_LITERAL_1X, STD_MSG_POST, u8"Failed Error: " #A );                             \
                                                     };                                                                                                                              \
                                                 }
 
@@ -580,24 +602,18 @@
 #define TgTYPE_STRUCT(A, ...)               TgTYPE_STRUCT_( A, __VA_ARGS__ )
 #define TgTYPE_STRUCT_(A, ...)              typedef struct A                                A;                                                                                      \
                                             TgTYPE_MODIFIER_DEFAULT( A );                                                                                                           \
-                                            __VA_ARGS__ struct A
+                                            struct __VA_ARGS__ A
+
+#define TgTYPE_FORWARD_UNION(A)             typedef union A                                 A;                                                                                      \
+                                            TgTYPE_MODIFIER_DEFAULT( A )
 
 #define TgTYPE_UNION(A, ...)                TgTYPE_UNION_( A, __VA_ARGS__ )
 #define TgTYPE_UNION_(A, ...)               typedef union A                                 A;                                                                                      \
                                             TgTYPE_MODIFIER_DEFAULT( A );                                                                                                           \
-                                            __VA_ARGS__ union A
+                                            union __VA_ARGS__ A
 
-#define TgTYPE_ENUM(A,B,...)                typedef enum TgCLANG_ATTRIBUTE(enum_extensibility(closed))                                                                              \
-                                            {                                                                                                                                       \
-                                                __VA_ARGS__                                                                                                                         \
-                                            } A;                                                                                                                                    \
-                                            TgTYPE_MODIFIER_DEFAULT( A )
-
-#define TgTYPE_ENUM_FLAG(A,B,...)           typedef enum TgCLANG_ATTRIBUTE(enum_extensibility(closed),flag_enum)                                                                    \
-                                            {                                                                                                                                       \
-                                                __VA_ARGS__                                                                                                                         \
-                                            } A;                                                                                                                                    \
-                                            TgTYPE_MODIFIER_DEFAULT( A )
+#define TgATTRIBUTE_ENUM                    TgCLANG_ATTRIBUTE(enum_extensibility(closed))
+#define TgATTRIBUTE_ENUM_FLAG               TgCLANG_ATTRIBUTE(enum_extensibility(closed),flag_enum)
 
 #if defined(__cplusplus)
 

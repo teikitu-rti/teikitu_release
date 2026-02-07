@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_TYPE_FILE_H)
 #define TGS_COMMON_BASE_TYPE_FILE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -44,17 +47,19 @@ enum { KTgFILE_BLOCK_READ_MASK              = 16383 };
 enum { KTgINVALID_FILE_HANDLE               = -1 };
 
 /** @enum closed flag enumeration for supported platform data formats */
-TgTYPE_ENUM_FLAG( ETgFILE_PLATFORM, TgUINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM_FLAG
+{
     ETgFILE_PLATFORM_W32    = 1<<0, ETgFILE_PLATFORM_W64    = 1<<1, ETgFILE_PLATFORM_XB2    = 1<<2, ETgFILE_PLATFORM_PS3    = 1<<3, ETgFILE_PLATFORM_XB3    = 1<<4,
     ETgFILE_PLATFORM_PS4    = 1<<5, ETgFILE_PLATFORM_IPHONE = 1<<6, ETgFILE_PLATFORM_IPAD   = 1<<7
-);
+} ETgFILE_PLATFORM;
+TgTYPE_MODIFIER_DEFAULT(ETgFILE_PLATFORM);
 
 /** @enum closed flag enumeration for supported platform dependent features */
-TgTYPE_ENUM_FLAG( ETgFILE_FLAG, TgUINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM_FLAG
+{
     ETgFILE_FLAG_ENDIAN    = 1<<0
-);
+} ETgFILE_FLAG;
+TgTYPE_MODIFIER_DEFAULT(ETgFILE_FLAG);
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
@@ -62,7 +67,7 @@ TgTYPE_ENUM_FLAG( ETgFILE_FLAG, TgUINT_E32,
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
 /** @brief Describes the type and location of a data section in the file.  These follow a STg2_File_Block to describe all of the data in the block  */
-TgTYPE_STRUCT(STg2_File_Section,)
+TgTYPE_STRUCT(STg2_File_Section, )
 {
     TgALIGN(16) TgUINT_E32                      m_uiFourCC_Tool; /**< Character Code (TGSF) for the platform */
     TgUINT_E32                                  m_uiFourCC_Data; /**< Character Code from the user - to match the data block FourCC */
@@ -72,7 +77,7 @@ TgTYPE_STRUCT(STg2_File_Section,)
 /** @brief The file block marks the beginning of a block uniquely identified by the Kernel File OS.  In a traditional IO system this would be a discrete file on the recorded
     media. However, because of loading requirements on various hardware platforms, the mapping of a discrete file block is not guaranteed to map 1:1 to a specific file on the
     media though it will always be capable of being uniquely identified and used by the Kernel system. */
-TgTYPE_STRUCT(STg2_File_Block,)
+TgTYPE_STRUCT(STg2_File_Block, )
 {
     /* File Block - This describes the file format definition */
     TgALIGN(16) TgUINT_E32                      m_uiFourCC_Tool; /**< Character Code (TGSF) for the platform  */
@@ -96,7 +101,7 @@ TgTYPE_STRUCT(STg2_File_Block,)
 };
 
 /** @brief Describes the subsequent (following) data section */
-TgTYPE_STRUCT(STg2_File_Data,)
+TgTYPE_STRUCT(STg2_File_Data, )
 {
     TgALIGN(16) TgUINT_E32                      m_uiFourCC_Data; /**< Descriptor of the file section */
     TgUINT_E32                                  m_uiSize; /**< Size of the file section */
@@ -105,7 +110,7 @@ TgTYPE_STRUCT(STg2_File_Data,)
 };
 
 /** @brief Describe a data test section (used by the unit test) - 4CC = 'TEST' */
-TgTYPE_STRUCT(STg2_File_Data__TEST,)
+TgTYPE_STRUCT(STg2_File_Data__TEST, )
 {
     TgALIGN(16) TgUINT_E32                      m_uiTest;
     TgUINT_E32                                  m_nuiData;

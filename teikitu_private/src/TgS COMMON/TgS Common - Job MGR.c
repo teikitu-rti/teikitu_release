@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -28,9 +28,9 @@ TgJOB_QUEUE_ID                              g_tiJob_Queue__OS;
 /*  File Local Type */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
-TgTYPE_STRUCT(STg2_Job_Thread,)
+TgTYPE_STRUCT(STg2_Job_Thread, )
 {
-    TgJOB_THREAD_ID TgALIGN(16)                 m_tiThread_NoSingleton; /**< Management of the thread pool is under a lock */
+    TgALIGN(16) TgJOB_THREAD_ID                 m_tiThread_NoSingleton; /**< Management of the thread pool is under a lock */
     TgTHREAD_ID                                 m_tiOS_Thread;
     TgSINT_E32_A                                m_iEnabled;
     TgSINT_E32                                  m_iPad0;
@@ -50,7 +50,9 @@ TgTYPE_STRUCT(STg2_Job_Queue,)
     TgJOB_QUEUE_ID_SINGLETON                    m_xtiQueue_Singleton; /**< Managing and Atomic identifier */
     TgSINT_E64_A                                m_xniQueued;
     TgRSIZE_A                                   m_xuiRef; /**< Number of threads that process this queue. */
-    TgUINT_E08                                  m_uiPad0[8];
+#if 0 != (200 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[200 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 
@@ -275,11 +277,12 @@ TgJOB_QUEUE_ID tgJM_Init_Job_Queue( TgVOID )
     TgJOB_QUEUE_ID                      tiQueue;
 
     tgCM_UT_LF__SN__Lock_Spin( &s_asLock_Job_Queue.m_sLock );
+    tiQueue = KTgJOB_QUEUE_ID__INVALID;
 
     if ((ETgMODULE_STATE__BOOTING != s_enJob_MGR_State) && (ETgMODULE_STATE__BOOTED != s_enJob_MGR_State))
     {
         tgCM_UT_LF__SN__Signal( &s_asLock_Job_Queue.m_sLock );
-        return (KTgJOB_QUEUE_ID__INVALID);
+        return (tiQueue);
     };
 
     /* TODO: Can make this faster by putting the queues onto a free stack. */
@@ -294,7 +297,7 @@ TgJOB_QUEUE_ID tgJM_Init_Job_Queue( TgVOID )
     {
         TgCRITICAL_MSGF( 0, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Exceeded number of allowable job queues." );
         tgCM_UT_LF__SN__Signal( &s_asLock_Job_Queue.m_sLock );
-        return (KTgJOB_QUEUE_ID__INVALID);
+        return (tiQueue);
     };
 
     tiQueue = tgJOB_QUEUE_ID_Init( &s_asJob_Queue[iIndex_Queue].m_xtiQueue_Singleton, (TgUINT_E32)iIndex_Queue );
@@ -357,7 +360,7 @@ TgVOID tgJM_Stop_Job_Queue( TgJOB_QUEUE_ID tiQueue, TgBOOL_C bAbort )
             TgSTD_ATOMIC(fetch_sub)( sUnion.psJob->m_pxuiFinish, 1 );
         };
 
-        tgCM_UT_LF__ST__Push( &s_asJob_Queue[tiQueue.m_uiI].m_sFree.m_sStack, &sUnion.psJob->m_sNode.m_sStack );
+        tgCM_UT_LF__ST__Push( &s_asJob_Queue[tiQueue.m_uiI].m_sFree.m_sStack, &sUnion.psJob->m_sStack );
     };
 }
 
@@ -431,11 +434,11 @@ TgRESULT tgJM_Queue_Job( TgJOB_QUEUE_ID_C tiQueue, STg2_Job_CPC psJobSrc )
         tgCM_UT_LF__SN_ID__Signal( &s_asJob_Queue[tiQueue.m_uiI].m_sLock_Queue_Add.m_sLock );
         return (KTgE_JOB_QUEUE_FULL);
     };
-    sUnion.psJob->m_sNode.m_sStack.m_pNext_Node = (TgVOID_P)nullptr;
+    sUnion.psJob->m_sStack.m_pNext_Node = (TgVOID_P)nullptr;
     tgMM_Copy( sUnion.psJob, sizeof( STg2_Job ), psJobSrc, sizeof( STg2_Job ) );
 
     /* Add job to queue */
-    tgCM_UT_ST__QU__Enqueue( &s_asJob_Queue[tiQueue.m_uiI].m_sQueue_Add, &sUnion.psJob->m_sNode.m_sQueue );
+    tgCM_UT_ST__QU__Enqueue( &s_asJob_Queue[tiQueue.m_uiI].m_sQueue_Add, &sUnion.psJob->m_sQueue );
     tgCM_UT_LF__SN_ID__Signal( &s_asJob_Queue[tiQueue.m_uiI].m_sLock_Queue_Add.m_sLock );
 
     TgSTD_ATOMIC(fetch_add)( &s_asJob_Queue[tiQueue.m_uiI].m_xniQueued, 1 );
@@ -853,7 +856,7 @@ static TgUINT_E32 tgJM_Run_Job_Scheduler( TgUINT_PTR_C uiJob_Thread ) TgATTRIBUT
                 continue;
             };
 
-            tgCM_UT_LF__ST__Push( &s_asJob_Queue[tiQueue.m_uiI].m_sFree.m_sStack, &psJob->m_sNode.m_sStack );
+            tgCM_UT_LF__ST__Push( &s_asJob_Queue[tiQueue.m_uiI].m_sFree.m_sStack, &psJob->m_sStack );
 
             /* We always want to restart searching for a job at the top of the queue list */
             break;

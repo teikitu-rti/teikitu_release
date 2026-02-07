@@ -4,11 +4,11 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_KERNEL_INTERNAL_DATA_GPU_H) && defined(TgBUILD_FEATURE__GRAPHICS)
+#if !defined(TGS_KERNEL_GPU_INTERNAL_DATA_H) && defined(TgBUILD_FEATURE__GRAPHICS)
 
 
 /* == Kernel ===================================================================================================================================================================== */
@@ -21,14 +21,14 @@
 
 /* ---- GPU - Configuration ------------------------------------------------------------------------------------------------------------------------------------------------------ */
 
-TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_Adapter;
+TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_Physical_Device;
 TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_Output;
 TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_Width;
 TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_Height;
 TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_Refresh_Rate;
 TgEXTN TgCN_VAR_ID                          g_tiCVAR_KN_GPU_ScanOut_HDR;
 
-TgEXTN TgCHAR_U8                            g_szKN_GPU_Adapter[128];
+TgEXTN TgCHAR_U8                            g_szKN_GPU_Physical_Device[128];
 TgEXTN TgCHAR_U8                            g_szKN_GPU_Output[32];
 TgEXTN TgUINT_E32                           g_uiKN_GPU_Width;
 TgEXTN TgUINT_E32                           g_uiKN_GPU_Height;
@@ -49,12 +49,12 @@ TgEXTN TgRSIZE                              g_nuiKN_GPU_CON_Line;
 
 /* ---- GPU - Contexts ------------------------------------------------------------------------------------------------------------------------------------------------------------ */
 
-TgEXTN STg2_KN_GPU_CXT_HOST_EXTN            g_sKN_GPU_CXT_HOST_EXT;
+TgEXTN STg2_KN_GPU_CXT_HOST_EXTN            g_sKN_GPU_CXT_HOST_EXTN;
 TgEXTN STg2_KN_GPU_CXT_HOST                 g_sKN_GPU_CXT_HOST;
 
 TgEXTN STg2_KN_GPU_CXT_DEVC                 g_asKN_GPU_CXT_DEVC[KTgKN_GPU_MAX_DEVC_CONTEXT];
 TgEXTN STg2_UT_LF_ISO__ST                   g_sKN_GPU_CXT_DEVC_Free_Stack;
-TgEXTN STg2_KN_GPU_CXT_EXEC_EXTN            g_asKN_GPU_CXT_EXEC_EXT[KTgKN_GPU_MAX_EXEC_CONTEXT];
+TgEXTN STg2_KN_GPU_CXT_EXEC_EXTN            g_asKN_GPU_CXT_EXEC_EXTN[KTgKN_GPU_MAX_EXEC_CONTEXT];
 TgEXTN STg2_KN_GPU_CXT_EXEC                 g_asKN_GPU_CXT_EXEC[KTgKN_GPU_MAX_EXEC_CONTEXT];
 TgEXTN STg2_UT_LF_ISO__ST                   g_sKN_GPU_CXT_EXEC_Free_Stack;
 TgEXTN STg2_KN_GPU_CXT_SWAP                 g_asKN_GPU_CXT_SWAP[KTgKN_GPU_MAX_SWAP_CONTEXT];
@@ -63,18 +63,31 @@ TgEXTN STg2_UT_LF_ISO__ST                   g_sKN_GPU_CXT_SWAP_Free_Stack;
 
 /* ---- GPU - Resource ------------------------------------------------------------------------------------------------------------------------------------------------------------ */
 
+TgEXTN STg2_KN_GPU_Graphics_Pipeline_C      g_asKN_GPU_Graphics_Pipeline[ETgKN_GPU_GRAPHICS_PIPELINE_COUNT];
+TgEXTN STg2_KN_GPU_Compute_Pipeline_C       g_asKN_GPU_Compute_Pipeline_For_Rendering[ETgKN_GPU_COMPUTE_PIPELINE_FOR_RENDERING_COUNT];
+//TgEXTN STg2_KN_GPU_Compute_Pipeline_C       g_asKN_GPU_Compute_Pipeline[ETgKN_GPU_COMPUTE_PIPELINE_COUNT];
+
+TgEXTN TgRSIZE_C                            g_uiAligned_Render_DESC_UBO_Size;
+
 #define __PARENT_FILE__ "TgS Kernel [GPU] - Internal - Data.h"
 #define ENABLE_RELOAD_GUARD
 #include "TgS KERNEL/TgS Kernel [GPU] - Resource [INC].h"
 #undef ENABLE_RELOAD_GUARD
 #undef __PARENT_FILE__
 
-#define TGS_KERNEL_INTERNAL_DATA_GPU_H
+#define TGS_KERNEL_GPU_INTERNAL_DATA_H
 
 
-/* ---- GPU - Resource - Shader -------------------------------------------------------------------------------------------------------------------------------------------------- */
-/* ---- GPU - Resource - Texture ------------------------------------------------------------------------------------------------------------------------------------------------- */
-/* ---- GPU - Resource - Debug Output -------------------------------------------------------------------------------------------------------------------------------------------- */
+
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
+/*  Internal Data for Debug                                                                                                                                                        */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
+
+#if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
+TgEXTN STg2_KN_GPU_CXT_HOST_DBG             g_sKN_GPU_DBG_CXT_HOST;
+
+TgEXTN STg2_KN_GPU_Graphics_Pipeline_C      g_asKN_GPU_DBG_Graphics_Pipeline[ETgKN_GPU_DBG_GRAPHICS_PIPELINE_COUNT];
 
 TgEXTN TgUINT_E08_C                         g_uiKN_GPU_STD_DOS_Font_Default_Data[1024];
 TgEXTN TgUINT_E08_C                         g_uiKN_GPU_STD_DOS_Font_Future_Data[1024];
@@ -83,13 +96,15 @@ TgEXTN TgUINT_E08_C                         g_uiKN_GPU_STD_DOS_Font_Marcio_Data[
 
 TgEXTN STg2_KN_GPU_FONT                     g_sKN_GPU_STD_DOS_Font[ETgKN_GPU_DOS_FONT_ROM_COUNT];
 
-TgEXTN STg2_KN_GPU_Vertex_UI_Text_C         g_sVertex_Text[4];
-TgEXTN TgRSIZE_C                            g_uiAligned_Debug_Text_Constant_Buffer_Size;
-TgEXTN STg2_KN_GPU_Vertex_UI_C              g_sVertex_UI[4];
-TgEXTN TgRSIZE_C                            g_uiAligned_Debug_Quad_Constant_Buffer_Size;
-TgEXTN TgRSIZE_C                            g_uiAligned_Debug_Model_Constant_Buffer_Size;
-TgEXTN TgRSIZE_C                            g_uiAligned_Debug_Model_Instance_Constant_Buffer_Size;
-TgEXTN TgRSIZE_C                            g_uiAligned_Debug_Line_Constant_Buffer_Size;
+TgEXTN STg2_KN_GPU_Vertex_UI_Text_C         g_sVertex_Strip_Text[4];
+TgEXTN STg2_KN_GPU_Vertex_UI_C              g_sVertex_Strip_Quad[4];
+TgEXTN STg2_KN_GPU_Vertex_UI_C              g_sVertex_Strip_Gradient[4];
+TgEXTN STg2_KN_GPU_Vertex_Geom_02_C         g_sVertex_List_Cube[36];
+
+/*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
+#endif
+
+
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
@@ -120,7 +135,7 @@ TgEXTN TgUINT_E64_A                         T(g_xnuiKN_Lib_,_Init); /** Salt val
 #if defined(MACRO_BUILD_TEXTURE)
 TgEXTN T(TgKN_GPU_,_INST_ID_A)              T(g_axsCXT_,_Inst_Ref_Singleton)[KTgKN_GPU_MAX_EXEC_CONTEXT][T(KTgKN_GPU_MAX_,_INST)];
 TgEXTN T(TgKN_GPU_,_ID)                     T(g_asCXT_,)[KTgKN_GPU_MAX_EXEC_CONTEXT][T(KTgKN_GPU_MAX_,_INST)];
-TgEXTN STg2_UT_LF_ISO__ST                   T(g_sCXT_,_Inst)[KTgKN_GPU_MAX_EXEC_CONTEXT];
+TgEXTN STg2_UT_LF_ISO__ST_Unaligned         T(g_sCXT_,_Inst)[KTgKN_GPU_MAX_EXEC_CONTEXT];
 TgEXTN STg2_UT_LF_ISO__SN                   T(g_sCXT_,_Inst_Lock)[KTgKN_GPU_MAX_EXEC_CONTEXT];
 /*# defined(MACRO_BUILD_TEXTURE) */
 #endif

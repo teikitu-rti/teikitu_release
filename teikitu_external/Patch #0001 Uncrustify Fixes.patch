@@ -1,0 +1,25 @@
+From 7206b6bf632153508df37ce4abd1ba16fffaecdf Mon Sep 17 00:00:00 2001
+From: Andrew Aye <github.very069@passmail.net>
+Date: Sat, 6 Sep 2025 11:57:54 -0700
+Subject: [PATCH] [Fix] Add the definition of WIN32 when compiling for WIN32
+ (this is only enabled by default on MSVC)
+
+---
+ CMakeLists.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b1749a90f..cb5ef2973 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -80,6 +80,7 @@ include_directories(
+ # Determine config
+ #
+ if(WIN32)
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWIN32")
+   # Windows builds use src/windows_compat.h instead of config.h
+ else()
+   # Generate config.h
+-- 
+2.47.1.windows.1
+

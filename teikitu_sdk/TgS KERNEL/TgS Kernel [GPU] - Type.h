@@ -1,14 +1,14 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Kernel - Type [GPU].h
+    »File«      TgS Kernel [GPU] - Type.h
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.20 | »GUID« DE461472-5528-4A5B-A7F4-09CCAD73387B */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_KERNEL_TYPE_GPU_H) && defined(TgBUILD_FEATURE__GRAPHICS)
+#if !defined(TGS_KERNEL_GPU_TYPE_H) && defined(TgBUILD_FEATURE__GRAPHICS)
 #if !defined (ENABLE_RELOAD_GUARD)
 /* == Kernel ===================================================================================================================================================================== */
 
@@ -17,12 +17,6 @@
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
 TgTYPE_FORWARD_STRUCT( STg2_KN_GPU_CMD );
-TgTYPE_FORWARD_STRUCT( STg2_KN_GPU_EXT_CMD );
-TgTYPE_UNION( UTg2_KN_GPU_CMD, )
-{
-    STg2_KN_GPU_CMD_P TgANALYSIS_NO_NULL                    ps;
-    STg2_KN_GPU_EXT_CMD_P TgANALYSIS_NO_NULL                psEXT;
-};
 
 
 /* ---- GPU Resource ID ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -33,19 +27,26 @@ TgTYPE_UNION( UTg2_KN_GPU_CMD, )
 #undef ENABLE_RELOAD_GUARD
 #undef __PARENT_FILE__
 
-#define TGS_KERNEL_TYPE_GPU_H
+#define TGS_KERNEL_GPU_TYPE_H
 
 
 /* ---- GPU - Resource - Shader - Descriptors ------------------------------------------------------------------------------------------------------------------------------------ */
 
-TgTYPE_STRUCT(STg2_KN_GPU_CS_DESC,)
+TgTYPE_STRUCT(STg2_KN_GPU_VS_DESC,)
 {
     TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
     TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
     TgCHAR_U8_CP                                m_uszName;
 };
 
-TgTYPE_STRUCT(STg2_KN_GPU_DS_DESC,)
+TgTYPE_STRUCT(STg2_KN_GPU_TCS_DESC,)
+{
+    TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
+    TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
+    TgCHAR_U8_CP                                m_uszName;
+};
+
+TgTYPE_STRUCT(STg2_KN_GPU_TES_DESC,)
 {
     TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
     TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
@@ -59,21 +60,28 @@ TgTYPE_STRUCT(STg2_KN_GPU_GS_DESC,)
     TgCHAR_U8_CP                                m_uszName;
 };
 
-TgTYPE_STRUCT(STg2_KN_GPU_HS_DESC,)
+TgTYPE_STRUCT(STg2_KN_GPU_FS_DESC,)
 {
     TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
     TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
     TgCHAR_U8_CP                                m_uszName;
 };
 
-TgTYPE_STRUCT(STg2_KN_GPU_PS_DESC,)
+TgTYPE_STRUCT(STg2_KN_GPU_TS_DESC,)
 {
     TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
     TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
     TgCHAR_U8_CP                                m_uszName;
 };
 
-TgTYPE_STRUCT(STg2_KN_GPU_VS_DESC,)
+TgTYPE_STRUCT(STg2_KN_GPU_MS_DESC,)
+{
+    TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
+    TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
+    TgCHAR_U8_CP                                m_uszName;
+};
+
+TgTYPE_STRUCT(STg2_KN_GPU_CS_DESC,)
 {
     TgUINT_E08_CP                               m_puiData; /**< Shader byte code. */
     TgRSIZE                                     m_nuiData; /**< Size in \b >bytes< of the shader byte code. */
@@ -114,31 +122,37 @@ TgTYPE_STRUCT(STg2_KN_GPU_TX_VOL_DESC,)
 
 /* ---- GPU - Resource - Descriptors --------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT(STg2_KN_GPU_RT_DESC,)
+TgTYPE_STRUCT(STg2_KN_GPU_Render_Target_DESC,)
 {
-    TgRSIZE                                     m_uiWidth, m_uiHeight;
-    TgUINT_E32                                  m_uiPad;
-    ETgKN_GPU_EXT_FORMAT                        m_enFormat_DS;
-    ETgKN_GPU_EXT_FORMAT                        m_enFormat_RT[8];
+    ETgKN_GPU_EXT_FORMAT                        m_aenColour_Format[KTgKN_GPU_MAX_SIMULTANEOUS_TARGET_COUNT]; /**< Image format for colour buffers in the render target */
+    TgRSIZE                                     m_nuiColour_Target; /**< Number of colour targets for the render target */
+    ETgKN_GPU_EXT_FORMAT                        m_enDepth_Stencil_Format; /**< Image format of the depth/stencil target */
+    ETgKN_GPU_HLSL_COLOUR_SPACE                 m_enColour_Space;
+    TgRSIZE                                     m_uiWidth, m_uiHeight; /**< Dimensions of the render target */
 };
 
 
 /* ---- GPU - Configuration ------------------------------------------------------------------------------------------------------------------------------------------------------ */
 
-TgTYPE_STRUCT(STg2_KN_GPU_Output,)
+TgTYPE_STRUCT(STg2_KN_OS_GPU_Mode, )
+{
+    TgUINT_E32                                  m_uiWidth, m_uiHeight;
+    ETgKN_OS_GPU_FORMAT                         m_enFormat;
+    TgUINT_E32                                  m_uiRefresh_Rate__Numerator, m_uiRefresh_Rate__Denominator;
+};
+
+TgTYPE_STRUCT(STg2_KN_GPU_Display_Output,)
 {
     TgCHAR_U8                                   m_szName[KTgKN_GPU_MAX_OUTPUT_NAME];
     TgUINT_E64                                  m_uiScanOut;
 };
 
-TgTYPE_STRUCT(STg2_KN_GPU_Adapter,)
+TgTYPE_STRUCT(STg2_KN_GPU_Physical_Device,)
 {
-    TgCHAR_U8                                   m_szAdapter[KTgKN_GPU_MAX_ADAPTER_NAME];
-    STg2_KN_GPU_Output                          m_asOutput[KTgKN_GPU_MAX_OUTPUT];
-    TgUINT_E32                                  m_nuiNode;
-    TgUINT_E32                                  m_nuiOutput;
-    TgUINT_E32                                  m_uiHost_Adapter_Index;
-    TgUINT_E32                                  m_uiSupport_Flags;
+    TgCHAR_U8                                   m_szPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE_NAME];
+    TgRSIZE                                     m_nuiNode;
+    TgRSIZE                                     m_idxCXT_HOST_Physical_Device;
+    TgUINT_E64                                  m_uiSupport_Flags;
 };
 
 TgTYPE_STRUCT(STg2_KN_GPU_Render_Buffer,)
@@ -162,14 +176,14 @@ TgTYPE_STRUCT(STg2_KN_GPU_Viewport,)
 TgTYPE_STRUCT(STg2_KN_GPU_Select,)
 {
     /* Device Context */
-    TgRSIZE                                     m_uiEnumeration_Adapter_Index[KTgKN_GPU_MAX_DEVC_CONTEXT]; /**< Index into the enumeration results of the adapter. */
-    TgRSIZE                                     m_nuiAdapter;
+    TgRSIZE                                     m_uiEnumeration_Physical_Device_Index[KTgKN_GPU_MAX_DEVC_CONTEXT]; /**< Index into the enumeration results of the adapter. */
+    TgRSIZE                                     m_nuiPhysical_Device;
 
     /* Execution Context - Each node is assumed to be a separate GPU w/ independent memory controller. */
     struct
     {
-        TgRSIZE                                     m_uiAdapter_Index; /**< Adapter index in this structure for the GPU node. */
-        TgUINT_E32                                  m_uiAdapter_Node_Mask;
+        TgRSIZE                                     m_idxCXT_HOST_Physical_Device; /**< Adapter index in this structure for the GPU node. */
+        TgUINT_E32                                  m_uiPhysical_Device_Node_Mask;
         TgUINT_E32                                  m_nuiRender_Target_Max;
         TgUINT_E32                                  m_nuiDepth_Stencil_Max;
         TgUINT_E32                                  m_nuiData_Buffers_Max;
@@ -206,7 +220,7 @@ TgTYPE_STRUCT(STg2_KN_GPU_Init_Result,)
 {
     struct
     {
-        TgRSIZE                                     m_uiEnumeration_Adapter_Index; /**< Index into the enumeration results of the adapter. */
+        TgRSIZE                                     m_uiEnumeration_Physical_Device_Index; /**< Index into the enumeration results of the adapter. */
         TgKN_GPU_CXT_EXEC_ID                        m_tiCXT_EXEC;
         TgUINT_E32                                  m_uiNodeMask;
         TgUINT_E32                                  m_uiPad;
@@ -281,10 +295,7 @@ TgTYPE_STRUCT(STg2_KN_GPU_CXT_EXEC_EXTN,)
     TgKN_GPU_TX_IMG_INST_ID                     m_tiTX_IMG_Peturbation;
 
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
-    TgKN_GPU_TX_IMG_INST_ID                     m_sID_Font_ROM__DOS_Font_Default;
-    TgKN_GPU_TX_IMG_INST_ID                     m_sID_Font_ROM__DOS_Font_Future;
-    TgKN_GPU_TX_IMG_INST_ID                     m_sID_Font_ROM__DOS_Font_Block;
-    TgKN_GPU_TX_IMG_INST_ID                     m_sID_Font_ROM__DOS_Font_Marcio;
+    TgKN_GPU_TX_IMG_INST_ID                     m_sID_Font_ROM__DOS_Font[ETgKN_GPU_DOS_FONT_ROM_COUNT];
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
 
@@ -318,12 +329,12 @@ TgTYPE_STRUCT(STg2_KN_GPU_CXT_EXEC_EXTN,)
 /* ---- GPU - Resource - Defaults ------------------------------------------------------------------------------------------------------------------------------------------------ */
 
 #define RENDER_INPUT_LAYOUT_START(A,B) TgTYPE_STRUCT(STg2_KN_GPU_##A,) {
-#define RENDER_INPUT_LAYOUT_PER_VERTEX(A, B, C, D, E, F, G, ...) G __VA_ARGS__;
-#define RENDER_INPUT_LAYOUT_PER_VERTEX_APPEND(A, B, C, D, F, G, ...) G __VA_ARGS__;
+#define RENDER_INPUT_LAYOUT_PER_VERTEX(A, B, C, D, E, F, G, ...) G F;
+#define RENDER_INPUT_LAYOUT_PER_VERTEX_APPEND(A, B, C, D, E, F, G, ...) G F;
 #define RENDER_INPUT_LAYOUT_END(A) };
-#define RENDER_INPUT_ALIGNMENT_CHECK(A,B) TgCOMPILER_ASSERT(A == sizeof(STg2_KN_GPU_##B), 0 );
+#define RENDER_INPUT_ALIGNMENT_CHECK(A,B) TgCOMPILER_ASSERT(B == sizeof(STg2_KN_GPU_##A), 0 );
 
-#include "TgS KERNEL/TgS Kernel [GPU] - Resource [HLSL] [Vertex].h"
+#include "TgS KERNEL/TgS Kernel [GPU] - Resource [HLSL] [Vertex] [INC].h"
 
 #undef RENDER_INPUT_ALIGNMENT_CHECK
 #undef RENDER_INPUT_LAYOUT_END
@@ -331,10 +342,9 @@ TgTYPE_STRUCT(STg2_KN_GPU_CXT_EXEC_EXTN,)
 #undef RENDER_INPUT_LAYOUT_PER_VERTEX
 #undef RENDER_INPUT_LAYOUT_START
 
-#define TgTYPE_HLSL_STRUCT(A, ...) TgTYPE_STRUCT_( A, __VA_ARGS__ )
+#define TgTYPE_HLSL_DECL_STRUCT(A) TgTYPE_STRUCT_( STg2_KN_GPU_##A, )
 #include "TgS KERNEL/TgS Kernel [GPU] - Resource [HLSL] [Data].h"
-#undef TgTYPE_HLSL_STRUCT
-TgTYPE_DECLARE( STg2_KN_GPU_HLSL_CB_Debug_Model_Instance, STg2_KN_GPU_HLSL_CB_DMI);
+#undef TgTYPE_HLSL_DECL_STRUCT
 
 
 /* ---- GPU - Resource - Font ---------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -350,11 +360,8 @@ TgTYPE_STRUCT(STg2_KN_GPU_FONT_TX,)
 /* ---- GPU - Resource - Debug --------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
 
-TgTYPE_STRUCT(STg2_KN_GPU_OUTPUT_DEBUG_STRING,)
+TgTYPE_STRUCT(STg2_KN_GPU_DBG_Text_CI,)
 {
-    STg2_KN_GPU_HLSL_Output_DESC                m_sOutput_DESC;
-    STg2_KN_GPU_Render_Buffer                   m_sRTBuffer;
-    STg2_KN_GPU_Render_Buffer                   m_sDSBuffer;
     ETgKN_GPU_DOS_FONT_ROM                      m_enFont;
     TgUINT_E32                                  m_bWord_Wrap : 1;
     TgUINT_E32                                  m_bLine_Change_Is_Positive : 1;
@@ -363,28 +370,12 @@ TgTYPE_STRUCT(STg2_KN_GPU_OUTPUT_DEBUG_STRING,)
     TgUINT_E32                                  m_bRight_Aligned : 1;
     TgUINT_E32                                  m_bText_Right_To_Left : 1;
     TgUINT_E32                                  m_uiPad_Bits : 26;
-    TgCHAR_U8_CP                                m_auszText[KTgKN_GPU_MAX_DEBUG_TEXT];
-    TgRSIZE                                     m_nuiText;
     TgVEC_S_F32_04_1                            m_vText_Box_V;
     TgVEC_S_F32_04_1                            m_vText_Colour;
     TgVEC_S_F32_04_1                            m_vBackground_Colour;
     TgVEC_S_F32_04_1                            m_vBackground_First_Line;
-};
-
-TgTYPE_STRUCT(STg2_KN_GPU_OUTPUT_DEBUG_LINE,)
-{
-    STg2_KN_GPU_HLSL_Output_DESC                m_sOutput_DESC;
-    STg2_KN_GPU_Render_Buffer                   m_sRTBuffer;
-    STg2_KN_GPU_Render_Buffer                   m_sDSBuffer;
-};
-
-TgTYPE_STRUCT(STg2_KN_GPU_OUTPUT_DEBUG_GEOM,)
-{
-    STg2_KN_GPU_HLSL_Output_DESC                m_sOutput_DESC;
-    STg2_KN_GPU_Render_Buffer                   m_sRTBuffer;
-    STg2_KN_GPU_Render_Buffer                   m_sDSBuffer;
-    STg2_KN_GPU_HLSL_CB_Debug_Model_CP          m_psCB_DBG_Model;
-    STg2_KN_GPU_HLSL_CB_Debug_Model_Instance_CP m_psCB_DBG_Model_Instance;
+    TgRSIZE                                     m_nuiText;
+    TgCHAR_U8 const * const *                   m_puszText;
 };
 
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
@@ -393,10 +384,23 @@ TgTYPE_STRUCT(STg2_KN_GPU_OUTPUT_DEBUG_GEOM,)
 
 /* ---- GPU - Render Primitives -------------------------------------------------------------------------------------------------------------------------------------------------- */
 
+TgTYPE_STRUCT(STg2_KN_GPU_Clear_Target,)
+{
+    TgUINT_E64                                  m_uiColour_Clear : KTgKN_GPU_MAX_SIMULTANEOUS_TARGET_COUNT;
+    TgUINT_E64                                  m_bDepth_Clear : 1;
+    TgUINT_E64                                  m_bDepth_ReverseZ : 1; /**< If true, the depth buffer is cleared to 1.0 */
+    TgUINT_E64                                  m_bStencil_Clear : 1;
+    TgUINT_E64                                  m_uiStencil_Clear_Value : 8;
+    TgUINT_E64                                  m_uiPad1 : 45;
+    TgVEC_S_F32_04_1                            m_avColour_Clear[KTgKN_GPU_MAX_SIMULTANEOUS_TARGET_COUNT]; /**< Clear colour for each target */
+    TgRECT2D_F32_04_P                           m_asRect; /**< List of rects used to limit the clear*/
+    TgRSIZE                                     m_nuiRect; /**< Number of rects to use for the clear */
+};
+
 TgTYPE_STRUCT(STg2_KN_GPU_Camera_Configuration,)
 {
-    TgUN_V128                                   m_uCam_Position; /**< World space position of the camera */
-    TgUN_V128                                   m_uCam_Target; /**< World space target of the camera */
+    TgUN_V128                                   m_uCamera_Position; /**< World space position of the camera */
+    TgUN_V128                                   m_uCamera_Target; /**< World space target of the camera */
 
                                                 /* Parameters used to calculate the projection matrix */
     TgFLOAT32                                   m_fAspect_Ratio;
@@ -408,28 +412,9 @@ TgTYPE_STRUCT(STg2_KN_GPU_Camera_Configuration,)
    (perspective or orthographic). */
 TgTYPE_STRUCT(STg2_KN_GPU_Camera,)
 {
-    STg2_KN_GPU_Camera_Configuration            m_sCamera;
-
-                                                /* Reference Frame of the Camera */
-    TgVEC_F32_04_1                              m_vCam_Forward; /**< World space camera forward vector */
-    TgVEC_F32_04_1                              m_vCam_Up; /**< World space camera up vector */
-    TgVEC_F32_04_1                              m_vCam_Right; /**< World space camera right vector */
-
-                                                /* Reference Frame Transformations */
-    TgVEC_F32_04_4                              m_xFrustum_W2C; /**< World to Camera (View) */
-    TgVEC_F32_04_4                              m_xFrustum_C2S; /**< Camera to Screen (Projection) */
-    TgVEC_F32_04_4                              m_xFrustum_W2S; /**< World to Screen */
-    TgVEC_F32_04_4                              m_xFrustum_C2W; /**< Camera to World (Inverse View) */
-    TgVEC_F32_04_4                              m_xFrustum_S2C; /**< Screen to Camera (Inverse Projection) */
-    TgVEC_F32_04_4                              m_xFrustum_S2W; /**< Screen to World */
-
-                                                /* Frustum description */
-    TgVEC_F32_04_1                              m_vFrustum_Min_BA, m_vFrustum_Max_BA; /**< Frustum bounds - used for a bounding axis-aligned bounding box. */
-    TgVEC_F32_04_1                              m_vFrustum_Centroid; /**< Centre of the frustum - used for a bounding sphere. */
-    TgVEC_F32_04_1                              m_avFrustum_PN[ETgFRUSTUM_PLANE__MAX]; /**< Non-Normalized Plane Equations. */
-    TgFLOAT32                                   m_fFrustum_Radius_Squared; /**< Centre to bounds - used for bounding sphere. */
-
-    TgCHAR_U8                                   m_szName[44];
+    STg2_KN_GPU_Camera_Configuration            m_sConfiguration;
+    STg2_KN_GPU_Camera_Shared                   m_sCamera_Shared;
+    TgCHAR_U8                                   m_szName[48];
 };
 
 
@@ -440,7 +425,7 @@ TgTYPE_STRUCT(STg2_KN_GPU_Camera,)
 
 TgTYPE_UNION(T(TgKN_GPU_,_ID),)
 {
-    TgALIGN(8) TgUINT_E64                   m_uiKI;
+    TgUINT_E64                                  m_uiKI;
     struct {
         TgUINT_E64                                  m_uiIndex : KTgKN_GPU_RS_BIT__MAX_INDEX; /**< Index identification of object within storage array. */
         TgUINT_E64                                  m_uiK : KTgKN_GPU_RS_BIT__SALT; /**< Salt value to prevent ABA atomic issues. */
@@ -454,7 +439,7 @@ TgEXTN T(TgKN_GPU_,_ID_C) T(KTgKN_GPU_,_ID__INVALID);
 
 TgTYPE_UNION(T(TgKN_GPU_,_INST_ID),)
 {
-    TgALIGN(8) TgUINT_E64                   m_uiKI;
+    TgUINT_E64                                  m_uiKI;
     struct {
         TgUINT_E64                                  m_uiIndex : KTgKN_GPU_RSI_BIT__MAX_INDEX; /**< Index identification of object within storage array. */
         TgUINT_E64                                  m_uiCXT : KTgKN_GPU_RSI_BIT__MAX_CONTEXT; /**< Index identification of the backing (resource) library. */

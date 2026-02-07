@@ -63,6 +63,13 @@ SET (NINJA_PARALLEL_JOBS ${CMAKE_LOGICAL_CORE_COUNT}-2) # Ninja
 
 
 # ========================================================================================================================================================================================================
+#  Windows RC Compiler
+# ========================================================================================================================================================================================================
+
+# NOTE: If you are seeing "No CMAKE_RC_COMPILER could be found." from CMake, run from a VS Developer Terminal/Powershell window.
+
+
+# ========================================================================================================================================================================================================
 #  CONFIGURATION
 # ========================================================================================================================================================================================================
 
@@ -212,7 +219,7 @@ INCLUDE(${GIT_ROOT_PATH}/cmake/project_report.cmake)
 
 
 # ========================================================================================================================================================================================================
-#  EXTERNAL PROJECT - COMMON
+#  EXTERNAL PROJECT - SINGLE PROJECTS WITH NO DEPENDENCIES
 # ========================================================================================================================================================================================================
 
 IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("DIRECTX" IN_LIST MK_BUILD__LIST) OR (("TEIKITU" IN_LIST MK_BUILD__LIST) AND ("${MK_BUILD__GRAPHICS_NAME}" STREQUAL "DX12")))
@@ -464,7 +471,7 @@ IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("MIMALLOC" IN_LIST MK_BUILD__LIST) OR ("T
         INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
 
         GIT_REPOSITORY                  https://github.com/microsoft/mimalloc.git
-        GIT_TAG                         54940a6a65d28c0d6499490899f6d420b3bb7e24 # branch: dev, HEAD
+        GIT_TAG                         fbd8b99c2b828428947d70fdc046bb55609be93e # branch: dev, HEAD
         GIT_SHALLOW                     FALSE
         GIT_PROGRESS                    FALSE
         GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
@@ -506,6 +513,80 @@ IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("MIMALLOC" IN_LIST MK_BUILD__LIST) OR ("T
         DEPENDEES download
         DEPENDERS configure
         INDEPENDENT TRUE
+    )
+ENDIF ()
+
+
+IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("FLECS" IN_LIST MK_BUILD__LIST) OR ("TEIKITU" IN_LIST MK_BUILD__LIST))
+    SET_APPEND_MSVC_COMPILER_OPTION( CMAKE_C_FLAGS_FOR_FLECS CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS wd4391)
+    SET_APPEND_MSVC_COMPILER_OPTION( CMAKE_CXX_FLAGS_FOR_FLECS CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS wd4391)
+
+    EXTERNALPROJECT_ADD( FLECS_EXTERNAL #=================================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_external/_repo_clone/flecs/
+        BINARY_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}flecs/
+        INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
+
+        GIT_REPOSITORY                  https://github.com/SanderMertens/flecs.git
+        GIT_TAG                         v4.1.1
+        GIT_SHALLOW                     TRUE
+        GIT_PROGRESS                    FALSE
+        GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
+
+        UPDATE_COMMAND                  "" # No need to update the repo given we are pulling a specific version tag
+
+        CMAKE_ARGS                      ${MK_BUILD__EXTERNAL_CMAKE_ARGS_DEFAULT}
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__EXTERNAL_CMAKE_CACHE_ARGS_DEFAULT}
+
+                                        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_FOR_FLECS}
+                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_FOR_FLECS}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+    )
+ENDIF ()
+
+
+IF (("${MK_BUILD__OS_NAME}" STREQUAL "WINDOWS") AND (("ALL" IN_LIST MK_BUILD__LIST) OR ("ASSIMP" IN_LIST MK_BUILD__LIST) OR ("TEIKITU" IN_LIST MK_BUILD__LIST)))
+    SET_APPEND_MSVC_COMPILER_OPTION( CMAKE_C_FLAGS_FOR_ASSIMP CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS wd4113)
+    EXTERNALPROJECT_ADD( ASSIMP_EXTERNAL #================================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_external/_repo_clone/asset_import/
+        BINARY_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}asset_import/
+        INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
+
+        GIT_REPOSITORY                  https://github.com/assimp/assimp.git
+        GIT_TAG                         v6.0.2
+        GIT_SHALLOW                     TRUE
+        GIT_PROGRESS                    FALSE
+        GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
+
+        UPDATE_COMMAND                  "" # No need to update the repo given we are pulling a specific version tag
+
+        CMAKE_ARGS                      ${MK_BUILD__EXTERNAL_CMAKE_ARGS_DEFAULT}
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__EXTERNAL_CMAKE_CACHE_ARGS_DEFAULT}
+
+                                        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS}
+                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
     )
 ENDIF ()
 
@@ -609,7 +690,7 @@ ENDIF ()
 
 
 # ========================================================================================================================================================================================================
-#  EXTERNAL PROJECT - TOOLS - OPEN USD
+#  EXTERNAL PROJECT - TOOLS - OPEN USD AND OPEN SUB DIV
 # ========================================================================================================================================================================================================
 
 IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("ONEAPI" IN_LIST MK_BUILD__LIST) OR ("OPENUSD" IN_LIST MK_BUILD__LIST))
@@ -855,6 +936,139 @@ IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("ONEAPI" IN_LIST MK_BUILD__LIST) OR ("OPE
 ENDIF ()
 
 
+IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("SLANG" IN_LIST MK_BUILD__LIST))
+    IF (MK_IDE__MSVC)
+        SET(SLANG_PRESET vs2022)
+    ELSE ()
+        SET(SLANG_PRESET default)
+    ENDIF ()
+
+    EXTERNALPROJECT_ADD( SLANG_EXTERNAL #=====================================================================================================================================================================
+        SOURCE_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}slang/
+        BINARY_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}slang/
+        INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
+
+        GIT_REPOSITORY                  https://github.com/shader-slang/slang.git
+        GIT_TAG                         v2025.15.1 # 
+        GIT_SHALLOW                     TRUE
+        GIT_PROGRESS                    FALSE
+        GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
+
+        UPDATE_COMMAND                  "" # No need to update the repo given we are pulling a specific version tag
+
+        CMAKE_ARGS                      ${MK_BUILD__EXTERNAL_CMAKE_ARGS_DEFAULT}
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__EXTERNAL_CMAKE_CACHE_ARGS_DEFAULT}
+
+                                        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS}
+                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+
+        BUILD_COMMAND                   ${CMAKE_COMMAND} --preset ${SLANG_PRESET}
+        COMMAND                         ${CMAKE_COMMAND} --build --preset releaseWithDebugInfo
+        INSTALL_COMMAND                 ""
+        TEST_COMMAND                    ""
+    )
+ENDIF ()
+
+
+IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("TEIKITU" IN_LIST MK_BUILD__LIST) OR ("IMGUI" IN_LIST MK_BUILD__LIST))
+    EXTERNALPROJECT_ADD( IMGUI_EXTERNAL #=====================================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_external/_repo_clone/imgui/
+        BINARY_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}imgui/
+        INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
+
+        GIT_REPOSITORY                  https://github.com/ocornut/imgui.git
+        GIT_TAG                         v1.92.2 # 059b751e41fe508b87b43a7fa2b8a500beb709d8
+        GIT_SHALLOW                     FALSE
+        GIT_PROGRESS                    FALSE
+        GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
+
+        CONFIGURE_COMMAND               ""
+        BUILD_COMMAND                   ""
+        INSTALL_COMMAND                 ""
+        TEST_COMMAND                    ""
+        UPDATE_COMMAND                  "" # No need to update the repo given we are pulling a specific version tag
+
+        CMAKE_ARGS                      ${MK_BUILD__EXTERNAL_CMAKE_ARGS_DEFAULT}
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__EXTERNAL_CMAKE_CACHE_ARGS_DEFAULT}
+
+                                        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS}
+                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+    )
+ENDIF ()
+
+
+IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("VULKAN" IN_LIST MK_BUILD__LIST) OR (("TEIKITU" IN_LIST MK_BUILD__LIST) AND ("${MK_BUILD__GRAPHICS_NAME}" STREQUAL "VULKAN")))
+    IF (CMAKE_HOST_WIN32)
+        SET (CMAKE_C_FLAGS_FOR_VOLK ${CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS})
+        SET (CMAKE_CXX_FLAGS_FOR_VOLK ${CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS})
+    ELSE ()
+        SET_APPEND_GNU_COMPILER_OPTION (CMAKE_C_FLAGS_FOR_VOLK CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS "I$ENV{VULKAN_SDK}/include")
+        SET_APPEND_GNU_COMPILER_OPTION (CMAKE_CXX_FLAGS_FOR_VOLK CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS "I$ENV{VULKAN_SDK}/include")
+    ENDIF ()
+
+    EXTERNALPROJECT_ADD( VOLK_EXTERNAL #==================================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_external/_repo_clone/volk/
+        BINARY_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}volk/
+        INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
+
+        GIT_REPOSITORY                  https://github.com/zeux/volk.git
+        GIT_TAG                         vulkan-sdk-1.4.321.0
+        GIT_SHALLOW                     TRUE
+        GIT_PROGRESS                    FALSE
+        GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
+
+        UPDATE_COMMAND                  "" # No need to update the repo given we are pulling a specific version tag
+        INSTALL_COMMAND ${CMAKE_COMMAND} --build . --target install
+
+        CMAKE_ARGS                      ${MK_BUILD__EXTERNAL_CMAKE_ARGS_DEFAULT}
+                                        -DVOLK_INSTALL=ON
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__EXTERNAL_CMAKE_CACHE_ARGS_DEFAULT}
+
+                                        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_FOR_VOLK}
+                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_FOR_VOLK}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+        BUILD_ALWAYS                    0
+
+        LOG_DOWNLOAD                    1
+        LOG_UPDATE                      1
+        LOG_CONFIGURE                   1
+        LOG_BUILD                       1
+        LOG_INSTALL                     1
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+    )
+ENDIF ()
+
+
+
+
 # ========================================================================================================================================================================================================
 #  FETCH ASSETS
 # ========================================================================================================================================================================================================
@@ -931,12 +1145,6 @@ ENDIF ()
 # ========================================================================================================================================================================================================
 
 IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("TEIKITU" IN_LIST MK_BUILD__LIST))
-    IF (MK_BUILD__HOST_MACOS)
-        SET (MK_BUILD__PRELOAD__MALLOC_OVERRIDE_ENABLE OFF)
-    ELSE ()
-        SET (MK_BUILD__PRELOAD__MALLOC_OVERRIDE_ENABLE ON)
-    ENDIF ()
-
     EXTERNALPROJECT_ADD( TEIKITU_EXTERNAL #===============================================================================================================================================================
         SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_private/
         BINARY_DIR                      ${MK_BUILD__BUILD_DIRECTORY}/teikitu/
@@ -946,11 +1154,11 @@ IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("TEIKITU" IN_LIST MK_BUILD__LIST))
 
         CMAKE_ARGS                      ${MK_BUILD__CMAKE_ARGS_DEFAULT}
 
-        CMAKE_CACHE_ARGS                ${MK_BUILD__CMAKE_CACHE_ARGS_DEFAULT}
-
-                                        -DMK_BUILD__PRELOAD__MALLOC_OVERRIDE:BOOL=${MK_BUILD__PRELOAD__MALLOC_OVERRIDE_ENABLE}
+                                        -DMK_BUILD__PRELOAD__MALLOC_OVERRIDE:BOOL=OFF
                                         -DMK_BUILD__MIMALLOC_ALLOCATOR:BOOL=ON
-                                        -DMK_BUILD__MIMALLOC_DEFAULT:BOOL=OFF
+                                        -DMK_BUILD__MIMALLOC_DEFAULT:BOOL=ON
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__CMAKE_CACHE_ARGS_DEFAULT}
 
         TEST_AFTER_INSTALL              0
         DOWNLOAD_NO_PROGRESS            1
@@ -969,9 +1177,74 @@ IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("TEIKITU" IN_LIST MK_BUILD__LIST))
         ExternalProject_Add_StepDependencies (TEIKITU_EXTERNAL install DIRECTX_AGILE_EXTERNAL)
         ExternalProject_Add_StepDependencies (TEIKITU_EXTERNAL install WIN_PIX_EXTERNAL)
     ENDIF ()
+    IF (("VULKAN" IN_LIST MK_BUILD__LIST) OR ("${MK_BUILD__GRAPHICS_NAME}" STREQUAL "VULKAN"))
+        ExternalProject_Add_StepDependencies (TEIKITU_EXTERNAL install VOLK_EXTERNAL)
+    ENDIF ()
     ExternalProject_Add_StepDependencies (TEIKITU_EXTERNAL install TIFF_EXTERNAL)
     ExternalProject_Add_StepDependencies (TEIKITU_EXTERNAL install MIMALLOC_EXTERNAL)
     #ExternalProject_Add_StepDependencies (TEIKITU_EXTERNAL install OPENEXR_EXTERNAL)
+
+
+    EXTERNALPROJECT_ADD( TEIKITU_TOOLS_EXTERNAL #=========================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_tools/
+        BINARY_DIR                      ${MK_BUILD__BUILD_DIRECTORY}/teikitu_tools/
+        INSTALL_DIR                     ${MK_BUILD__INSTALL_DIRECTORY}
+
+        DOWNLOAD_COMMAND                ""
+
+        CMAKE_ARGS                      ${MK_BUILD__CMAKE_ARGS_DEFAULT}
+
+                                        -DMK_BUILD__PRELOAD__MALLOC_OVERRIDE:BOOL=OFF
+                                        -DMK_BUILD__MIMALLOC_ALLOCATOR:BOOL=ON
+                                        -DMK_BUILD__MIMALLOC_DEFAULT:BOOL=ON
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__CMAKE_CACHE_ARGS_DEFAULT}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+    )
+
+    ExternalProject_Add_StepDependencies (TEIKITU_TOOLS_EXTERNAL install TEIKITU_EXTERNAL)
+    #ExternalProject_Add_StepDependencies (TEIKITU_TOOLS_EXTERNAL install OPENSUBDIV_EXTERNAL)
+    #ExternalProject_Add_StepDependencies (TEIKITU_TOOLS_EXTERNAL install OPENUSD_EXTERNAL)
+
+
+    EXTERNALPROJECT_ADD( TEIKITU_SAMPLES_EXTERNAL #=======================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_samples/
+        BINARY_DIR                      ${MK_BUILD__BUILD_DIRECTORY}/teikitu_samples/
+        INSTALL_DIR                     ${MK_BUILD__INSTALL_DIRECTORY}
+
+        DOWNLOAD_COMMAND                ""
+
+        CMAKE_ARGS                      ${MK_BUILD__CMAKE_ARGS_DEFAULT}
+
+                                        -DMK_BUILD__PRELOAD__MALLOC_OVERRIDE:BOOL=OFF
+                                        -DMK_BUILD__MIMALLOC_ALLOCATOR:BOOL=ON
+                                        -DMK_BUILD__MIMALLOC_DEFAULT:BOOL=ON
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__CMAKE_CACHE_ARGS_DEFAULT}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+    )
+
+    ExternalProject_Add_StepDependencies (TEIKITU_SAMPLES_EXTERNAL install TEIKITU_EXTERNAL)
 
 ENDIF ()
 
@@ -1082,6 +1355,12 @@ IF (("ALL" IN_LIST MK_BUILD__LIST) OR ("DOXYGEN" IN_LIST MK_BUILD__LIST))
 ENDIF ()
 
 
+
+
+# ========================================================================================================================================================================================================
+#  UTILITIES
+# ========================================================================================================================================================================================================
+
 IF ("CMAKE" IN_LIST MK_BUILD__LIST)
     EXTERNALPROJECT_ADD( CMAKE_EXTERNAL #=====================================================================================================================================================================
         SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_external/_repo_clone/cmake/
@@ -1089,7 +1368,7 @@ IF ("CMAKE" IN_LIST MK_BUILD__LIST)
         INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
 
         GIT_REPOSITORY                  https://github.com/kitware/cmake.git
-        GIT_TAG                         v3.31.0
+        GIT_TAG                         v4.1.1 # ba8c4a15f10e2636405106ff0dc92b79d94a616c
         GIT_SHALLOW                     TRUE
         GIT_PROGRESS                    FALSE
         GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
@@ -1119,6 +1398,51 @@ IF ("CMAKE" IN_LIST MK_BUILD__LIST)
     ExternalProject_Add_Step(
         CMAKE_EXTERNAL CMAKE_SWITCH_AND_PATCH
         COMMAND ${CMAKE_COMMAND} -P ${GIT_ROOT_PATH}/teikitu_external/Cmake_Patch.cmake
+        WORKING_DIRECTORY ${GIT_ROOT_PATH}/teikitu_external
+        DEPENDEES download
+        DEPENDERS configure
+        INDEPENDENT TRUE
+    )
+ENDIF ()
+
+
+IF ("UNCRUSTIFY" IN_LIST MK_BUILD__LIST)
+    EXTERNALPROJECT_ADD( UNCRUSTIFY_EXTERNAL #================================================================================================================================================================
+        SOURCE_DIR                      ${GIT_ROOT_PATH}/teikitu_external/_repo_clone/uncrustify/
+        BINARY_DIR                      ${MK_BUILD__EXTERNAL_BUILD_DIRECTORY}uncrustify/
+        INSTALL_DIR                     ${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}
+
+        GIT_REPOSITORY                  https://github.com/uncrustify/uncrustify.git
+        GIT_TAG                         uncrustify-0.81.0 # 059b751e41fe508b87b43a7fa2b8a500beb709d8
+        GIT_SHALLOW                     FALSE
+        GIT_PROGRESS                    FALSE
+        GIT_REMOTE_UPDATE_STRATEGY      REBASE_CHECKOUT
+
+        UPDATE_COMMAND                  "" # No need to update the repo given we are pulling a specific version tag
+
+        CMAKE_ARGS                      ${MK_BUILD__EXTERNAL_CMAKE_ARGS_DEFAULT}
+
+        CMAKE_CACHE_ARGS                ${MK_BUILD__EXTERNAL_CMAKE_CACHE_ARGS_DEFAULT}
+
+                                        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_FOR_EXTERNAL_PROJECTS}
+                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_FOR_EXTERNAL_PROJECTS}
+
+        TEST_AFTER_INSTALL              0
+        DOWNLOAD_NO_PROGRESS            1
+
+        LOG_DOWNLOAD                    ${MK_BUILD__LOG_TO_FILE}
+        LOG_UPDATE                      ${MK_BUILD__LOG_TO_FILE}
+        LOG_CONFIGURE                   ${MK_BUILD__LOG_TO_FILE}
+        LOG_BUILD                       ${MK_BUILD__LOG_TO_FILE}
+        LOG_INSTALL                     ${MK_BUILD__LOG_TO_FILE}
+        LOG_MERGED_STDOUTERR            1
+        LOG_OUTPUT_ON_FAILURE           1
+    )
+
+    # Once we have downloaded the repo, create a branch and patch it.
+    ExternalProject_Add_Step(
+        UNCRUSTIFY_EXTERNAL UNCRUSTIFY_SWITCH_AND_PATCH
+        COMMAND ${CMAKE_COMMAND} -P ${GIT_ROOT_PATH}/teikitu_external/Uncrustify_Patch.cmake
         WORKING_DIRECTORY ${GIT_ROOT_PATH}/teikitu_external
         DEPENDEES download
         DEPENDERS configure

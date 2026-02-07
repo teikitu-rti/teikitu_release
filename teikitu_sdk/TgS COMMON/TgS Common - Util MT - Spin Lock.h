@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_UTIL_MP_SN_H)
-#define TGS_COMMON_UTIL_MP_SN_H
+#if !defined(TGS_COMMON_UTIL_MT_SPIN_LOCK_H)
+#define TGS_COMMON_UTIL_MT_SPIN_LOCK_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -58,15 +61,18 @@ TgTYPE_UNION(STg2_UT_LF__SN,)
     TgCXX_CONSTRUCTOR(STg2_UT_LF__SN(): m_uiSRV_REQ(0) {})
 };
 
-TgTYPE_STRUCT(STg2_UT_LF_ISO__SN,)
+TgTYPE_STRUCT(STg2_UT_LF_ISO__SN, )
 {
-    TgALIGN(TgCCL) STg2_UT_LF__SN               m_sLock;
-    TgUINT_E08                                  m_uiPad[TgCCL - (8 % TgCCL)];
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_LF__SN                              m_sLock;
+#if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad[248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 TgCOMPILER_ASSERT( 8 == sizeof( STg2_UT_ST__SRV_REQ ), 0 );
 TgCOMPILER_ASSERT( 8 == sizeof( STg2_UT_LF__SN ), 0 );
-TgCOMPILER_ASSERT( TgCCL == sizeof( STg2_UT_LF_ISO__SN ), 0 );
+TgCOMPILER_ASSERT( TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE == sizeof( STg2_UT_LF_ISO__SN ), 0 );
 
 
 /* ---- STg2_UT_LF__SN_CNT ------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -87,61 +93,66 @@ TgTYPE_STRUCT(STg2_UT_LF__SN_CNT,)
     TgUINT_E64_A                                m_uiSRV_REQ_CNT;
 };
 
-TgTYPE_STRUCT(STg2_UT_LF_ISO__SN_CNT,)
+TgTYPE_STRUCT(STg2_UT_LF_ISO__SN_CNT, )
 {
-    TgALIGN(TgCCL) STg2_UT_LF__SN_CNT           m_sLock;
-    TgUINT_E08                                  m_uiPad[TgCCL - (8 % TgCCL)];
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_LF__SN_CNT                          m_sLock;
+#if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad[248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 TgCOMPILER_ASSERT( 8 == sizeof( STg2_UT_ST__SRV_REQ_CNT ), 0 );
 TgCOMPILER_ASSERT( 8 == sizeof( STg2_UT_LF__SN_CNT ), 0 );
-TgCOMPILER_ASSERT( TgCCL == sizeof( STg2_UT_LF_ISO__SN_CNT ), 0 );
+TgCOMPILER_ASSERT( TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE == sizeof( STg2_UT_LF_ISO__SN_CNT ), 0 );
 
 
 /* ---- STg2_UT_LF__SN_ID -------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-typedef union
+TgTYPE_STRUCT(STg2_UT_ST__SRV_REQ_ID, )
 {
-    struct
+    union
     {
-        union
+        TgUINT_E64                              m_uiSRV_REQ;
+        struct
         {
-            TgUINT_E64                                  m_uiSRV_REQ;
-            struct
-            {
-                TgUINT_E32                                  m_nuiServed;
-                TgUINT_E32                                  m_uiRequest;
-            };
-        };
-        union
-        {
-            TgUINT_E64                              m_uiKI;
-            struct
-            {
-                TgUINT_E32                                  m_uiK;
-                TgUINT_E32                                  m_uiI;
-            };
+            TgUINT_E32                                  m_nuiServed;
+            TgUINT_E32                                  m_uiRequest;
         };
     };
-} tagSTg2_UT_ST__SRV_REQ_ID;
-TgTYPE_DECLARE( tagSTg2_UT_ST__SRV_REQ_ID, STg2_UT_ST__SRV_REQ_ID );
+    union
+    {
+        TgUINT_E64                              m_uiKI;
+        struct
+        {
+            TgUINT_E32                                  m_uiK;
+            TgUINT_E32                                  m_uiI;
+        };
+    };
+};
+TgTYPE_MODIFIER_ATOMIC(STg2_UT_ST__SRV_REQ_ID);
+TgCOMPILER_ASSERT( 16 == sizeof( STg2_UT_ST__SRV_REQ_ID_A ), 0 );
 
 TgMSVC_WARN_DISABLE_PUSH(4820)
 
-TgTYPE_STRUCT(STg2_UT_LF__SN_ID,)
+TgTYPE_STRUCT(STg2_UT_LF__SN_ID, )
 {
     TgALIGN(16) STg2_UT_ST__SRV_REQ_ID_A        m_sSRV_REQ_ID;
 };
+TgCOMPILER_ASSERT( 16 == sizeof( STg2_UT_LF__SN_ID ), 0 );
 
-TgTYPE_STRUCT(STg2_UT_LF_ISO__SN_ID,)
+TgTYPE_STRUCT(STg2_UT_LF_ISO__SN_ID, )
 {
-    TgALIGN(TgCCL) STg2_UT_LF__SN_ID            m_sLock;
-    TgUINT_E08                                  m_uiPad[TgCCL - (ATOMIC_128BIT_SIZE % TgCCL)];
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_LF__SN_ID                           m_sLock;
+#if 0 != (240 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[240 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 TgMSVC_WARN_DISABLE_POP(4820)
 
-TgCOMPILER_ASSERT( 16 == sizeof( STg2_UT_ST__SRV_REQ_ID ), 0 );
+
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */

@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -92,8 +92,9 @@ TEST_METHOD( UNIT_TEST__TEST__CM_UT_LF__HT_RW__Init_Virtual )
 
     tgCM_UT_LF__HT_RW__Free( &sAMHT );
 
-    uiNode_Per_Page = tgMM_Page_Size() / (sizeof( STg2_UT_ST__HT_Node ) + 6);
+    uiNode_Per_Page = (tgMM_Page_Size() - 37 * sizeof( STg2_UT_ST__HT_Node_P )) / (sizeof( STg2_UT_ST__HT_Node ) + 6);
 
+    /* Create a hash table that fills a memory page, with one node not in the allocation. */
     nuiNode = uiNode_Per_Page - 1;
     Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Init_Virtual( &sAMHT, 6, 37, nuiNode ));
     for (TgRSIZE uiIndex = 0; uiIndex < nuiNode; ++uiIndex)
@@ -101,10 +102,12 @@ TEST_METHOD( UNIT_TEST__TEST__CM_UT_LF__HT_RW__Init_Virtual )
         uiData = tgCM_RAND_MT_U32();
         Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     };
+    /* This should fail as it would require more nodes than were requested. */
     uiData = tgCM_RAND_MT_U32();
     Test__Expect_NE(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     tgCM_UT_LF__HT_RW__Free( &sAMHT );
 
+    /* Create a hash table that fills a memory page, with all nodes in the allocation. */
     nuiNode = uiNode_Per_Page;
     Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Init_Virtual( &sAMHT, 6, 37, nuiNode ));
     for (TgRSIZE uiIndex = 0; uiIndex < nuiNode; ++uiIndex)
@@ -112,10 +115,12 @@ TEST_METHOD( UNIT_TEST__TEST__CM_UT_LF__HT_RW__Init_Virtual )
         uiData = tgCM_RAND_MT_U32();
         Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     };
+    /* This should fail as it would require more nodes than were requested. */
     uiData = tgCM_RAND_MT_U32();
     Test__Expect_NE(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     tgCM_UT_LF__HT_RW__Free( &sAMHT );
 
+    /* Create a hash table that requires two memory pages, with only one node on the second page. */
     nuiNode = uiNode_Per_Page + 1;
     Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Init_Virtual( &sAMHT, 6, 37, nuiNode ));
     for (TgRSIZE uiIndex = 0; uiIndex < nuiNode; ++uiIndex)
@@ -123,43 +128,44 @@ TEST_METHOD( UNIT_TEST__TEST__CM_UT_LF__HT_RW__Init_Virtual )
         uiData = tgCM_RAND_MT_U32();
         Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     };
+    /* This should fail as it would require more nodes than were requested. */
     uiData = tgCM_RAND_MT_U32();
     Test__Expect_NE(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     tgCM_UT_LF__HT_RW__Free( &sAMHT );
 
-    nuiNode = uiNode_Per_Page * 2;
+    /* Create a hash table that requires two memory pages, with both pages being filled. */
+    nuiNode = uiNode_Per_Page + tgMM_Page_Size() / (sizeof( STg2_UT_ST__HT_Node ) + 6);
     Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Init_Virtual( &sAMHT, 6, 37, nuiNode ));
     for (TgRSIZE uiIndex = 0; uiIndex < nuiNode; ++uiIndex)
     {
         uiData = tgCM_RAND_MT_U32();
         Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     };
+    /* This should fail as it would require more nodes than were requested. */
     uiData = tgCM_RAND_MT_U32();
     Test__Expect_NE(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), &uiData ));
     tgCM_UT_LF__HT_RW__Free( &sAMHT );
 
-
-
-    nuiNode = uiNode_Per_Page * 2;
+    /* Keeping the same number of nodes as the last test, increase the data payload for each hash entry to one page size. */
     Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Init_Virtual( &sAMHT, tgMM_Page_Size(), 37, nuiNode ));
     for (TgRSIZE uiIndex = 0; uiIndex < nuiNode; ++uiIndex)
     {
         uiData = tgCM_RAND_MT_U32();
         Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), nullptr ));
     };
+    /* This should fail as it would require more nodes than were requested. */
     uiData = tgCM_RAND_MT_U32();
     Test__Expect_NE(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), nullptr ));
     tgCM_UT_LF__HT_RW__Free( &sAMHT );
 
-
-
-    nuiNode = uiNode_Per_Page * 2;
+    /* Keeping the same number of nodes as the last test, increase the data payload for each hash entry to two page size. */
     Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Init_Virtual( &sAMHT, tgMM_Page_Size() * 2, 37, nuiNode ));
     for (TgRSIZE uiIndex = 0; uiIndex < nuiNode; ++uiIndex)
     {
         uiData = tgCM_RAND_MT_U32();
         Test__Expect_EQ(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), nullptr ));
     };
+    /* This should fail as it would require more nodes than were requested. */
     uiData = tgCM_RAND_MT_U32();
     Test__Expect_NE(KTgS_OK, tgCM_UT_LF__HT_RW__Insert( &sAMHT, tgCM_RAND_MT_U32(), nullptr ));
     tgCM_UT_LF__HT_RW__Free( &sAMHT );

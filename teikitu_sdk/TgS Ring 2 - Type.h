@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_RING2_TYPE_H)
-#define TGS_RING2_TYPE_H
+#if !defined(TGS_RING_2_TYPE_H)
+#define TGS_RING_2_TYPE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #include "TgS Ring 0 - Type.h"
 
@@ -35,6 +38,7 @@ TgKI_DECLARE(KN_GPU_CXT_DEVC_ID) /**< GPU Device Context ID - this may be a phys
 TgKI_DECLARE(KN_GPU_CXT_EXEC_ID) /**< GPU Execution Context ID - represents a single GPU node, and data managed by its memory controller. */
 TgKI_DECLARE(KN_GPU_CXT_SWAP_ID) /**< GPU SwapChain Context ID - represents a physical output device. */
 TgKI_DECLARE(KN_GPU_CXT_WORK_ID) /**< GPU Work ID - represents a single self-contained command (list, allocator, heap, etc.). */
+TgKI_DECLARE(KN_GPU_RENDER_TARGET_ID) /**< GPU Render Target ID - represents a single render target (framebuffer, texture, etc.). */
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
 

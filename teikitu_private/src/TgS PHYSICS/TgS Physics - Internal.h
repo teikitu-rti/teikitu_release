@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -391,7 +391,7 @@ tgPH_World_Query_Collide_Batch_Size(
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 /*  Debug Functions                                                                                                                                                                */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 
 /* World */
 TgEXTN TgVOID
@@ -414,7 +414,7 @@ TgEXTN TgVOID
 tgPH_Constraint_Contact__CNPrintF_IMM(
     STg2_PH_Constraint_CPC ARG0 );
 
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 
@@ -515,14 +515,14 @@ TgINLINE T_NAME(STg2_PH_,_P)
 T_FCN(tgPH_,_Get_,_From_ID)(
     T_ID(TgPH_,_ID_C) ARG0 );
 
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 /** @brief Validate an object (resource) and output the results of the validation.
     @param [in] ARG0 Pointer to an object containing the functions pointers to be used when outputing the validation messages.
     @param [in] ARG1 Unique Identifier for the resource to be tested. */
 TgEXTN TgVOID
 T_NAME(tgPH_,_Validate)(
     STg2_Output_PC TgANALYSIS_NO_NULL ARG0, T_ID(TgPH_,_ID_C) ARG1 );
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 /*# defined (ENABLE_RELOAD_GUARD) */

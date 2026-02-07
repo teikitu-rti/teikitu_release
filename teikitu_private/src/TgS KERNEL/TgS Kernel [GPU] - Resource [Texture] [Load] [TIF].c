@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Kernel [GPU] - Resource [Texture] [Load] [TIFF].c
+    »File«      TgS Kernel [GPU] - Resource [Texture] [Load] [TIF].c
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -26,9 +26,9 @@ TgCLANG_WARN_DISABLE_PUSH(reserved-identifier)
 
 TgTYPE_STRUCT(TIFF_MEMORY_FILE,)
 {
-	TgUINT_E08_CP                               m_pData;
-	tmsize_t                                    m_nuiData;
-	tmsize_t                                    m_uiLOC;
+    TgUINT_E08_CP                               m_pData;
+    tmsize_t                                    m_nuiData;
+    tmsize_t                                    m_uiLOC;
 };
 
 static tmsize_t _tiffReadProc(
@@ -82,17 +82,17 @@ TIFFErrorHandler _TIFFerrorHandler = Win32ErrorHandler;
 
 
 
-TgEXTN TgKN_GPU_TX_IMG_INST_ID DoSomething( UTg2_KN_GPU_CMD_C uCMD );
+TgEXTN TgKN_GPU_TX_IMG_INST_ID DoSomething( STg2_KN_GPU_CMD_PC psCMD );
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 /*  Internal Functions                                                                                                                                                             */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
-/* ---- tgKN_GPU_TX_IMG__Load_TIFF_From_OS_File_System --------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_OS_File_System --------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if !defined(TGS_FINAL)
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_OS_File_System( UTg2_KN_GPU_CMD_C uCMD, TgKN_FS_MOUNT_ID_C tiFS_Mount, TgCHAR_U8_CPC uszPath, TgCHAR_U8_CPC uszFile,
-                                                                        ETgKN_GPU_ALLOCATOR_C enAllocator )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_OS_File_System( STg2_KN_GPU_CMD_PC psCMD, TgKN_FS_MOUNT_ID_C tiFS_Mount, TgCHAR_U8_CPC uszPath, TgCHAR_U8_CPC uszFile,
+                                                                              TgUINT_E64_C uiResource_Descriptor )
 {
     STg2_KN_File_Open_Command           sOpen_Cmd;
     TgKN_FILE_ID                        tiFile;
@@ -100,11 +100,13 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_OS_File_System( UTg2_KN_
 
     TgERROR_MSG( (nullptr != uszFile) && (uszFile[0] != 0),  u8"tgKN_GPU_RS_File_Load_BIN: Invalid File" );
 
+    sID_Inst_Ret = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+
     /* 1. Open the file for a blocking load.  Non-Blocking loads should not be done through the file execution path */
     if (nullptr == uszFile || TgFAILED(tgUSZ_Hash( &sOpen_Cmd.m_uiFile, uszFile, KTgMAX_RSIZE )))
     {
         TgERROR_SEV_MSG( false, KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, uszFile ? uszFile : u8"" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sID_Inst_Ret);
     };
 
     if (nullptr == uszPath || TgFAILED(tgUSZ_Hash( &sOpen_Cmd.m_uiPath, uszPath, KTgMAX_RSIZE )))
@@ -122,11 +124,11 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_OS_File_System( UTg2_KN_
     if (KTgKN_FILE_ID__INVALID.m_uiKI == tiFile.m_uiKI)
     {
         TgERROR_SEV_MSG( false, KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, uszFile ? uszFile : u8"" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sID_Inst_Ret);
     };
 
     /* 2. Load the contents of the file using the standard loader. */
-    sID_Inst_Ret = tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System( uCMD, tiFile, 0, enAllocator );
+    sID_Inst_Ret = tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_KN_File_System( psCMD, tiFile, 0, uiResource_Descriptor );
 
     /* 3. Close the file and return. */
     tgKN_FS_BL_Close( tiFile );
@@ -137,9 +139,10 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_OS_File_System( UTg2_KN_
 #endif
 
 
-/* ---- tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System --------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_KN_File_System --------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System( UTg2_KN_GPU_CMD_C uCMD, TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, ETgKN_GPU_ALLOCATOR_C enAllocator )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_KN_File_System( STg2_KN_GPU_CMD_PC psCMD, TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, 
+                                                                              TgUINT_E64_C uiResource_Descriptor )
 {
     STg2_KN_GPU_TX_IMG_DESC             sTX_IMG_DESC;
     STg2_KN_File_Read_Command           sRead_Command;
@@ -150,11 +153,13 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System( UTg2_KN_
     TgUINT_E16                          uiSamples_Per_Pixel;
     TgUINT_E16                          uiCompression;
     TgUINT_E16                          uiBits_Per_Sample;
-    STg2_KN_GPU_TX_Surface              sSF0;
+    STg2_KN_GPU_TX_LOCK                 sSF0;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
 
     (void)uiFile_Offset;
-    (void)enAllocator;
+    (void)uiResource_Descriptor;
+
+    sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
 
     tgMM_Set_U08_0x00( &sTX_IMG_DESC, sizeof( sTX_IMG_DESC ) );
     tgMM_Set_U08_0x00( &sRead_Command, sizeof( sRead_Command ) );
@@ -165,7 +170,7 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System( UTg2_KN_
 
     if (KTgKN_FILE_ID__INVALID.m_uiKI == sRead_Command.m_tiFile.m_uiKI) {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to open the file." );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     }
 
     sRead_Command.m_pfnAllocator = tgKN_FILE_ALLOCATOR__Default_Malloc_Pool;
@@ -173,36 +178,36 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System( UTg2_KN_
 
     if (nullptr == sRead_Command.m_pBuffer || 0 == sRead_Command.m_nuiResult) {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to read any contents from the file." );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     }
 
     /// Open the file to be able to retrieve basic data about it.
 
     psTIFF = TIFFOpenInPlace( (TgUINT_E08_CP)sRead_Command.m_pBuffer, (tmsize_t)sRead_Command.m_nuiResult, "rcm" );
     if (!psTIFF)
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
 
     TgVERIFY(0 < TIFFGetField( psTIFF, TIFFTAG_IMAGEWIDTH, &sTX_IMG_DESC.m_uiWidth ));
     TgVERIFY(0 < TIFFGetField( psTIFF, TIFFTAG_IMAGELENGTH, &sTX_IMG_DESC.m_uiHeight ));
 
     if(!TIFFGetField( psTIFF, TIFFTAG_ROWSPERSTRIP, &uiRow_Per_Strip )) {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"For performance, TIFF must be saved in strip format." );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     }
 
     if(!TIFFGetField( psTIFF, TIFFTAG_COMPRESSION, &uiCompression ) || (COMPRESSION_NONE != uiCompression)) {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"For simplicity, TIFF must be uncompressed." );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
     if(!TIFFGetField( psTIFF, TIFFTAG_BITSPERSAMPLE, &uiBits_Per_Sample ) || (8 != uiBits_Per_Sample && 16 != uiBits_Per_Sample)) { 
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"For performance, TIFF must have 4 samples per pixel (RGBA)." );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
     if(!TIFFGetField( psTIFF, TIFFTAG_SAMPLESPERPIXEL, &uiSamples_Per_Pixel ) || (4 != uiSamples_Per_Pixel)) { /* Validate that we have RGBA for the copy. */
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"For performance, TIFF must have 4 samples per pixel (RGBA)." );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
     nbyScanline = (TgRSIZE)TIFFScanlineSize( psTIFF );
@@ -213,35 +218,37 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System( UTg2_KN_
     sTX_IMG_DESC.m_nuiMIP = 1;
     sTX_IMG_DESC.m_uszName = u8"DeltaE_16bit_G10.tif";
 
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Create( uCMD, ETgKN_GPU_ALLOCATOR__VIDEO_MEMORY_WRITEONLY, &sTX_IMG_DESC );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Create( psCMD, uiResource_Descriptor, &sTX_IMG_DESC );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default colour texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
     /// Lock the texture so as to have a valid data pointer - and fill in the assigned colour into it.
 
-    tgMM_Set_U08_0x00( &sSF0, sizeof( sSF0 ) );
-    sSF0.m_uiMIP = 0;
-    tgKN_GPU_EXT_TX_IMG__Lock( &sSF0, uCMD, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Lock( &sSF0, psCMD, sTXI_IMG );
     TgVERIFY(nullptr != sSF0.m_puiData);
 
     if (0 == sSF0.m_puiData)
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+    {
+        tgKN_GPU__CMD__TX_IMG_Inst__Release(  psCMD, sTXI_IMG );
+        sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+        return (sTXI_IMG);
+    }
 
     for (uiRow = 0; uiRow < sTX_IMG_DESC.m_uiHeight; uiRow += uiRow_Per_Strip)
     {
         TgRSIZE_C                           nuiRows = tgCM_MIN_UMAX( uiRow + uiRow_Per_Strip, sTX_IMG_DESC.m_uiHeight ) - uiRow; // Upper bound is the height of the image.
-        TgRSIZE_C                           nbyRowData = tgCM_MIN_UMAX( nuiRows*nbyScanline, sSF0.m_nuiTotal - uiRow * sTX_IMG_DESC.m_uiWidth * 8u );
+        TgRSIZE_C                           nbyRowData = tgCM_MIN_UMAX( nuiRows*nbyScanline, sSF0.m_nbyTotal - uiRow * sTX_IMG_DESC.m_uiWidth * 8u );
         tstrip_t                            uiStrip = TIFFComputeStrip( psTIFF, (TgUINT_E32)uiRow, 0 );
 
         if (TIFFReadEncodedStrip( psTIFF, uiStrip, sSF0.m_puiData + uiRow * sTX_IMG_DESC.m_uiWidth * 8, (tmsize_t)nbyRowData ) < 0)
             break;
     };
 
-    tgKN_GPU_EXT_TX_IMG__Unlock( uCMD, &sSF0, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Unlock( psCMD, &sSF0, sTXI_IMG );
 
     /// Free the memory allocated when we read the contents of the file. */
 

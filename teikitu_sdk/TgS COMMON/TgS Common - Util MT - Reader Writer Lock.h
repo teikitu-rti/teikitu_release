@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_UTIL_MP_RW_H)
-#define TGS_COMMON_UTIL_MP_RW_H
+#if !defined(TGS_COMMON_UTIL_MT_READER_WRITER_LOCK_H)
+#define TGS_COMMON_UTIL_MT_READER_WRITER_LOCK_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -73,14 +76,17 @@ TgTYPE_STRUCT(STg2_UT_LF__RW,)
     TgUINT_E64_A                                m_uiRW_REQ;
 };
 
-TgTYPE_STRUCT(STg2_UT_LF_ISO__RW,)
+TgTYPE_STRUCT(STg2_UT_LF_ISO__RW, )
 {
-    TgALIGN(TgCCL) STg2_UT_LF__RW               m_sLock;
-    TgUINT_E08                                  m_uiPad[TgCCL - (8 % TgCCL)];
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_LF__RW                              m_sLock;
+#if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 TgCOMPILER_ASSERT( 8 == sizeof( STg2_UT_LF__RW ), 0 );
-TgCOMPILER_ASSERT( 0 == sizeof( STg2_UT_LF_ISO__RW ) % TgCCL, 0 );
+TgCOMPILER_ASSERT( 0 == sizeof( STg2_UT_LF_ISO__RW ) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE, 0 );
 
 
 /* ---- STg2_UT_LF_ISO__RW_SN / STg2_UT_MT__RW_MX -------------------------------------------------------------------------------------------------------------------------------- */
@@ -98,9 +104,12 @@ TgTYPE_STRUCT(STg2_UT_ST__RW_DATA,)
 
 TgTYPE_STRUCT(STg2_UT_LF_ISO__RW_SN,)
 {
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
     STg2_UT_LF_ISO__SN                          m_sLock;
     STg2_UT_ST__RW_DATA                         m_sData;
-    TgUINT_E08                                  m_uiPad[TgCCL - (560 % TgCCL)];
+#if 0 != (208 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[208 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 TgTYPE_STRUCT(STg2_UT_MT__RW_MX,)
@@ -110,7 +119,7 @@ TgTYPE_STRUCT(STg2_UT_MT__RW_MX,)
 };
 
 TgCOMPILER_ASSERT( 560 == sizeof( STg2_UT_ST__RW_DATA ), 0 );
-TgCOMPILER_ASSERT( 0 == sizeof( STg2_UT_LF_ISO__RW_SN ) % TgCCL, 0 );
+TgCOMPILER_ASSERT( 0 == sizeof( STg2_UT_LF_ISO__RW_SN ) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE, 0 );
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */

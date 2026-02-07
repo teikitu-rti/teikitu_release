@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -218,7 +218,7 @@ TgVOID tgPH_Material_Reset_Do_Command( TgVOID_CPC pCommand_Buffer, TgRSIZE_C nby
     tgMM_Set_U08_0x00( psMaterial, sizeof(STg2_PH_Material) );
     psMaterial->m_tiMaterial.m_uiKI = KTgID__INVALID_VALUE;
 
-    tgCM_UT_LF__ST__Push( &g_asPH_Body_Free_Stack[uCMD.pCommand->tiID.m_uiWorld].m_sStack, &psMaterial->m_sStack_Node );
+    tgCM_UT_LF__ST__Push( &g_asPH_Body_Free_Stack[uCMD.pCommand->tiID.m_uiWorld].m_sStack, &psMaterial->m_sNode_Stack );
     TgSTD_ATOMIC(fetch_sub)( &g_xnuiPH_Material, 1 );
 }
 
@@ -228,7 +228,7 @@ TgVOID tgPH_Material_Reset_Do_Command( TgVOID_CPC pCommand_Buffer, TgRSIZE_C nby
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 /*  Internal Debug Functions                                                                                                                                                       */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 
 /* ---- tgPH_Material_Validate --------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -239,7 +239,7 @@ TgVOID tgPH_Material_Validate( STg2_Output_PC psOUT, TgPH_MATERIAL_ID_C tiMT )
 
 }
 
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 

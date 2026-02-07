@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -150,7 +150,7 @@ TgRSIZE_A                                   g_xnuiPH_History;
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 /*  Debug Data                                                                                                                                                                     */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
                                             /* Visualization */
 TgVEC_F32_04_1                              g_vPH_Debug_Colour__Body_Enabled;
 TgVEC_F32_04_1                              g_vPH_Debug_Colour__Body_Sleep;
@@ -168,7 +168,7 @@ TgVEC_UN_F32_04_1                           g_auPH_Debug__Contact[KTgPH_DEBUG_MA
 TgRSIZE                                     g_nuiPH_Debug__Contact;
 
 TgPH_FCN_USER_CONTACT_COMPLETE              g_apfnPH_Debug__World__Contact_Complete[ETgPH_MAX_WORLD];
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 
@@ -233,7 +233,7 @@ TgRSIZE tgPH_Query_Fixed_Memory( TgVOID )
         /*# defined(TgBUILD_FEATURE__PHYSICS__HISTORY) */
         #endif
 
-         #if defined(TgBUILD_DEBUG__PHYSICS)
+         #if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
             + sizeof( g_vPH_Debug_Colour__Body_Enabled )
             + sizeof( g_vPH_Debug_Colour__Body_Sleep )
             + sizeof( g_vPH_Debug_Colour__Form_Disabled )
@@ -242,7 +242,7 @@ TgRSIZE tgPH_Query_Fixed_Memory( TgVOID )
             + sizeof( g_tiPH_Debug_Colour__Body_Sleep )
             + sizeof( g_tiPH_Debug_Colour__Form_Disabled )
             + sizeof( g_tiPH_Debug_Colour__Ragdoll )
-         /*# defined(TgBUILD_DEBUG__PHYSICS) */
+         /*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
          #endif
     );
 }

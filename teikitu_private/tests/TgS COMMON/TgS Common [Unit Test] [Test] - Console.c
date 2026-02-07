@@ -4,13 +4,12 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 
 TgCLANG_WARN_SUPPRESS(alloca)
-#define NULL nullptr
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -333,8 +332,8 @@ TEST_METHOD( UNIT_TEST__TEST__CN_Execute_Command )
 
     TgSTD_ATOMIC(store)( &g_xuiTestValue, 0 );
 
-    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, nullptr, KTgMAX_RSIZE ));
-    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[1], KTgMAX_RSIZE, TEST__Console_Test_Function, nullptr, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, u8"Test", KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[1], KTgMAX_RSIZE, TEST__Console_Test_Function, u8"Test", KTgMAX_RSIZE ));
 
     /* Direct execution of the command */
     Test__Expect_EQ(true, tgCN_Execute_Command( szNameList[0], KTgMAX_RSIZE ));
@@ -1039,7 +1038,7 @@ TEST_METHOD( UNIT_TEST__TEST__CN_Process_Input )
 
     tgCN_OS_Process_Input( 0x0D, false );
 
-    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, nullptr, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, u8"Test", KTgMAX_RSIZE ));
     TgSTD_ATOMIC(store)( &g_xuiTestValue, 0 );
 
     /* Commands should be executable through the input system as well as directly */
@@ -1062,11 +1061,11 @@ TEST_METHOD( UNIT_TEST__TEST__CN_Insert_Command_Function )
     TgCHAR_U8                           szNameList[][8] = { u8"tst", u8"a", u8"aa", u8"aaa", u8"aaaa", u8"z", u8"zz", u8"zzz", u8"zzzz" };
 
     /* The first call should succeed, while the second fail due to the unique command text requirement */
-    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, nullptr, KTgMAX_RSIZE ));
-    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, nullptr, KTgMAX_RSIZE ));
-    Test__Expect_EQ(false, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Other_Function, nullptr, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, u8"Test", KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Function, u8"Test", KTgMAX_RSIZE ));
+    Test__Expect_EQ(false, tgCN_Insert_Command_Function( szNameList[0], KTgMAX_RSIZE, TEST__Console_Test_Other_Function, u8"Test", KTgMAX_RSIZE ));
 
-    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[1], KTgMAX_RSIZE, TEST__Console_Test_Function, nullptr, KTgMAX_RSIZE ));
+    Test__Expect_EQ(true, tgCN_Insert_Command_Function( szNameList[1], KTgMAX_RSIZE, TEST__Console_Test_Function, u8"Test", KTgMAX_RSIZE ));
 
     Test__Expect_EQ(true, tgCN_Remove_Command_Function( szNameList[0], KTgMAX_RSIZE ));
     Test__Expect_EQ(false, tgCN_Remove_Command_Function( szNameList[0], KTgMAX_RSIZE ));

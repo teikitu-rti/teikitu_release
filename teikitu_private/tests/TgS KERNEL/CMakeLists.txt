@@ -4,6 +4,7 @@ cmake_policy(VERSION 3.31)
 
 CMAKE_PATH ( SET MK_BUILD_ROOT__MODULE_NAME "UNIT_TEST__KERNEL" )
 CMAKE_PATH ( SET MK_BUILD_MODULE__SRC_DIR NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}" )
+CMAKE_PATH ( SET MK_BUILD_MODULE__INT_DIR NORMALIZE "${GIT_ROOT_PATH}/teikitu_private/int/tests/TgS ${MK_BUILD_ROOT__MODULE_NAME}" )
 
 
 
@@ -24,13 +25,12 @@ TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "-" "-" "/" "${MK_BUILD_M
 # KERNEL
 TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "-" "-" "Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel - Module [Unit Test].c" )
 TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "-" "-" "GPU" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel - GPU [Unit Test].c" )
+TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "-" "-" "GPU" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel - GPU [Unit Test] - Render.c" )
 TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "-" "-" "OS" "${MK_BUILD_MODULE__SRC_DIR}/TgS (OS) Kernel - Module [Unit Test].c" )
 
 TGS_ADD_HEADER_FILE( exe_source_files exe_header_files "-" "-" "GPU/Content Files" "${MK_BUILD_MODULE__SRC_DIR}/UnitTest_Common.hlsli")
 
 # KERNEL DX12
-TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "GPU" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel - GPU [Unit Test].c" )
-TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "METAL" "${MK_BUILD__GRAPHICS_NAME}" "GPU" "${MK_BUILD_MODULE__SRC_DIR}/TgS (METAL) Kernel - GPU [Unit Test].c" )
 TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "REF" "${MK_BUILD__GRAPHICS_NAME}" "GPU" "${MK_BUILD_MODULE__SRC_DIR}/TgS (REF) Kernel - GPU [Unit Test].c" )
 TGS_ADD_SOURCE_FILE( exe_source_files exe_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "GPU" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel - GPU [Unit Test].c" )
 

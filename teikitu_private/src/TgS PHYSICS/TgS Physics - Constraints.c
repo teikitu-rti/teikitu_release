@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -88,7 +88,7 @@ TgVOID tgPH_Constraint_Reset_Do_Command( TgVOID_CPC pCommand_Buffer, TgRSIZE_C n
     tgMM_Set_U08_0x00( psCT, sizeof(STg2_PH_Constraint) );
     psCT->m_tiConstraint.m_uiKI = KTgID__INVALID_VALUE;
 
-    tgCM_UT_LF__ST__Push( &g_asPH_Constraint_Free_Stack[uCMD.pCommand->tiID.m_uiWorld].m_sStack, &psCT->m_sStack_Node );
+    tgCM_UT_LF__ST__Push( &g_asPH_Constraint_Free_Stack[uCMD.pCommand->tiID.m_uiWorld].m_sStack, &psCT->m_sNode_Stack );
     TgSTD_ATOMIC(fetch_sub_explicit)( g_axnuiPH_Constraint + uCMD.pCommand->tiID.m_uiWorld, 1, TgSTD_MEMORY_ORDER(relaxed) ); /* Incremented in the generic Init function. */
 }
 
@@ -241,13 +241,13 @@ TgVOID tgPH_Constraint__Bind_IMM( TgPH_WORLD_ID_C tiWorld )
             psBY1->m_tiCT_Head = uCT.psCT->m_tiConstraint;
         };
 
-    #if defined(TgBUILD_DEBUG__PHYSICS)
+    #if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
         if (g_nuiPH_Debug__Contact < KTgPH_DEBUG_MAX_CONTACT)
         {
             g_auPH_Debug__Contact[g_nuiPH_Debug__Contact].m_vF32_04_1 = uCT.psCT->m_sContact.m_sContact.m_vS0;
             ++g_nuiPH_Debug__Contact;
         };
-    /*# defined(TgBUILD_DEBUG__PHYSICS) */
+    /*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
     #endif
 
         uCT.psNode = tgCM_UT_LF__ST__Pop( &g_asPH_Update__Constraint_IMM[tiWorld.m_uiI].m_sStack );
@@ -281,7 +281,7 @@ TgVOID tgPH_Constraint__Free_IMM( STg2_PH_Constraint_PC psCT )
     /* Reset the data to zero or its equivalents and return it to the free stack. */
 
     tgMM_Set_U08_0x00( psCT, sizeof(STg2_PH_Constraint) );
-    tgCM_UT_LF__ST__Push( &g_asPH_Constraint_Free_Stack[uiWorld].m_sStack, &psCT->m_sStack_Node );
+    tgCM_UT_LF__ST__Push( &g_asPH_Constraint_Free_Stack[uiWorld].m_sStack, &psCT->m_sNode_Stack );
 }
 
 
@@ -371,7 +371,7 @@ static TgVOID tgPH_Constraint__Free_IMM_Linked_List_Remove( STg2_PH_Body_PC psBY
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 /*  Internal Debug Functions                                                                                                                                                       */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 
 /* ---- tgPH_Constraint_Validate ------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -382,7 +382,7 @@ TgVOID tgPH_Constraint_Validate( STg2_Output_PC psOUT, TgPH_CONSTRAINT_ID_C tiWo
 
 }
 
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 

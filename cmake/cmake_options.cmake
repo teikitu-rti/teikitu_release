@@ -12,13 +12,15 @@ SET (MK_BUILD__OS_TEXT_WIDE                     "" CACHE STRING "Select whether 
 SET (MK_BUILD__UNIVERSAL                        "" CACHE STRING "Select the target universal build.")
 SET (MK_BUILD__DEVICE                           "" CACHE STRING "Select the target device for a build.")
 SET (MK_BUILD__TARGET_HARDWARE                  "" CACHE STRING "Select the target hardware architecture.")
-SET (MK_BUILD__PRELOAD__MALLOC_OVERRIDE         ON CACHE BOOL "Override malloc and associated functions..")
-SET (MK_BUILD__MIMALLOC_ALLOCATOR               OFF CACHE BOOL "Build a memory allocator backed by mimalloc.")
-SET (MK_BUILD__MIMALLOC_DEFAULT                 OFF CACHE BOOL "Use the mimalloc allocator by default.")
 
 SET (MK_FEATURE__GRAPHICS                       "" CACHE STRING "Select the target graphics API.")
 SET (MK_FEATURE__AUDIO                          "" CACHE STRING "Select the target audio API.")
 
+# These options are set in the command line through the root cmakelist.txt file
+
+OPTION (MK_BUILD__PRELOAD__MALLOC_OVERRIDE      "Override malloc and associated functions..")
+OPTION (MK_BUILD__MIMALLOC_ALLOCATOR            "Build a memory allocator backed by mimalloc.")
+OPTION (MK_BUILD__MIMALLOC_DEFAULT              "Use the mimalloc allocator by default.")
 
 # MK_IDE - Cache variable is set in flag_overrides.cmake
 # MK_COMPILER - Cache variable is set in flag_overrides.cmake

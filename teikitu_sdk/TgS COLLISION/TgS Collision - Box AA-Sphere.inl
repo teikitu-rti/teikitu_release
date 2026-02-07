@@ -4,11 +4,11 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.18 | »GUID« 5BB31923-DAF4-437F-8513-C1B5BEEA163A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COLLISION_BOXAA_SPHERE_INL)
+#if !defined(TGS_COLLISION_BOX_AA_SPHERE_INL)
 #if defined (TEMPLATE_TYPE_EXPANSION__RELOAD)
 
 
@@ -129,7 +129,7 @@ TgINLINE TgRESULT FCN_VO(tgCO_SP_Penetrate_BA)( VEC_OBJ_T(STg2_CO_Packet,PC) psP
 
     #undef TEMPLATE_TYPE_EXPANSION__RELOAD
 
-    #define TGS_COLLISION_BOXAA_SPHERE_INL
+    #define TGS_COLLISION_BOX_AA_SPHERE_INL
 
 /*# defined (TEMPLATE_TYPE_EXPANSION__RELOAD) */
 #endif

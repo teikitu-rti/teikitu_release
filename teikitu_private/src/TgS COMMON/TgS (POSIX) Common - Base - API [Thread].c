@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -49,6 +49,7 @@ TgTHREAD_ID tgTR_Register_Main_Thread( TgCHAR_U8_CPC szName )
     TgTHREAD_ID                         tiThread;
 
     tgCM_UT_LF__SN__Lock_Spin( &g_sTR_Lock.m_sLock );
+    tiThread = KTgTHREAD_ID__INVALID;
     for (uiIndex = 0; uiIndex < TgPLATFORM__THREAD_MAX; ++uiIndex)
     {
         if (tgTHREAD_ID_Fetch_And_Is_Valid( nullptr, g_axtiTR_Thread_Singleton + uiIndex ))
@@ -75,7 +76,7 @@ TgTHREAD_ID tgTR_Register_Main_Thread( TgCHAR_U8_CPC szName )
         return (tiThread);
     };
     tgCM_UT_LF__SN__Signal( &g_sTR_Lock.m_sLock );
-    return (KTgTHREAD_ID__INVALID);
+    return (tiThread);
 }
 
 
@@ -90,9 +91,10 @@ TgTHREAD_ID tgTR_Create( TgPLATFORM_THREAD_FCN pfnThread, TgUINT_PTR_C uiParam, 
     TgTHREAD_ID                         tiThread;
     TgUN_SCALAR                         sParam;
 
+    tiThread = KTgTHREAD_ID__INVALID;
     if (0 == pfnThread)
     {
-        return (KTgTHREAD_ID__INVALID);
+        return (tiThread);
     }
 
     tgCM_UT_LF__SN__Lock_Spin( &g_sTR_Lock.m_sLock ); /* NOTE: This is done under a lock */
@@ -135,7 +137,7 @@ TgTHREAD_ID tgTR_Create( TgPLATFORM_THREAD_FCN pfnThread, TgUINT_PTR_C uiParam, 
         return (tiThread);
     };
     tgCM_UT_LF__SN__Signal( &g_sTR_Lock.m_sLock );
-    return (KTgTHREAD_ID__INVALID);
+    return (tiThread);
 }
 
 
@@ -245,7 +247,8 @@ TgRSIZE tgTR_Stack_Size( TgVOID )
 {
     size_t                              uiStackSize;
     pthread_attr_t                      sAttr;
-    
+
+    tgMM_Set_U08_0x00( &sAttr, sizeof( sAttr ) );
     pthread_attr_getstacksize(&sAttr, &uiStackSize);
     return (uiStackSize);
 }
@@ -309,7 +312,8 @@ static TgVOID_P tgTR_Thread_Start( TgVOID_P pParam )
     pthread_attr_t                      sAttrib;
     TgSINT_E32                          iRet;
     TgSIZE_ALL                          uiCurrentStack;
-    
+
+    tgMM_Set_U08_0x00( &sAttrib, sizeof( sAttrib ) );
     iRet = pthread_attr_getstacksize( &sAttrib, &uiCurrentStack );
     TgCRITICAL(0 <= iRet);
     (void)iRet;

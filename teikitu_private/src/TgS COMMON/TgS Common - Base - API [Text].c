@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -42,7 +42,49 @@
 #include <locale.h>
 #undef NULL
 
-#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID)
+#if defined(__linux__) || defined(__APPLE__)
+    #include <errno.h>
+    
+    #if !defined(__STDC_LIB_EXT1__)
+        #define __STDC_LIB_EXT1__ 201112L
+    #endif
+
+    #ifndef _RSIZE_T_DEFINED
+        typedef size_t rsize_t;
+        #define _RSIZE_T_DEFINED
+    #endif
+
+    #ifndef _ERRNO_T_DEFINED
+        typedef int errno_t;
+        #define _ERRNO_T_DEFINED
+    #endif
+
+    static errno_t mbsrtowcs_s(size_t *retval, wchar_t *dst, rsize_t dstmax, const char **src, rsize_t len, mbstate_t *ps)
+    {
+        size_t res;
+        if (dst == nullptr)
+        {
+            res = mbsrtowcs(nullptr, src, 0, ps);
+        }
+        else
+        {
+            res = mbsrtowcs(dst, src, len < dstmax ? len : dstmax, ps);
+        }
+
+        if (res == (size_t)-1)
+        {
+            return errno;
+        }
+
+        if (retval)
+        {
+            *retval = res + 1;
+        }
+        return 0;
+    }
+#endif
+
+#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID) || defined(TgBUILD_OS__MAC) || defined(TgBUILD_OS__IOS)
 #include <strings.h>
 #include <wctype.h>
 TgCLANG_WARN_SUPPRESS(sign-conversion)
@@ -570,13 +612,13 @@ TgRESULT FCN(From_U64)( CHAR(PC) ARG0, TgRSIZE_C nbyMaxARG0, TgUINT_E64_C ARG2 )
     TgPARAM_CHECK(nullptr != ARG0 && nbyMaxARG0 > 0);
 
 #if defined(GENERATE__WSZ)
-    iRet = swprintf( ARG0, nbyMaxARG0, L"%llu", ARG2 );
+    iRet = swprintf( ARG0, nbyMaxARG0, L"%" PRIu64, ARG2 );
     if ((iRet < 0) || ((TgRSIZE)iRet >= nbyMaxARG0))
     {
         return (KTgE_FAIL);
     };
 #else
-    iRet = snprintf( (TgCHAR_NC_P)ARG0, nbyMaxARG0, "%llu", ARG2 );
+    iRet = snprintf( (TgCHAR_NC_P)ARG0, nbyMaxARG0, "%" PRIu64, ARG2 );
     if ((iRet < 0) || ((TgRSIZE)iRet >= nbyMaxARG0))
     {
         return (KTgE_FAIL);
@@ -670,13 +712,13 @@ TgRESULT FCN(From_S64)( CHAR(PC) ARG0, TgRSIZE_C nbyMaxARG0, TgSINT_E64_C ARG2 )
     TgPARAM_CHECK(nullptr != ARG0 && nbyMaxARG0 > 0);
 
 #if defined(GENERATE__WSZ)
-    iRet = swprintf( ARG0, nbyMaxARG0, L"%lld", ARG2 );
+    iRet = swprintf( ARG0, nbyMaxARG0, L"%" PRIi64, ARG2 );
     if ((iRet < 0) || ((TgRSIZE)iRet >= nbyMaxARG0))
     {
         return (KTgE_FAIL);
     };
 #else
-    iRet = snprintf( (TgCHAR_NC_P)ARG0, nbyMaxARG0, "%lld", ARG2 );
+    iRet = snprintf( (TgCHAR_NC_P)ARG0, nbyMaxARG0, "%" PRIi64, ARG2 );
     if ((iRet < 0) || ((TgRSIZE)iRet >= nbyMaxARG0))
     {
         return (KTgE_FAIL);
@@ -1668,12 +1710,9 @@ TgRESULT FCN(Convert_USZ)( CHAR(P) OUT0, TgRSIZE nbyOUT0, TgCHAR_U8_CP ARG2, TgR
         TgCHAR_NC_CP                        mbzBuffer;
         TgRSIZE                             nuiChar;
 
-        (void)nbyMaxARG2; // Avoid unused variable warning
-
         tgMM_Set_U08_0x00( &mbState, sizeof mbState );
         mbzBuffer = (TgCHAR_NC_CP)ARG2;
-        nuiChar = mbsrtowcs( OUT0, &mbzBuffer, nbyOUT0 / sizeof( TgCHAR_WC ), &mbState );
-        return (nuiChar >= KTgMAX_RSIZE ? KTgE_FAIL : KTgS_OK);  /* string count does not count terminating '\0' */
+        return (0 == mbsrtowcs_s( &nuiChar, OUT0, nbyOUT0 / sizeof( TgCHAR_WC ), &mbzBuffer, nbyMaxARG2 , &mbState ) ? KTgE_FAIL : KTgS_OK);
     }
 
 #elif defined(GENERATE__NSZ)

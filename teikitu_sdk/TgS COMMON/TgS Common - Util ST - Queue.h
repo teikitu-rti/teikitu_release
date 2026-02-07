@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_UTIL_ST_QUEUE_H)
 #define TGS_COMMON_UTIL_ST_QUEUE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -74,8 +77,8 @@ tgCM_UT_ST__QU__Enqueue(
     STg2_UT_ST__QU_PC ARG0, STg2_UT_ST__QU_Node_PC ARG1 );
 
 /** @brief Merge the queues, where ARG1 is added to ARG0
-    @param [in,out] ARG0 Pointer to a queue object
-    @param [in] ARG1 Pointer to a queue object */
+    @param [in,out] ARG0 Pointer to a queue object, destination for the merge
+    @param [in,out] ARG1 Pointer to a queue object, source for the merge */
 TgINLINE TgVOID
 tgCM_UT_ST__QU__Merge(
     STg2_UT_ST__QU_PC ARG0, STg2_UT_ST__QU_PC ARG1 );

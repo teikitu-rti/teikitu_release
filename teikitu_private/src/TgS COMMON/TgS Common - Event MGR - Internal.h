@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_EVENT_MGR_INTERNAL_H)
 #define TGS_COMMON_EVENT_MGR_INTERNAL_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -28,24 +31,26 @@ enum { KTgEM_NUM_TE_IN_POOL                 =    69 };
 /*  File Local Types                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
-TgTYPE_STRUCT(STg2_EM_TB,)
+TgTYPE_UNION(STg2_EM_TB,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sHead_Next; /* Untyped (void) pointer to next element */
+    struct
     {
+        TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
         STg2_EM_TB                                  *m_psHead_Next; /* Typed pointer to the next element */
-        STg2_UT_ST__ST_Node                         m_sHead_Next; /* Untyped (void) pointer to next element */
+        TgFLOAT32                                   m_fStart;
+        TgFLOAT32                                   m_fEnd;
+        TgSINT_E32                                  m_iStart;
+        TgSINT_E32                                  m_iEnd;
+
+        TgUINT_E32                                  m_uiLocal_Index;
+
+        TgUINT_E32                                  m_bfFlags;
+    #if 0 != (224 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad1[224 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-
-    TgFLOAT32                                   m_fStart;
-    TgFLOAT32                                   m_fEnd;
-    TgSINT_E32                                  m_iStart;
-    TgSINT_E32                                  m_iEnd;
-
-    TgUINT_E32                                  m_uiLocal_Index;
-
-    TgUINT_E32                                  m_bfFlags;
 };
-TgCOMPILER_ASSERT( sizeof( STg2_EM_TB ) <= 32, 0 );
 
 TgTYPE_STRUCT(STg2_EM_TE,)
 {
@@ -57,9 +62,10 @@ TgCOMPILER_ASSERT( sizeof( STg2_EM_TE ) == 16, 0 );
 
 /* ---- Time Pools --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT(STg2_EM_TE_Pool,)
+TgTYPE_STRUCT(STg2_EM_TE_Pool, )
 {
-    TgALIGN(TgCCL) STg2_Job                     m_sJob;
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_Job                                    m_sJob;
 
     STg2_EM_TE_Pool                             *m_psFree_Next;  /**< Synchronization: g_asXXX_NewDel_Lock */
     STg2_EM_TB_P                                m_psFree;  /**< Synchronization: g_asXXX_NewDel_Lock */
@@ -80,15 +86,19 @@ TgTYPE_STRUCT(STg2_EM_TE_Pool,)
         TgEM_TE_FRM_ID                              m_atiEM_TE_FRM_NoSingleton[KTgEM_NUM_TE_IN_POOL];  /**< Synchronization: g_asXXX_Data_Lock */
         TgEM_TE_SEC_ID                              m_atiEM_TE_SEC_NoSingleton[KTgEM_NUM_TE_IN_POOL];  /**< Synchronization: g_asXXX_Data_Lock */
     };
+
+#if 0 != (160 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad2[160 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
+
     STg2_EM_TB                                  m_asTB[KTgEM_NUM_TE_IN_POOL];  /**< Synchronization: g_asXXX_Data_Lock */
     STg2_EM_TE                                  m_asTE[KTgEM_NUM_TE_IN_POOL];  /**< Synchronization: g_asXXX_Data_Lock */
 
     /* Lockless data structures (multi-thread safe) */
     STg2_UT_LF__ST                              m_sNew;  /**< Synchronization: Self */
-#if !defined(TgBUILD_COMPILER__MSVC)
-    TgUINT_E08                                  m_iPad2[32];
-#else
-    TgUINT_E08                                  m_iPad2[16];
+
+#if 0 != (160 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad3[160 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
 #endif
 };
 //TgCOMPILER_ASSERT( sizeof( STg2_EM_TE_Pool ) == 4096, 0 );

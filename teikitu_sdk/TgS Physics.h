@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -720,16 +720,13 @@ TgEXTN TgRESULT
 tgPH_Form_Query_Colour(
     TgVEC_F32_04_1_PC TgANALYSIS_NO_NULL OUT0, TgPH_FORM_ID_C ARG1 ); // Debug Colour
 
-#if defined(TgBUILD_DEBUG__PHYSICS) && defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS && defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
 /** @brief Display the Physics Performance Stats Page/Display.
     @param [in] ARG0 contains pointers to the data structures required by the Kernel GPU for Debug Rendering.
-    @param [in] ARG1 Pointer to a data structure retrieved from GPU Kernel for Rendering.
-    @param [in] ARG2 Pointer to a data structure describing the Render Target buffers.
-    @param [in] ARG3 Pointer to a data structure describing the Depth Stencil buffer. */
+    @param [in] ARG1 Pointer to a data structure describing the Render Target buffers. */
 TgEXTN TgVOID
 tgPH_Debug_Render_Performance_Stats(
-    UTg2_KN_GPU_CMD_C ARG0, STg2_KN_GPU_HLSL_Output_DESC_CPC TgANALYSIS_NO_NULL ARG1, STg2_KN_GPU_Render_Buffer_CPC TgANALYSIS_NO_NULL ARG2,
-    STg2_KN_GPU_Render_Buffer_CPC TgANALYSIS_NO_NULL ARG3 );
+    STg2_KN_GPU_CMD_PC ARG0, STg2_KN_GPU_Render_Buffer_CPC TgANALYSIS_NO_NULL ARG1 );
 
 /** @brief Visualize all of the Forms in a World through Debug Rendering.
     @param [in] ARG0 contains pointers to the data structures required by the Kernel GPU for Debug Rendering.
@@ -739,8 +736,8 @@ tgPH_Debug_Render_Performance_Stats(
     @param [in] ARG4 Enumeration selecting the Depth Stencil format. */
 TgEXTN TgVOID
 tgPH_Form_Visualize_Render(
-     UTg2_KN_GPU_CMD_C ARG0, STg2_KN_GPU_HLSL_CB_Debug_Model_PC TgANALYSIS_NO_NULL ARG1, TgPH_WORLD_ID_C ARG2, ETgKN_GPU_EXT_FORMAT_C ARG3, ETgKN_GPU_EXT_FORMAT_C ARG4 );
-/*# defined(TgBUILD_DEBUG__PHYSICS) && defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
+     STg2_KN_GPU_CMD_PC ARG0, STg2_KN_GPU_DBG_Geom_PC TgANALYSIS_NO_NULL ARG1, TgPH_WORLD_ID_C ARG2, ETgKN_GPU_EXT_FORMAT_C ARG3, ETgKN_GPU_EXT_FORMAT_C ARG4 );
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS && defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
 /** @} TGS_PHYSICS_FORM_MISCELLANEOUS */
 

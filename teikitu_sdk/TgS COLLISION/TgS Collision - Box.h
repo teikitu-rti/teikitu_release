@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -39,7 +39,7 @@ FCN_VO(tgCO_BX_DistSq_PT)(
     @return Minimal distance between the box and point, or zero otherwise, broadcast across all vector lanes. */
 TgINLINE VEC_T(1)
 FCN_VO(tgCO_BX_Dist_PT)(
-    VEC_OBJ_T(TgBOX,CPC) NONULLARG0, VEC_T(1,C) ARG1 );
+    VEC_OBJ_T(TgBOX,CPC) TgANALYSIS_NO_NULL ARG0, VEC_T(1,C) ARG1 );
 
 /** @brief Calculate the minimal distance squared between a box and a point, and on a non-negative distance store the point(s) of closest proximity.
     @param [out] OUT0 Pointer to a vector holding the closest point to ARG2 on ARG1.

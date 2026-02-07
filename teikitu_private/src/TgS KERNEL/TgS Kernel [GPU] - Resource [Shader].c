@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -23,8 +23,8 @@
 
 /* ---- T(tgKN_GPU_,__Execute_Load) ---------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgRESULT T(tgKN_GPU_,__Execute_Load)( TgKN_FILE_ID_C tiFile, TgATTRIBUTE_UNUSED TgRSIZE_C uiFile_Offset, T(STg2_KN_GPU_,_DESC_CPC) psDESC, TgATTRIBUTE_UNUSED ETgKN_GPU_ALLOCATOR_C enAllocator,
-                                      T(TgKN_GPU_,_ID_C) sID  )
+TgRESULT T(tgKN_GPU_,__Execute_Load)( TgKN_FILE_ID_C tiFile, TgATTRIBUTE_UNUSED TgRSIZE_C uiFile_Offset, T(STg2_KN_GPU_,_DESC_CPC) psDESC,
+                                      TgATTRIBUTE_UNUSED TgUINT_E64_C uiResource_Descriptor, T(TgKN_GPU_,_ID_C) sID  )
 {
     if (nullptr != psDESC)
     {
@@ -49,7 +49,7 @@ TgRESULT T(tgKN_GPU_,__Execute_Load)( TgKN_FILE_ID_C tiFile, TgATTRIBUTE_UNUSED 
 
         tgMM_Set_U08_0x00( &sRead_Command, sizeof( sRead_Command ) );
         sRead_Command.m_tiFile = tiFile; // TODO use file offset
-        sRead_Command.m_pfnAllocator = tgKN_FILE_ALLOCATOR__Default_Malloc_Pool; // TODO: Use enAllocator to select an allocator
+        sRead_Command.m_pfnAllocator = tgKN_FILE_ALLOCATOR__Default_Malloc_Pool; // TODO: Use uiResource_Descriptor to select an allocator
 
         TgVERIFY(TgSUCCEEDED(tgKN_FS_BL_Read( &sRead_Command ))); // TODO Use an async command
 

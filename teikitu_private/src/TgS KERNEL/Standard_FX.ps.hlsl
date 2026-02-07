@@ -2,6 +2,6 @@
 
 float4 main(in PSInput_PC input) : SV_TARGET
 {
-    float3 colour = HDRCorrection( input.colour.rgb, Debug_Model.m_sDESC );
+    float3 colour = HDRCorrection( input.colour.rgb );
     return float4( colour, input.colour.a );
 }

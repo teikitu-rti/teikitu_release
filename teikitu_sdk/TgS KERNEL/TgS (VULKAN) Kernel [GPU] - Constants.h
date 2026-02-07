@@ -1,17 +1,19 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS (VULKAN) Kernel - Constants [GPU].h
+    »File«      TgS (VULKAN) Kernel [GPU] - Constants.h
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.22 | »GUID« 7ECEAB43-40E4-4161-8F94-87AF31F5BA9A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_EXT_KERNEL_CONSTANTS_GPU_H) && defined(TgBUILD_FEATURE__GRAPHICS)
-#define TGS_EXT_KERNEL_CONSTANTS_GPU_H
-#pragma once
+#if !defined(TGS_VULKAN_KERNEL_GPU_CONSTANTS_H) && defined(TgBUILD_FEATURE__GRAPHICS)
+#define TGS_VULKAN_KERNEL_GPU_CONSTANTS_H
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#pragma once
+#endif
 
 /* == Kernel ===================================================================================================================================================================== */
 
@@ -19,78 +21,207 @@
 /*  Public Constants (Made to match API constant values)                                                                                                                           */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
-TgTYPE_ENUM(ETgKN_GPU_EXT_FORMAT,TgSINT_F32,
+typedef enum TgATTRIBUTE_ENUM
+{
+    ETgKN_GPU_EXT_FORMAT_UNDEFINED                               = 0,
+    ETgKN_GPU_EXT_FORMAT_R4G4_UNORM_PACK8                        = 1,
+    ETgKN_GPU_EXT_FORMAT_R4G4B4A4_UNORM_PACK16                   = 2,
+    ETgKN_GPU_EXT_FORMAT_B4G4R4A4_UNORM_PACK16                   = 3,
+    ETgKN_GPU_EXT_FORMAT_R5G6B5_UNORM_PACK16                     = 4,
+    ETgKN_GPU_EXT_FORMAT_B5G6R5_UNORM_PACK16                     = 5,
+    ETgKN_GPU_EXT_FORMAT_R5G5B5A1_UNORM_PACK16                   = 6,
+    ETgKN_GPU_EXT_FORMAT_B5G5R5A1_UNORM_PACK16                   = 7,
+    ETgKN_GPU_EXT_FORMAT_A1R5G5B5_UNORM_PACK16                   = 8,
+    ETgKN_GPU_EXT_FORMAT_R8_UNORM                                = 9,
+    ETgKN_GPU_EXT_FORMAT_R8_SNORM                                = 10,
+    ETgKN_GPU_EXT_FORMAT_R8_USCALED                              = 11,
+    ETgKN_GPU_EXT_FORMAT_R8_SSCALED                              = 12,
+    ETgKN_GPU_EXT_FORMAT_R8_UINT                                 = 13,
+    ETgKN_GPU_EXT_FORMAT_R8_SINT                                 = 14,
+    ETgKN_GPU_EXT_FORMAT_R8_SRGB                                 = 15,
+    ETgKN_GPU_EXT_FORMAT_R8G8_UNORM                              = 16,
+    ETgKN_GPU_EXT_FORMAT_R8G8_SNORM                              = 17,
+    ETgKN_GPU_EXT_FORMAT_R8G8_USCALED                            = 18,
+    ETgKN_GPU_EXT_FORMAT_R8G8_SSCALED                            = 19,
+    ETgKN_GPU_EXT_FORMAT_R8G8_UINT                               = 20,
+    ETgKN_GPU_EXT_FORMAT_R8G8_SINT                               = 21,
+    ETgKN_GPU_EXT_FORMAT_R8G8_SRGB                               = 22,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_UNORM                            = 23,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_SNORM                            = 24,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_USCALED                          = 25,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_SSCALED                          = 26,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_UINT                             = 27,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_SINT                             = 28,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8_SRGB                             = 29,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_UNORM                            = 30,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_SNORM                            = 31,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_USCALED                          = 32,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_SSCALED                          = 33,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_UINT                             = 34,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_SINT                             = 35,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8_SRGB                             = 36,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_UNORM                          = 37,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_SNORM                          = 38,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_USCALED                        = 39,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_SSCALED                        = 40,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_UINT                           = 41,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_SINT                           = 42,
+    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_SRGB                           = 43,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_UNORM                          = 44,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_SNORM                          = 45,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_USCALED                        = 46,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_SSCALED                        = 47,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_UINT                           = 48,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_SINT                           = 49,
+    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_SRGB                           = 50,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_UNORM_PACK32                   = 51,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_SNORM_PACK32                   = 52,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_USCALED_PACK32                 = 53,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_SSCALED_PACK32                 = 54,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_UINT_PACK32                    = 55,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_SINT_PACK32                    = 56,
+    ETgKN_GPU_EXT_FORMAT_A8B8G8R8_SRGB_PACK32                    = 57,
+    ETgKN_GPU_EXT_FORMAT_A2R10G10B10_UNORM_PACK32                = 58,
+    ETgKN_GPU_EXT_FORMAT_A2R10G10B10_SNORM_PACK32                = 59,
+    ETgKN_GPU_EXT_FORMAT_A2R10G10B10_USCALED_PACK32              = 60,
+    ETgKN_GPU_EXT_FORMAT_A2R10G10B10_SSCALED_PACK32              = 61,
+    ETgKN_GPU_EXT_FORMAT_A2R10G10B10_UINT_PACK32                 = 62,
+    ETgKN_GPU_EXT_FORMAT_A2R10G10B10_SINT_PACK32                 = 63,
+    ETgKN_GPU_EXT_FORMAT_A2B10G10R10_UNORM_PACK32                = 64,
+    ETgKN_GPU_EXT_FORMAT_A2B10G10R10_SNORM_PACK32                = 65,
+    ETgKN_GPU_EXT_FORMAT_A2B10G10R10_USCALED_PACK32              = 66,
+    ETgKN_GPU_EXT_FORMAT_A2B10G10R10_SSCALED_PACK32              = 67,
+    ETgKN_GPU_EXT_FORMAT_A2B10G10R10_UINT_PACK32                 = 68,
+    ETgKN_GPU_EXT_FORMAT_A2B10G10R10_SINT_PACK32                 = 69,
+    ETgKN_GPU_EXT_FORMAT_R16_UNORM                               = 70,
+    ETgKN_GPU_EXT_FORMAT_R16_SNORM                               = 71,
+    ETgKN_GPU_EXT_FORMAT_R16_USCALED                             = 72,
+    ETgKN_GPU_EXT_FORMAT_R16_SSCALED                             = 73,
+    ETgKN_GPU_EXT_FORMAT_R16_UINT                                = 74,
+    ETgKN_GPU_EXT_FORMAT_R16_SINT                                = 75,
+    ETgKN_GPU_EXT_FORMAT_R16_SFLOAT                              = 76,
+    ETgKN_GPU_EXT_FORMAT_R16G16_UNORM                            = 77,
+    ETgKN_GPU_EXT_FORMAT_R16G16_SNORM                            = 78,
+    ETgKN_GPU_EXT_FORMAT_R16G16_USCALED                          = 79,
+    ETgKN_GPU_EXT_FORMAT_R16G16_SSCALED                          = 80,
+    ETgKN_GPU_EXT_FORMAT_R16G16_UINT                             = 81,
+    ETgKN_GPU_EXT_FORMAT_R16G16_SINT                             = 82,
+    ETgKN_GPU_EXT_FORMAT_R16G16_SFLOAT                           = 83,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_UNORM                         = 84,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_SNORM                         = 85,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_USCALED                       = 86,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_SSCALED                       = 87,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_UINT                          = 88,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_SINT                          = 89,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16_SFLOAT                        = 90,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_UNORM                      = 91,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_SNORM                      = 92,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_USCALED                    = 93,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_SSCALED                    = 94,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_UINT                       = 95,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_SINT                       = 96,
+    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_SFLOAT                     = 97,
+    ETgKN_GPU_EXT_FORMAT_R32_UINT                                = 98,
+    ETgKN_GPU_EXT_FORMAT_R32_SINT                                = 99,
+    ETgKN_GPU_EXT_FORMAT_R32_SFLOAT                              = 100,
+    ETgKN_GPU_EXT_FORMAT_R32G32_UINT                             = 101,
+    ETgKN_GPU_EXT_FORMAT_R32G32_SINT                             = 102,
+    ETgKN_GPU_EXT_FORMAT_R32G32_SFLOAT                           = 103,
+    ETgKN_GPU_EXT_FORMAT_R32G32B32_UINT                          = 104,
+    ETgKN_GPU_EXT_FORMAT_R32G32B32_SINT                          = 105,
+    ETgKN_GPU_EXT_FORMAT_R32G32B32_SFLOAT                        = 106,
+    ETgKN_GPU_EXT_FORMAT_R32G32B32A32_UINT                       = 107,
+    ETgKN_GPU_EXT_FORMAT_R32G32B32A32_SINT                       = 108,
+    ETgKN_GPU_EXT_FORMAT_R32G32B32A32_SFLOAT                     = 109,
+    ETgKN_GPU_EXT_FORMAT_R64_UINT                                = 110,
+    ETgKN_GPU_EXT_FORMAT_R64_SINT                                = 111,
+    ETgKN_GPU_EXT_FORMAT_R64_SFLOAT                              = 112,
+    ETgKN_GPU_EXT_FORMAT_R64G64_UINT                             = 113,
+    ETgKN_GPU_EXT_FORMAT_R64G64_SINT                             = 114,
+    ETgKN_GPU_EXT_FORMAT_R64G64_SFLOAT                           = 115,
+    ETgKN_GPU_EXT_FORMAT_R64G64B64_UINT                          = 116,
+    ETgKN_GPU_EXT_FORMAT_R64G64B64_SINT                          = 117,
+    ETgKN_GPU_EXT_FORMAT_R64G64B64_SFLOAT                        = 118,
+    ETgKN_GPU_EXT_FORMAT_R64G64B64A64_UINT                       = 119,
+    ETgKN_GPU_EXT_FORMAT_R64G64B64A64_SINT                       = 120,
+    ETgKN_GPU_EXT_FORMAT_R64G64B64A64_SFLOAT                     = 121,
+    ETgKN_GPU_EXT_FORMAT_B10G11R11_UFLOAT_PACK32                 = 122,
+    ETgKN_GPU_EXT_FORMAT_E5B9G9R9_UFLOAT_PACK32                  = 123,
+    ETgKN_GPU_EXT_FORMAT_D16_UNORM                               = 124,
+    ETgKN_GPU_EXT_FORMAT_X8_D24_UNORM_PACK32                     = 125,
+    ETgKN_GPU_EXT_FORMAT_D32_SFLOAT                              = 126,
+    ETgKN_GPU_EXT_FORMAT_S8_UINT                                 = 127,
+    ETgKN_GPU_EXT_FORMAT_D16_UNORM_S8_UINT                       = 128,
+    ETgKN_GPU_EXT_FORMAT_D24_UNORM_S8_UINT                       = 129,
+    ETgKN_GPU_EXT_FORMAT_D32_SFLOAT_S8_UINT                      = 130,
+    ETgKN_GPU_EXT_FORMAT_BC1_RGB_UNORM_BLOCK                     = 131,
+    ETgKN_GPU_EXT_FORMAT_BC1_RGB_SRGB_BLOCK                      = 132,
+    ETgKN_GPU_EXT_FORMAT_BC1_RGBA_UNORM_BLOCK                    = 133,
+    ETgKN_GPU_EXT_FORMAT_BC1_RGBA_SRGB_BLOCK                     = 134,
+    ETgKN_GPU_EXT_FORMAT_BC2_UNORM_BLOCK                         = 135,
+    ETgKN_GPU_EXT_FORMAT_BC2_SRGB_BLOCK                          = 136,
+    ETgKN_GPU_EXT_FORMAT_BC3_UNORM_BLOCK                         = 137,
+    ETgKN_GPU_EXT_FORMAT_BC3_SRGB_BLOCK                          = 138,
+    ETgKN_GPU_EXT_FORMAT_BC4_UNORM_BLOCK                         = 139,
+    ETgKN_GPU_EXT_FORMAT_BC4_SNORM_BLOCK                         = 140,
+    ETgKN_GPU_EXT_FORMAT_BC5_UNORM_BLOCK                         = 141,
+    ETgKN_GPU_EXT_FORMAT_BC5_SNORM_BLOCK                         = 142,
+    ETgKN_GPU_EXT_FORMAT_BC6H_UFLOAT_BLOCK                       = 143,
+    ETgKN_GPU_EXT_FORMAT_BC6H_SFLOAT_BLOCK                       = 144,
+    ETgKN_GPU_EXT_FORMAT_BC7_UNORM_BLOCK                         = 145,
+    ETgKN_GPU_EXT_FORMAT_BC7_SRGB_BLOCK                          = 146,
+    ETgKN_GPU_EXT_FORMAT_ETC2_R8G8B8_UNORM_BLOCK                 = 147,
+    ETgKN_GPU_EXT_FORMAT_ETC2_R8G8B8_SRGB_BLOCK                  = 148,
+    ETgKN_GPU_EXT_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK               = 149,
+    ETgKN_GPU_EXT_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK                = 150,
+    ETgKN_GPU_EXT_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK               = 151,
+    ETgKN_GPU_EXT_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK                = 152,
+    ETgKN_GPU_EXT_FORMAT_EAC_R11_UNORM_BLOCK                     = 153,
+    ETgKN_GPU_EXT_FORMAT_EAC_R11_SNORM_BLOCK                     = 154,
+    ETgKN_GPU_EXT_FORMAT_EAC_R11G11_UNORM_BLOCK                  = 155,
+    ETgKN_GPU_EXT_FORMAT_EAC_R11G11_SNORM_BLOCK                  = 156,
+    ETgKN_GPU_EXT_FORMAT_ASTC_4x4_UNORM_BLOCK                    = 157,
+    ETgKN_GPU_EXT_FORMAT_ASTC_4x4_SRGB_BLOCK                     = 158,
+    ETgKN_GPU_EXT_FORMAT_ASTC_5x4_UNORM_BLOCK                    = 159,
+    ETgKN_GPU_EXT_FORMAT_ASTC_5x4_SRGB_BLOCK                     = 160,
+    ETgKN_GPU_EXT_FORMAT_ASTC_5x5_UNORM_BLOCK                    = 161,
+    ETgKN_GPU_EXT_FORMAT_ASTC_5x5_SRGB_BLOCK                     = 162,
+    ETgKN_GPU_EXT_FORMAT_ASTC_6x5_UNORM_BLOCK                    = 163,
+    ETgKN_GPU_EXT_FORMAT_ASTC_6x5_SRGB_BLOCK                     = 164,
+    ETgKN_GPU_EXT_FORMAT_ASTC_6x6_UNORM_BLOCK                    = 165,
+    ETgKN_GPU_EXT_FORMAT_ASTC_6x6_SRGB_BLOCK                     = 166,
+    ETgKN_GPU_EXT_FORMAT_ASTC_8x5_UNORM_BLOCK                    = 167,
+    ETgKN_GPU_EXT_FORMAT_ASTC_8x5_SRGB_BLOCK                     = 168,
+    ETgKN_GPU_EXT_FORMAT_ASTC_8x6_UNORM_BLOCK                    = 169,
+    ETgKN_GPU_EXT_FORMAT_ASTC_8x6_SRGB_BLOCK                     = 170,
+    ETgKN_GPU_EXT_FORMAT_ASTC_8x8_UNORM_BLOCK                    = 171,
+    ETgKN_GPU_EXT_FORMAT_ASTC_8x8_SRGB_BLOCK                     = 172,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x5_UNORM_BLOCK                   = 173,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x5_SRGB_BLOCK                    = 174,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x6_UNORM_BLOCK                   = 175,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x6_SRGB_BLOCK                    = 176,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x8_UNORM_BLOCK                   = 177,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x8_SRGB_BLOCK                    = 178,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x10_UNORM_BLOCK                  = 179,
+    ETgKN_GPU_EXT_FORMAT_ASTC_10x10_SRGB_BLOCK                   = 180,
+    ETgKN_GPU_EXT_FORMAT_ASTC_12x10_UNORM_BLOCK                  = 181,
+    ETgKN_GPU_EXT_FORMAT_ASTC_12x10_SRGB_BLOCK                   = 182,
+    ETgKN_GPU_EXT_FORMAT_ASTC_12x12_UNORM_BLOCK                  = 183,
+    ETgKN_GPU_EXT_FORMAT_ASTC_12x12_SRGB_BLOCK                   = 184,
+} ETgKN_GPU_EXT_FORMAT;
+TgTYPE_MODIFIER_DEFAULT(ETgKN_GPU_EXT_FORMAT);
 
-    ETgKN_GPU_EXT_FORMAT__START                                  = 0,
-    ETgKN_GPU_EXT_FORMAT_UNKNOWN                                 = ETgKN_GPU_EXT_FORMAT__START,
 
-    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_FLOAT,
-    ETgKN_GPU_EXT_FORMAT_R10G10B10A2_UNORM,
-    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_UNORM,
-    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_UNORM_SRGB,
-    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_UNORM,
-    ETgKN_GPU_EXT_FORMAT_B8G8R8A8_UNORM_SRGB,
+typedef enum TgATTRIBUTE_ENUM
+{
+    ETgKN_GPU_EXT_TOPOLOGY_POINT_LIST                       =  0, /* VK_PRIMITIVE_TOPOLOGY_POINT_LIST */
+    ETgKN_GPU_EXT_TOPOLOGY_LINE_LIST                        =  1, /* VK_PRIMITIVE_TOPOLOGY_LINE_LIST */
+    ETgKN_GPU_EXT_TOPOLOGY_TRIANGLE_LIST                    =  3, /* VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST */
+    ETgKN_GPU_EXT_TOPOLOGY_TRIANGLE_STRIP                   =  4, /* VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP */
+    ETgKN_GPU_EXT_TOPOLOGY_PATCH_LIST                       = 10, /* VK_PRIMITIVE_TOPOLOGY_PATCH_LIST */
+} ETgKN_GPU_EXT_TOPOLOGY;
+TgTYPE_MODIFIER_DEFAULT(ETgKN_GPU_EXT_TOPOLOGY);
 
-    ETgKN_GPU_EXT_FORMAT_D32_FLOAT_S8X24_UINT,
-    ETgKN_GPU_EXT_FORMAT_D32_FLOAT,
-    ETgKN_GPU_EXT_FORMAT_D24_UNORM_S8_UINT,
-
-    ETgKN_GPU_EXT_FORMAT_R8G8B8A8_UINT,
-    ETgKN_GPU_EXT_FORMAT_R32G32B32A32_FLOAT,
-    ETgKN_GPU_EXT_FORMAT_A8_UNORM,
-    ETgKN_GPU_EXT_FORMAT_R8_UNORM,
-    ETgKN_GPU_EXT_FORMAT_R16G16B16A16_UNORM,
-
-    /* Index Values */
-    ETgKN_GPU_EXT_FORMAT__END,
-    ETgKN_GPU_EXT_FORMAT__MAX = ETgKN_GPU_EXT_FORMAT__END,
-    ETgKN_GPU_EXT_FORMAT__COUNT = ETgKN_GPU_EXT_FORMAT__END - ETgKN_GPU_EXT_FORMAT__START,
-);
-
-TgTYPE_ENUM( ETgKN_GPU_EXT_TOPOLOGY_TYPE, TgSINT_F32,
-
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_START = 0,
-
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_UNDEFINED = ETgKN_GPU_EXT_TOPOLOGY_TYPE_START,
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_POINT,
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_LINE,
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_TRIANGLE,
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_PATCH,
-
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_END,
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_MAX = ETgKN_GPU_EXT_TOPOLOGY_TYPE_END,
-    ETgKN_GPU_EXT_TOPOLOGY_TYPE_COUNT = ETgKN_GPU_EXT_TOPOLOGY_TYPE_END - ETgKN_GPU_EXT_TOPOLOGY_TYPE_START,
-);
-
-//TgTYPE_ENUM( ETgKN_GPU_TOPOLOGY, TgSINT_F32,
-//
-//    ETgKN_GPU_TOPOLOGY__START,
-//
-//    ETgKN_GPU_TOPOLOGY_UNDEFINED = ETgKN_GPU_TOPOLOGY__START,
-//    ETgKN_GPU_TOPOLOGY_POINTLIST,
-//    ETgKN_GPU_TOPOLOGY_LINELIST,
-//    ETgKN_GPU_TOPOLOGY_LINESTRIP,
-//    ETgKN_GPU_TOPOLOGY_TRIANGLELIST,
-//    ETgKN_GPU_TOPOLOGY_TRIANGLESTRIP,
-//
-//    ETgKN_GPU_TOPOLOGY__END,
-//    ETgKN_GPU_TOPOLOGY__MAX = ETgKN_GPU_TOPOLOGY__END,
-//    ETgKN_GPU_TOPOLOGY__COUNT = ETgKN_GPU_TOPOLOGY__END - ETgKN_GPU_TOPOLOGY__START,
-//);
-
-TgTYPE_ENUM_FLAG(ETgKN_GPU_EXT_COMMAND, TgSINT_F32,
-
-    ETgKN_GPU_EXT_COMMAND_START = 0,
-
-    ETgKN_GPU_EXT_COMMAND_GRAPHICS = ETgKN_GPU_EXT_COMMAND_START,
-    ETgKN_GPU_EXT_COMMAND_DIRECT,
-    ETgKN_GPU_EXT_COMMAND_COMPUTE,
-    ETgKN_GPU_EXT_COMMAND_COPY,
-
-    ETgKN_GPU_EXT_COMMAND_END,
-    ETgKN_GPU_EXT_COMMAND_MAX = ETgKN_GPU_EXT_COMMAND_END,
-    ETgKN_GPU_EXT_COMMAND_COUNT = ETgKN_GPU_EXT_COMMAND_END - ETgKN_GPU_EXT_COMMAND_START,
-);
 
 /* =============================================================================================================================================================================== */
 #endif

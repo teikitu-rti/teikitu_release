@@ -4,17 +4,17 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_GEOMETRY_H)
+#if !defined(TGS_COMMON____GEOMETRY_H)
 
 
 /* == Common ===================================================================================================================================================================== */
 
-#if !defined(TGS_COMMON_GEOMETRY_H__ONCE)
-#define TGS_COMMON_GEOMETRY_H__ONCE
+#if !defined(TGS_COMMON____GEOMETRY_H__ONCE)
+#define TGS_COMMON____GEOMETRY_H__ONCE
 
 #if defined(TgCOMPILE_ASSERT__GEOM_PARAM_CHECK) && TgCOMPILE_ASSERT__GEOM_PARAM_CHECK
     #define TgGEOM_ASSERT_PARAM(...)            TgPARAM_CHECK(__VA_ARGS__)
@@ -35,7 +35,7 @@ TgTYPE_STRUCT(TgMESH_ITER,)
 TgEXTN TgCHAR_U8_CP                         tgGM_Primitive_To_USZ( ETgPRIMITIVE_C );
 TgEXTN TgCHAR_WC_CP                         tgGM_Primitive_To_WSZ( ETgPRIMITIVE_C );
 
-/*# !defined(TGS_COMMON_GEOMETRY_H__ONCE) */
+/*# !defined(TGS_COMMON____GEOMETRY_H__ONCE) */
 #endif
 
 
@@ -94,12 +94,12 @@ TgEXTN TgCHAR_WC_CP                         tgGM_Primitive_To_WSZ( ETgPRIMITIVE_
 
     #undef TEMPLATE_TYPE_EXPANSION__RELOAD
 
-    #define TGS_COMMON_GEOMETRY_H
+    #define TGS_COMMON____GEOMETRY_H
 
 #endif
 
 
 /* =============================================================================================================================================================================== */
 
-/*# !defined(TGS_COMMON_GEOMETRY_H) */
+/*# !defined(TGS_COMMON____GEOMETRY_H) */
 #endif

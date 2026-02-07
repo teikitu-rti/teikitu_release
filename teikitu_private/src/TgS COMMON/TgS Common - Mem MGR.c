@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -18,6 +18,7 @@
 #if !defined(TgBUILD_FEATURE__MALLOC_OVERRIDE)
 #include "TgS Common - Preload - Internal.h"
 #endif
+TgMSVC_OPT_ENABLE_MAXIMUM
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -47,6 +48,14 @@ TgCOMPILER_ASSERT(56 == sizeof(TgTRACE_ENTRY),);
 
 /* Memory Manager */
 
+static TgRSIZE
+tgMM_Write(
+    STg2_Output_PC OUT0, TgRSIZE_C ARG1, TgVOID_CP ARG2, TgRSIZE_C ARG3);
+
+static TgRESULT
+tgMM_Close(
+    STg2_Output_PC psOUT);
+
 #if defined(TgCOMPILE__MEM_TRACK)
 
 static TgVOID
@@ -69,6 +78,8 @@ tgMM_Hash_Trace_Entry(
     page size option (64K pages). */
 
 static ETgMODULE_STATE                      s_enMem_MGR_State = ETgMODULE_STATE__FREED;
+static STg2_Output                          s_sMem_TTY;
+static TgCHAR_U8                            s_uszMem_Message_Prefix[80];
 
 #if defined(TgCOMPILE__MEM_TRACK)
 static STg2_UT_LF__HT_RW                    s_sTrace_Table;
@@ -87,6 +98,10 @@ static TgUINT_E08                           s_sTrace_Table_Buffer[1024*1024];
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgRESULT tgMM_Init_MGR( TgVOID )
 {
+    tgUSZ_PrintF(s_uszMem_Message_Prefix, sizeof(s_uszMem_Message_Prefix), STD_MSG_PREFIX, TgU8_TEXT_WITH_QUOTE(__MODULE__), u8"Memory Manger Standard Output");
+    s_sMem_TTY.m_pfnWrite = tgMM_Write;
+    s_sMem_TTY.m_pfnClose = tgMM_Close;
+
     #if !defined(TgBUILD_FEATURE__MALLOC_OVERRIDE)
     tgMM_Init_MGR_Preload();
     #endif
@@ -114,7 +129,7 @@ TgRESULT tgMM_Boot_MGR( TgVOID )
 
     if (tgGB_CMD_Query_Argument_Index( u8"-//stat/boot/memory" ) >= 0)
     {
-        tgMM_Stats( &g_sOutCon );
+        tgMM_Stats( &s_sMem_TTY);
     };
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -147,7 +162,7 @@ TgRESULT tgMM_Free_MGR( TgVOID )
 #if TgCOMPILE__CONSOLE
     if (tgGB_CMD_Query_Argument_Index( u8"-//stat/free/memory" ) >= 0)
     {
-        tgMM_Stats( &g_sOutCon );
+        tgMM_Stats( &s_sMem_TTY);
     };
 
     tgMM_Set_CN_PrintF( nullptr );
@@ -157,9 +172,9 @@ TgRESULT tgMM_Free_MGR( TgVOID )
 #if defined(TgCOMPILE__MEM_TRACK)
     if (s_sTrace_Table.m_nuiNode_Active)
     {
-        tgMM_Print_Trace_Header( &g_sOutCon );
-        tgCM_UT_LF__HT_RW__Output_List( &s_sTrace_Table, &g_sOutCon, tgMM_Print_Trace_Entry );
-        tgIO_PrintF( &g_sOutCon, u8"\n" );
+        tgMM_Print_Trace_Header( &s_sMem_TTY);
+        tgCM_UT_LF__HT_RW__Output_List( &s_sTrace_Table, &s_sMem_TTY, tgMM_Print_Trace_Entry );
+        tgIO_PrintF( &s_sMem_TTY, u8"\n" );
     };
     tgCM_UT_LF__HT_RW__Free( &s_sTrace_Table );
 /*# defined(TgCOMPILE__MEM_TRACK) */
@@ -260,6 +275,7 @@ TgVOID tgMM_Stats( STg2_Output_PC psOUT )
 /* ---- tgMM_Malloc_With_Trace_Comment ------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__MEM_TRACK)
+TgATTRIBUTE_FORCE_OPTIMIZE
 TgVOID_P tgMM_Malloc_With_Trace_Comment( ETgMM_ALLOCATOR_C enAllocator, TgRSIZE_C uiSize, TgRSIZE_C uiAlignment, TgCHAR_U8_CPC uszFile, TgUINT_E32_C uiL, TgCHAR_U8_CPC uszComment )
 {
     TgVOID_P                            pReturn;
@@ -290,6 +306,7 @@ TgVOID_P tgMM_Malloc_With_Trace_Comment( ETgMM_ALLOCATOR_C enAllocator, TgRSIZE_
 /* ---- tgMM_Malloc_With_Trace --------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__MEM_TRACK)
+TgATTRIBUTE_FORCE_OPTIMIZE
 TgVOID_P tgMM_Malloc_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgRSIZE_C uiSize, TgRSIZE_C uiAlignment, TgCHAR_U8_CPC uszFile, TgUINT_E32_C uiL )
 {
     TgVOID_P                            pReturn;
@@ -319,6 +336,7 @@ TgVOID_P tgMM_Malloc_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgRSIZE_C uiSize
 /* ---- tgMM_Reserve_With_Trace -------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__MEM_TRACK)
+TgATTRIBUTE_FORCE_OPTIMIZE
 TgVOID_P tgMM_Reserve_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgRSIZE_C uiSize, TgCHAR_U8_CPC uszFile, TgUINT_E32_C uiL )
 {
     TgVOID_P                            pReturn;
@@ -348,6 +366,7 @@ TgVOID_P tgMM_Reserve_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgRSIZE_C uiSiz
 /* ---- tgMM_Commit_With_Trace --------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__MEM_TRACK)
+TgATTRIBUTE_FORCE_OPTIMIZE
 TgVOID_P tgMM_Commit_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgVOID_PC pMem, TgRSIZE_C uiOffset, TgRSIZE_C uiSize, TgCHAR_U8_CPC uszFile, TgUINT_E32_C uiL )
 {
     TgVOID_P                            pReturn;
@@ -397,6 +416,7 @@ TgVOID_P tgMM_Commit_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgVOID_PC pMem, 
 /* ---- tgMM_Free_With_Trace ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__MEM_TRACK)
+TgATTRIBUTE_FORCE_OPTIMIZE
 TgVOID tgMM_Free_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgVOID_PC pMem, TgATTRIBUTE_UNUSED TgCHAR_U8_CPC uszFile, TgATTRIBUTE_UNUSED TgUINT_E32_C uiL )
 {
     TgUN_PTR                            sHash;
@@ -412,6 +432,7 @@ TgVOID tgMM_Free_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgVOID_PC pMem, TgAT
 /* ---- tgMM_Realloc_With_Trace -------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__MEM_TRACK)
+TgATTRIBUTE_FORCE_OPTIMIZE
 TgVOID_P tgMM_Realloc_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgVOID_PC pMem, TgRSIZE_C uiSize, TgRSIZE_C uiAlignment, TgCHAR_U8_CPC uszFile, TgUINT_E32_C uiL )
 {
     TgVOID_P                            pReturn;
@@ -461,6 +482,31 @@ TgVOID_P tgMM_Realloc_With_Trace( ETgMM_ALLOCATOR_C enAllocator, TgVOID_PC pMem,
 /*  File Local Functions                                                                                                                                                           */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
+/* ---- tgMM_Write --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+static TgRSIZE tgMM_Write(STg2_Output_PC psOUT, TgRSIZE_C uiOffset, TgVOID_CP pData, TgRSIZE_C nbyData)
+{
+#if TgCOMPILE__CONSOLE
+    tgCN_PrintPrefix(KTgCN_CHANEL_LOG, s_uszMem_Message_Prefix, (TgCHAR_U8_CP)pData, nbyData);
+    (void)psOUT;
+    (void)uiOffset;
+    /*# TgCOMPILE__CONSOLE */
+#else
+    tgCM_DBG_OUT_Write(psOUT, uiOffset, pData, nbyData);
+    /*# TgCOMPILE__CONSOLE */
+#endif
+    return (nbyData);
+}
+
+
+/* ---- tgMM_Close --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+static TgRESULT tgMM_Close(TgATTRIBUTE_UNUSED STg2_Output_PC psOUT)
+{
+    return (KTgS_OK);
+}
+
+
 #if defined(TgCOMPILE__MEM_TRACK)
 /* ---- tgMM_Print_Trace_Header -------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -508,3 +554,5 @@ static TgUINT_PTR tgMM_Hash_Trace_Entry( TgUINT_PTR_C uiValue )
 }
 /*# defined(TgCOMPILE__MEM_TRACK) */
 #endif
+
+TgMSVC_OPT_RESTORE_DEFAULT

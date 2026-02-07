@@ -1,11 +1,11 @@
 # PARAMETER LIST FOR SCRIPT
 Param(
     [Parameter(HelpMessage = "REPO")]
-    [string]$REPO = "teikitu_release"
+    [string]$REPO = "teikitu"
 )
 
 # Get the list of workflow runs
-$workflowRuns = Invoke-WebRequest -Uri ('https://api.github.com/repos/teikitu-rti/teikitu_release/actions/runs') -Headers @{Authorization = "Bearer $env:GH_TOKEN"} -Method Get
+$workflowRuns = Invoke-WebRequest -Uri ('https://api.github.com/repos/teikitu-rti/teikitu/actions/runs') -Headers @{Authorization = "Bearer $env:GH_TOKEN"} -Method Get
 
 # Filter active runs (queued or in_progress) and cancel them
 $workflowObjects = $workflowRuns.Content | ConvertFrom-Json

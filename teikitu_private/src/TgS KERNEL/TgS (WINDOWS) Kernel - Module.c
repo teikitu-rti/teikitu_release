@@ -3,7 +3,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -68,11 +68,11 @@ tgTST_KN_Query_Monitor_Max_Resolution(
 
 static TgVOID
 tgTST_KN_Query_Swap_Context_Mode_Width_and_Height(
-    TgUINT_E32_P OUT0, TgUINT_E32_P OUT1, HWND ARG2, HMONITOR ARG3 );
+    TgUINT_E32_P OUT0, TgUINT_E32_P OUT1, HWND ARG2 );
 
 static TgVOID
 tgTST_KN_Query_Swap_Context_Closest_Mode_Rounded_Down(
-    TgUINT_E32_P OUT0, TgUINT_E32_P OUT1, HWND ARG2, HMONITOR ARG3 );
+    TgUINT_E32_P OUT0, TgUINT_E32_P OUT1, HWND ARG2 );
 
 
 
@@ -110,8 +110,8 @@ TgRESULT tgKN_OS_Module_Init( TgVOID )
     g_pfnDevice_Change_Check = nullptr;
     g_pfnQuery_Monitor_Min_Resolution = nullptr;
     g_pfnQuery_Monitor_Max_Resolution = nullptr;
-    g_pfnQuery_Swap_Context_Mode_Width_and_Height = nullptr;
-    g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down = nullptr;
+    g_pfnQuery_CXT_SWAP_Query_Mode = nullptr;
+    g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down = nullptr;
 
 #if !defined(TgBUILD_UNIVERSAL__UWP)
     /* API Set: api-ms-win-core-com-l1-1-1 */
@@ -399,22 +399,22 @@ TgRESULT tgKN_OS_Module_Boot( TgVOID )
         TgCRITICAL( nullptr == g_pfnDevice_Change_Check );
         TgCRITICAL( nullptr == g_pfnQuery_Monitor_Min_Resolution );
         TgCRITICAL( nullptr == g_pfnQuery_Monitor_Max_Resolution );
-        TgCRITICAL( nullptr == g_pfnQuery_Swap_Context_Mode_Width_and_Height );
-        TgCRITICAL( nullptr == g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down );
+        TgCRITICAL( nullptr == g_pfnQuery_CXT_SWAP_Query_Mode );
+        TgCRITICAL( nullptr == g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down );
 
         g_pfnDevice_Change_Check = tgTST_KN_Device_Change_Check;
         g_pfnQuery_Monitor_Min_Resolution = tgTST_KN_Query_Monitor_Min_Resolution;
         g_pfnQuery_Monitor_Max_Resolution = tgTST_KN_Query_Monitor_Max_Resolution;
-        g_pfnQuery_Swap_Context_Mode_Width_and_Height = tgTST_KN_Query_Swap_Context_Mode_Width_and_Height;
-        g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down = tgTST_KN_Query_Swap_Context_Closest_Mode_Rounded_Down;
+        g_pfnQuery_CXT_SWAP_Query_Mode = tgTST_KN_Query_Swap_Context_Mode_Width_and_Height;
+        g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down = tgTST_KN_Query_Swap_Context_Closest_Mode_Rounded_Down;
     };
 
 #if defined(TgBUILD_FEATURE__GRAPHICS)
     TgCRITICAL( nullptr != g_pfnDevice_Change_Check );
     TgCRITICAL( nullptr != g_pfnQuery_Monitor_Min_Resolution );
     TgCRITICAL( nullptr != g_pfnQuery_Monitor_Max_Resolution );
-    TgCRITICAL( nullptr != g_pfnQuery_Swap_Context_Mode_Width_and_Height );
-    TgCRITICAL( nullptr != g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down );
+    TgCRITICAL( nullptr != g_pfnQuery_CXT_SWAP_Query_Mode );
+    TgCRITICAL( nullptr != g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down );
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
 
@@ -691,7 +691,7 @@ TgVOID tgTST_KN_Query_Monitor_Max_Resolution( TgUINT_E32_P puiW, TgUINT_E32_P pu
 
 /* ---- tgTST_KN_Query_Swap_Context_Mode_Width_and_Height ------------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgVOID tgTST_KN_Query_Swap_Context_Mode_Width_and_Height( TgUINT_E32_P puiW, TgUINT_E32_P puiH, TgATTRIBUTE_UNUSED HWND hWnd, TgATTRIBUTE_UNUSED HMONITOR hMonitor )
+TgVOID tgTST_KN_Query_Swap_Context_Mode_Width_and_Height( TgUINT_E32_P puiW, TgUINT_E32_P puiH, TgATTRIBUTE_UNUSED HWND hWnd )
 {
     *puiW = s_iTST_KN__W_List[0];
     *puiH = s_iTST_KN__H_List[0];
@@ -700,7 +700,7 @@ TgVOID tgTST_KN_Query_Swap_Context_Mode_Width_and_Height( TgUINT_E32_P puiW, TgU
 
 /* ---- tgTST_KN_Query_Swap_Context_Closest_Mode_Rounded_Down -------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgVOID tgTST_KN_Query_Swap_Context_Closest_Mode_Rounded_Down( TgUINT_E32_P puiW, TgUINT_E32_P puiH, TgATTRIBUTE_UNUSED HWND hWnd, TgATTRIBUTE_UNUSED HMONITOR hMonitor )
+TgVOID tgTST_KN_Query_Swap_Context_Closest_Mode_Rounded_Down( TgUINT_E32_P puiW, TgUINT_E32_P puiH, TgATTRIBUTE_UNUSED HWND hWnd )
 {
     TgSINT_E32_C                        uiMaxModes = sizeof( s_iTST_KN__W_List ) / sizeof( s_iTST_KN__W_List[0] );
     TgSINT_E32                          iIndex = 0;

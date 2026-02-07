@@ -1,16 +1,19 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Common - Base - Defines - Configuration.h
+    »File«      TgS Common - Base - Defines [Configuration].h
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_DEFINES_CONFIGURATION_H)
 #define TGS_COMMON_BASE_DEFINES_CONFIGURATION_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -23,7 +26,7 @@
     The third define is for statistical data. The additional tracking for this define will require some additional memory but should have negligible impact on run-time performance.
     This is meant to track general metrics and can be used as barometers for the content team. */
 
-#define TgS_COPYRIGHT                       "Copyright (C) 2002-2023 Andrew Aye.  All Rights Reserved."
+#define TgS_COPYRIGHT                       "Copyright (C) 2002-2025 Andrew Aye.  All Rights Reserved."
 
 #define TGS_VERSION__MAJOR                  5
 #define TGS_VERSION__MINOR                  11
@@ -80,9 +83,10 @@
     #define TgS_DEBUG__PARTITION                1
     #define TgS_DEBUG__PATH_AI                  1
     #define TgS_DEBUG__KERNEL                   1
+    #define TgS_DEBUG__KERNEL_GPU               1
     #define TgS_DEBUG__ANIMATION                1
     #define TgS_DEBUG__INPUT                    1
-    #define TgBUILD_DEBUG__PHYSICS
+    #define TgS_DEBUG__PHYSICS                  0
     #define TgS_DEBUG__RENDER                   1
     #define TgS_DEBUG__SOUND                    1
     #define TgS_DEBUG__EFFECT                   1
@@ -146,6 +150,7 @@
     #define TgS_DEBUG__PARTITION                0
     #define TgS_DEBUG__PATH_AI                  0
     #define TgS_DEBUG__KERNEL                   0
+    #define TgS_DEBUG__KERNEL_GPU               0
     #define TgS_DEBUG__ANIMATION                0
     #define TgS_DEBUG__INPUT                    0
     #define TgS_DEBUG__RENDER                   0
@@ -219,9 +224,10 @@
     #define TgS_DEBUG__PARTITION                1
     #define TgS_DEBUG__PATH_AI                  1
     #define TgS_DEBUG__KERNEL                   1
+    #define TgS_DEBUG__KERNEL_GPU               1
     #define TgS_DEBUG__ANIMATION                1
     #define TgS_DEBUG__INPUT                    1
-    #define TgBUILD_DEBUG__PHYSICS
+    #define TgS_DEBUG__PHYSICS                  0
     #define TgS_DEBUG__RENDER                   1
     #define TgS_DEBUG__SOUND                    1
     #define TgS_DEBUG__EFFECT                   1
@@ -287,9 +293,10 @@
     #define TgS_DEBUG__PARTITION                1
     #define TgS_DEBUG__PATH_AI                  1
     #define TgS_DEBUG__KERNEL                   1
+    #define TgS_DEBUG__KERNEL_GPU               1
     #define TgS_DEBUG__ANIMATION                1
     #define TgS_DEBUG__INPUT                    1
-    #define TgBUILD_DEBUG__PHYSICS
+    #define TgS_DEBUG__PHYSICS                  0
     #define TgS_DEBUG__RENDER                   1
     #define TgS_DEBUG__SOUND                    1
     #define TgS_DEBUG__EFFECT                   1

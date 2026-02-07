@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -119,7 +119,7 @@ TgRESULT tgPH_Module_Init( TgVOID )
 /*# defined(TgBUILD_FEATURE__PHYSICS__HISTORY) */
 #endif
 
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
     g_vPH_Debug_Colour__Body_Enabled = tgMH_Init_ELEM_F32_04_1( 0.0F, 1.0F, 0.0F, 0.50F );
     g_vPH_Debug_Colour__Body_Sleep = tgMH_Init_ELEM_F32_04_1( 1.0F, 1.0F, 0.0F, 0.25F );
     g_vPH_Debug_Colour__Form_Disabled = tgMH_Init_ELEM_F32_04_1( 1.0F, 0.0F, 0.0F, 0.25F );
@@ -131,7 +131,7 @@ TgRESULT tgPH_Module_Init( TgVOID )
     g_tiPH_Debug_Colour__Form_Disabled.m_uiKI = KTgID__INVALID_VALUE;
     g_tiPH_Debug_Colour__Contact.m_uiKI = KTgID__INVALID_VALUE;
     g_tiPH_Debug_Colour__Ragdoll.m_uiKI = KTgID__INVALID_VALUE;
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
     tgMM_Set_U08_0x00( g_asPH_Update__Simulation, sizeof( g_asPH_Update__Simulation ) );
@@ -253,7 +253,7 @@ TgRESULT tgPH_Module_Update( TgATTRIBUTE_UNUSED TgFLOAT32_C fDT )
         g_uiPH_Module__Loop_Max = uScalar.m_uiE64;
     };
 
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 
     {
         TgUN_V128                           uVector;
@@ -284,7 +284,7 @@ TgRESULT tgPH_Module_Update( TgATTRIBUTE_UNUSED TgFLOAT32_C fDT )
         };
     }
 
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 

@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_CONSOLE_H)
 #define TGS_COMMON_CONSOLE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -40,7 +43,8 @@
 enum { KTgCN_SEVERITY_BITS                      = 4 }; /**< Number of bits used to describe message severity (0-15) */
 enum { KTgCN_CHANEL_BITS                        = 32 - KTgCN_SEVERITY_BITS }; /**< The remaining bits are used for the channel */
 
-TgTYPE_ENUM_FLAG(KTgCN_CHANEL_SEVERITY,TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM_FLAG
+{
     KTgCN_SEVERITY_0                         = 0x0, /**< Highest severity (last to be filtered) */
     KTgCN_SEVERITY_1                         = 0x1,
     KTgCN_SEVERITY_2                         = 0x2,
@@ -87,7 +91,8 @@ TgTYPE_ENUM_FLAG(KTgCN_CHANEL_SEVERITY,TgUINT_E32,
     KTgCN_CHANEL_INITIALIZE_MEMORY           = 1 << KTgCN_CHANEL_INITIALIZE_MEMORY_INDEX,
     KTgCN_CHANEL_LOADING                     = 1 << KTgCN_CHANEL_LOADING_INDEX,
     KTgCN_CHANEL_USER                        = 1 << KTgCN_CHANEL_USER_INDEX, 
-);
+} KTgCN_CHANEL_SEVERITY;
+TgTYPE_MODIFIER_DEFAULT(KTgCN_CHANEL_SEVERITY);
 
 enum { KTgCN_OSCON_LINE_LENGTH                  = 512, /**< Maximum length of a console command | buffer | display line */
        KTgCN_OSCON_MAX_LINE                     = 256, /**< Number of console lines retained in the buffer */
@@ -130,8 +135,10 @@ if (tgCN_Query_Boot())                                                          
 #else
 
 #define TgLOG_MEM( A, ... )
-#define tgCN_PrintF(...)
 #define tgCN_Print(...)
+#define tgCN_PrintPrefix(...)
+#define tgCN_PrintF(...)
+#define tgCN_PrintPrefixF(...)
 #define tgCN_UID_PrintF(...)
 #define tgCN_UID_Print(...)
 #define tgCN_Attach_Default_Break(...)
@@ -203,14 +210,14 @@ tgCN_Query_Fixed_Memory( TgVOID );
     @param [in] ARG Pointer to an output object */
 TgEXTN TgVOID
 tgCN_Print_Commands(
-    STg2_Output_P ARG );
+    STg2_Output_P TgANALYSIS_NO_NULL ARG );
 
 /** @brief Execute the given command
     @param [in] ARG0 Command line to execute (command and associated parameters)
     @param [in] ARG1 Size in bytes of the buffer at ARG0 */
 TgEXTN TgBOOL
 tgCN_Execute_Command(
-    TgCHAR_U8_CPC ARG0, TgRSIZE_C ARG1 );
+    TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG0, TgRSIZE_C ARG1 );
 
 #if TgCOMPILE__CONSOLE
 
@@ -222,7 +229,7 @@ tgCN_Execute_Command(
     @return Value is channel mask of succeeded attaches */
 TgEXTN TgUINT_E32
 tgCN_Attach_Output(
-    TgUINT_E32_C ARG0, STg2_Output_PC ARG1 );
+    TgUINT_E32_C ARG0, STg2_Output_PC TgANALYSIS_NO_NULL ARG1 );
 
 /** @brief Add a function that will cause an execution "break" when called to the channels with a set bit in ARG0.
     @param [in] ARG0 Channel mask
@@ -244,7 +251,7 @@ tgCN_Attach_Default_Abort(
     @return Value is channel mask of succeeded removes */
 TgEXTN TgUINT_E32
 tgCN_Remove_Output(
-    TgUINT_E32_C ARG0, STg2_Output_PC ARG1 );
+    TgUINT_E32_C ARG0, STg2_Output_PC TgANALYSIS_NO_NULL ARG1 );
 
 /** @brief Remove a function that causes an execution "break" from the channels with a set bit in ARG0.
     @param [in] ARG0 Channel mask
@@ -285,40 +292,57 @@ tgCN_Set_Severity_Filter(
     TgUINT_E32_C ARG0, TgUINT_E32_C ARG1 );
 
 
-/** @brief Output the argument string to the given channel */
-/** @param [in] ARG0 A severity-channel(s) value */
-/** @param [in] ARG1 String literal to output */
-/** @param [in] ARG2 Maximum number of bytes in ARG1 */
+/** @brief Output the argument string to the given channel
+    @param [in] ARG0 A severity-channel(s) value
+    @param [in] ARG1 String literal to output
+    @param [in] ARG2 Maximum number of bytes in ARG1 */
 TgEXTN TgVOID
 tgCN_Print(
-    TgUINT_E32_C ARG0, TgCHAR_U8_CP ARG1, TgRSIZE_C ARG2 );
+    TgUINT_E32_C ARG0, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG1, TgRSIZE_C ARG2 );
 
-/** @brief Output the printf formatted string to the given channel */
-/** @param [in] ARG0 A severity-channel(s) value */
-/** @param [in] ARG1 String literal to output */
-/** @param [in] ... Optional list of arguments for use in ARG1 printf processing */
+/** @brief Output the argument string to the given channel
+    @param [in] ARG0 A severity-channel(s) value
+    @param [in] ARG1 String literal used to prefix every output line
+    @param [in] ARG2 String literal to output
+    @param [in] ARG3 Maximum number of bytes in ARG2 */
+TgEXTN TgVOID
+tgCN_PrintPrefix(
+    TgUINT_E32_C ARG0, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG1, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG2, TgRSIZE_C ARG3 );
+
+/** @brief Output the printf formatted string to the given channel
+    @param [in] ARG0 A severity-channel(s) value
+    @param [in] ARG1 String literal to output
+    @param [in] ... Optional list of arguments for use in ARG1 printf processing */
 TgEXTN TgVOID CDECL
 tgCN_PrintF(
-    TgUINT_E32_C ARG0, TgCHAR_U8_CP ARG1, ... );
+    TgUINT_E32_C ARG0, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG1, ... );
 
+/** @brief Output the printf formatted string to the given channel
+    @param [in] ARG0 A severity-channel(s) value
+    @param [in] ARG1 String literal used to prefix every output line
+    @param [in] ARG2 String literal to output
+    @param [in] ... Optional list of arguments for use in ARG1 printf processing */
+TgEXTN TgVOID CDECL
+tgCN_PrintPrefixF(
+    TgUINT_E32_C ARG0, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG1, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG2, ... );
 
-/** @brief Output the argument string for the given UID to the given channel */
-/** @param [in] ARG0 UID to associate with this function call */
-/** @param [in] ARG1 Channel mask */
-/** @param [in] ARG2 String literal to output */
-/** @param [in] ARG3 Maximum number of bytes in ARG1 */
+/** @brief Output the argument string for the given UID to the given channel
+    @param [in] ARG0 UID to associate with this function call
+    @param [in] ARG1 Channel mask
+    @param [in] ARG2 String literal to output
+    @param [in] ARG3 Maximum number of bytes in ARG1 */
 TgEXTN TgVOID
 tgCN_UID_Print(
-    TgSINT_E32_C ARG0, TgUINT_E32_C ARG1, TgCHAR_U8_CP ARG2, TgRSIZE_C ARG3 );
+    TgSINT_E32_C ARG0, TgUINT_E32_C ARG1, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG2, TgRSIZE_C ARG3 );
 
-/** @brief Output the printf formatted string for the given to the given channel */
-/** @param [in] ARG0 UID to associate with this function call */
-/** @param [in] ARG1 Channel mask */
-/** @param [in] ARG2 String literal to output */
-/** @param [in] ... Optional list of arguments for use in ARG1 printf processing */
+/** @brief Output the printf formatted string for the given to the given channel
+    @param [in] ARG0 UID to associate with this function call
+    @param [in] ARG1 Channel mask
+    @param [in] ARG2 String literal to output
+    @param [in] ... Optional list of arguments for use in ARG1 printf processing */
 TgEXTN TgVOID
 tgCN_UID_PrintF(
-    TgSINT_E32_C ARG0, TgUINT_E32_C ARG1, TgCHAR_U8_CP ARG2, ... );
+    TgSINT_E32_C ARG0, TgUINT_E32_C ARG1, TgCHAR_U8_CP TgANALYSIS_NO_NULL ARG2, ... );
 
 
 /** @brief This will process input for the console display
@@ -338,7 +362,7 @@ tgCN_OS_Process_Input(
     @return True on success and false otherwise */
 TgEXTN TgBOOL
 tgCN_Insert_Command_Function(
-    TgCHAR_U8_CPC ARG0, TgRSIZE ARG1, TgFCN_CONSOLE ARG2, TgCHAR_U8_CPC ARG3, TgRSIZE_C ARG4 );
+    TgCHAR_U8_CPC ARG0, TgRSIZE ARG1, TgFCN_CONSOLE ARG2, TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG3, TgRSIZE_C ARG4 );
 
 /** @brief Remove a console command (function)
     @param [in] ARG0 String with the command keyword to remove
@@ -346,18 +370,18 @@ tgCN_Insert_Command_Function(
     @return True on success and false otherwise */
 TgEXTN TgBOOL
 tgCN_Remove_Command_Function(
-    TgCHAR_U8_CPC ARG0, TgRSIZE ARG1 );
+    TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG0, TgRSIZE ARG1 );
 
 /** @brief Print all registered command keywords
     @param [in,out] ARG Pointer to an output object */
 TgEXTN TgVOID
 tgCN_Print_Command_Functions(
-    STg2_Output_P ARG );
+    STg2_Output_P TgANALYSIS_NO_NULL ARG );
 
 /** @brief Register the render function for the on-screen log and debug console. */
 TgEXTN TgVOID
 tgCN_Register_Render_Callback(
-    TgFCN_RENDER_CONSOLE );
+    TgFCN_RENDER_CONSOLE TgANALYSIS_OK_NULL ARG0 );
 
 /*  @brief Helper function for creating Console Commands. Accepts command to set the value
     @param [out] OUT0
@@ -366,7 +390,7 @@ tgCN_Register_Render_Callback(
     @param [in] ARG3 */
 TgEXTN TgVOID
 tgRN_CN_Helper__Bool_Command(
-    TgBOOL_PC OUT0, TgUINT_E32_C ARG1, TgCHAR_U8_CPC ARG2[], TgCHAR_U8_CPCU ARG3 );
+    TgBOOL_PC TgANALYSIS_NO_NULL OUT0, TgUINT_E32_C ARG1, TgCHAR_U8_CPC ARG2[], TgCHAR_U8_CPCU TgANALYSIS_NO_NULL ARG3 );
 
 /*  @brief Helper function for creating Console Commands. Accepts command to set the value
     @param [out] OUT0
@@ -376,7 +400,7 @@ tgRN_CN_Helper__Bool_Command(
     @param [in] ARG4 */
 TgEXTN TgVOID
 tgRN_CN_Helper__F1_Command(
-    TgBOOL_PC OUT0, TgFLOAT32_PC OUT1, TgUINT_E32_C ARG2, TgCHAR_U8_CPC ARG3[], TgCHAR_U8_CPCU ARG4 );
+    TgBOOL_PC TgANALYSIS_NO_NULL OUT0, TgFLOAT32_PC TgANALYSIS_NO_NULL OUT1, TgUINT_E32_C ARG2, TgCHAR_U8_CPC ARG3[], TgCHAR_U8_CPCU TgANALYSIS_NO_NULL ARG4 );
 
 /*  @brief Helper function for creating Console Commands. Accepts command to set the value
     @param [out] OUT0
@@ -388,7 +412,8 @@ tgRN_CN_Helper__F1_Command(
     @param [in] ARG6 */
 TgEXTN TgVOID
 tgRN_CN_Helper__F3_Command(
-    TgBOOL_PC OUT0, TgFLOAT32_PC OUT1, TgFLOAT32_PC OUT2, TgFLOAT32_PC OUT3, TgUINT_E32_C ARG4, TgCHAR_U8_CPC ARG5[], TgCHAR_U8_CPCU ARG6 );
+    TgBOOL_PC TgANALYSIS_NO_NULL OUT0, TgFLOAT32_PC TgANALYSIS_NO_NULL OUT1, TgFLOAT32_PC TgANALYSIS_NO_NULL OUT2, TgFLOAT32_PC TgANALYSIS_NO_NULL OUT3, TgUINT_E32_C ARG4,
+    TgCHAR_U8_CPC ARG5[], TgCHAR_U8_CPCU TgANALYSIS_NO_NULL ARG6 );
 
 /*# TgCOMPILE__CONSOLE */
 #endif

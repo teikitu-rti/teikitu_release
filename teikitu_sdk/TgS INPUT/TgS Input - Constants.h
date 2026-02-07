@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_INPUT_CONSTANTS_H)
 #define TGS_INPUT_CONSTANTS_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #if !defined(TGS_INPUT_H)
 #error This file should not be included directly - use the correct platform include wrapper
@@ -23,8 +26,8 @@
 /*  Public Constants                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
-TgTYPE_ENUM(ETgCONTROLLER, TgSINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCONTROLLER__BEGIN,
 
     ETgCONTROLLER_GAMEPAD_0 = ETgCONTROLLER__BEGIN,                 ETgCONTROLLER_GAMEPAD_1,                                        ETgCONTROLLER_GAMEPAD_2,
@@ -35,12 +38,17 @@ TgTYPE_ENUM(ETgCONTROLLER, TgSINT_E32,
     ETgCONTROLLER__END,
     ETgCONTROLLER__MAX = ETgCONTROLLER__END,
     ETgCONTROLLER__COUNT = ETgCONTROLLER__END - ETgCONTROLLER__BEGIN,
-);
+} ETgCONTROLLER;
+TgTYPE_MODIFIER_DEFAULT(ETgCONTROLLER);
 
-TgTYPE_ENUM(ETgDEAD_ZONE, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgDEAD_ZONE_MOUSE_X,           ETgDEAD_ZONE_MOUSE_Y,           ETgDEAD_ZONE_MOUSE_Z,           ETgDEAD_ZONE_STICK_0_X,         ETgDEAD_ZONE_STICK_0_Y,
     ETgDEAD_ZONE_STICK_1_X,         ETgDEAD_ZONE_STICK_1_Y,         ETgDEAD_ZONE_MAX
-);
+} ETgDEAD_ZONE;
+TgTYPE_MODIFIER_DEFAULT(ETgDEAD_ZONE);
+
 
 /* Maximum number of events stored between successive update calls (size of input buffer).  This should be large enough to be able to send the current controller state */
 /* when its connected.  This in the worse case could be an event for every controller property.  The keyboard is the exception in this case and client code has to be  */
@@ -59,13 +67,14 @@ enum { KTgCONTROLLER_GAMEPAD_MAX = 4 };
 
 /* ---- Controller Properties ---------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_ENUM(ETgPROP_GAMEPAD, TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     /* Digital Controls */
     ETgPROP_GAMEPAD__A,             ETgPROP_GAMEPAD__B,             ETgPROP_GAMEPAD__X,             ETgPROP_GAMEPAD__Y,             ETgPROP_GAMEPAD__DPAD_UP,
     ETgPROP_GAMEPAD__DPAD_DOWN,     ETgPROP_GAMEPAD__DPAD_LEFT,     ETgPROP_GAMEPAD__DPAD_RIGHT,    ETgPROP_GAMEPAD__LSHOULDER,     ETgPROP_GAMEPAD__RSHOULDER,
     ETgPROP_GAMEPAD__LTHUMB,        ETgPROP_GAMEPAD__RTHUMB,
 
-    /* System Controls (Digital) */
+    /* System Controls (Digital} ETgPROP_GAMEPAD */
     ETgPROP_GAMEPAD__START,         ETgPROP_GAMEPAD__BACK,
 
     /* Analog Controls */
@@ -73,9 +82,12 @@ TgTYPE_ENUM(ETgPROP_GAMEPAD, TgSINT_E32,
     ETgPROP_GAMEPAD__RTHUMB_Y,
 
     ETgPROP_GAMEPAD__VALID,         ETgPROP_GAMEPAD__MAX
-);
+} ETgPROP_GAMEPAD;
+TgTYPE_MODIFIER_DEFAULT(ETgPROP_GAMEPAD);
 
-TgTYPE_ENUM(ETgPROP_KEYBOARD, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     /* Function Keys */
     ETgPROP_KEY_F1,                 ETgPROP_KEY_F2,                 ETgPROP_KEY_F3,                 ETgPROP_KEY_F4,                 ETgPROP_KEY_F5,
     ETgPROP_KEY_F6,                 ETgPROP_KEY_F7,                 ETgPROP_KEY_F8,                 ETgPROP_KEY_F9,                 ETgPROP_KEY_F10,
@@ -93,38 +105,53 @@ TgTYPE_ENUM(ETgPROP_KEYBOARD, TgSINT_E32,
 
     /* Command Keys */
     ETgPROP_KEY_BACK,               ETgPROP_KEY_TAB,                ETgPROP_KEY_ESCAPE,             ETgPROP_KEY_ENTER,              ETgPROP_KEY_MAX
-);
+} ETgPROP_KEYBOARD;
+TgTYPE_MODIFIER_DEFAULT(ETgPROP_KEYBOARD);
 
-TgTYPE_ENUM(ETgPROP_GUI_KEYBOARD, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgPROP_GUI_KEY_MAX
-);
+} ETgPROP_GUI_KEYBOARD;
+TgTYPE_MODIFIER_DEFAULT(ETgPROP_GUI_KEYBOARD);
 
-TgTYPE_ENUM(ETgPROP_MOUSE, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     /* Digital Controls */
     ETgPROP_MOUSE_BUTTON0,          ETgPROP_MOUSE_BUTTON1,          ETgPROP_MOUSE_BUTTON2,          ETgPROP_MOUSE_BUTTON3,          ETgPROP_MOUSE_BUTTON4,
     ETgPROP_MOUSE_BUTTON5,          ETgPROP_MOUSE_BUTTON6,          ETgPROP_MOUSE_BUTTON7,
 
     /* Analog Controls */
     ETgPROP_MOUSE_AXIX_DX,          ETgPROP_MOUSE_AXIX_DY,          ETgPROP_MOUSE_AXIX_DZ,          ETgPROP_MOUSE_MAX
-);
+} ETgPROP_MOUSE;
+TgTYPE_MODIFIER_DEFAULT(ETgPROP_MOUSE);
 
-TgTYPE_ENUM(ETgPROP_GUI_MOUSE, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     /* Digital Controls */
     ETgPROP_GUI_MOUSE_BUTTON0,      ETgPROP_GUI_MOUSE_BUTTON1,      ETgPROP_GUI_MOUSE_BUTTON2,      ETgPROP_GUI_MOUSE_BUTTON3,      ETgPROP_GUI_MOUSE_BUTTON4,
 
     /* Analog Controls */
     ETgPROP_GUI_MOUSE_AXIX_DX,      ETgPROP_GUI_MOUSE_AXIX_DY,      ETgPROP_GUI_MOUSE_AXIX_DZ,      ETgPROP_GUI_MOUSE_MAX
-);
+} ETgPROP_GUI_MOUSE;
+TgTYPE_MODIFIER_DEFAULT(ETgPROP_GUI_MOUSE);
+
 
 
 /* ---- Controller State --------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_ENUM(ETgSTATE_GAMEPAD, TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgSTATE_GAMEPAD_VALID                      = 1 << 0,
-);
+} ETgSTATE_GAMEPAD;
+TgTYPE_MODIFIER_DEFAULT(ETgSTATE_GAMEPAD);
+
 
 /* On systems that do not distinguish between left and right keys - the left key is the default. */
-TgTYPE_ENUM(ETgSTATE_KEYBOARD, TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgSTATE_KEYBOARD_VALID                     = 1 << 0,
     ETgSTATE_KEYBOARD_RCTRL                     = 1 << 1,
     ETgSTATE_KEYBOARD_LCTRL                     = 1 << 2,
@@ -134,19 +161,30 @@ TgTYPE_ENUM(ETgSTATE_KEYBOARD, TgSINT_E32,
     ETgSTATE_KEYBOARD_LALT                      = 1 << 6,
     ETgSTATE_KEYBOARD_CAPSLOCK                  = 1 << 7,
     ETgSTATE_KEYBOARD_NUMLOCK                   = 1 << 8
-);
+} ETgSTATE_KEYBOARD;
+TgTYPE_MODIFIER_DEFAULT(ETgSTATE_KEYBOARD);
 
-TgTYPE_ENUM(ETgSTATE_GUI_KEYBOARD, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgSTATE_GUI_KEYBOARD_VALID                 = 1 << 0,
-);
+} ETgSTATE_GUI_KEYBOARD;
+TgTYPE_MODIFIER_DEFAULT(ETgSTATE_GUI_KEYBOARD);
 
-TgTYPE_ENUM(ETgSTATE_MOUSE, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgSTATE_MOUSE_VALID                        = 1 << 0,
-);
+} ETgSTATE_MOUSE;
+TgTYPE_MODIFIER_DEFAULT(ETgSTATE_MOUSE);
 
-TgTYPE_ENUM(ETgSTATE_GUI_MOUSE, TgSINT_E32,
+
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgSTATE_GUI_MOSUE_VALID                    = 1 << 0,
-);
+} ETgSTATE_GUI_MOUSE;
+TgTYPE_MODIFIER_DEFAULT(ETgSTATE_GUI_MOUSE);
+
 
 
 /* =============================================================================================================================================================================== */

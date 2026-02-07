@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -112,7 +112,7 @@ FCN_VO(tgCO_SP_Penetrate_PT)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_SP_Sweep_PT)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a point.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -126,7 +126,7 @@ FCN_VO(tgCO_SP_Sweep_PT)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_PT_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_T(1,C) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_T(1,C) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 
 /* ---- Sphere - Linear ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -247,7 +247,7 @@ FCN_VO(tgCO_SP_Penetrate_LN)(
     @return Result Code. */
 TgINLINE TgRESULT
 FCN_VO(tgCO_SP_Sweep_LN)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_OBJ_T(TgLINE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_OBJ_T(TgLINE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a line.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -261,7 +261,7 @@ FCN_VO(tgCO_SP_Sweep_LN)(
     @return Result Code. */
 TgINLINE TgRESULT
 FCN_VO(tgCO_LN_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgLINE,CPC) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgLINE,CPC) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Clip the line so that it is fully contained by the sphere.
     @param [out] OUT0 Pointer to a vector holding a full broadcast of the parametric value for the 1st point from clipping the line.
@@ -321,7 +321,7 @@ FCN_VO(tgCO_SP_Intersect_LR00)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_SP_Sweep_LR00)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_T(1,C) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_T(1,C) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a line.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -336,7 +336,7 @@ FCN_VO(tgCO_SP_Sweep_LR00)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_LR00_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_T(1,C) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgSPHERE,CPC) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_T(1,C) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgSPHERE,CPC) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
 
 
 /* ---- Sphere - Ray ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -440,7 +440,7 @@ FCN_VO(tgCO_SP_Penetrate_RY)(
     @return Result Code. */
 TgINLINE TgRESULT
 FCN_VO(tgCO_SP_Sweep_RY)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_OBJ_T(TgRAY,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_OBJ_T(TgRAY,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a ray.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -454,7 +454,7 @@ FCN_VO(tgCO_SP_Sweep_RY)(
     @return Result Code. */
 TgINLINE TgRESULT
 FCN_VO(tgCO_RY_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgRAY,CPC) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgRAY,CPC) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Clip the ray so that it is fully contained by the sphere.
     @param [out] OUT0 Pointer to a vector holding a full broadcast of the parametric value for the 1st point from clipping the ray.
@@ -514,7 +514,7 @@ FCN_VO(tgCO_SP_Intersect_LR10)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_SP_Sweep_LR10)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_T(1,C) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_T(1,C) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a ray.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -529,7 +529,7 @@ FCN_VO(tgCO_SP_Sweep_LR10)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_LR10_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_T(1,C) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgSPHERE,CPC) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_T(1,C) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgSPHERE,CPC) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
 
 
 /* ---- Sphere - Segment --------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -633,7 +633,7 @@ FCN_VO(tgCO_SP_Penetrate_SG)(
     @return Result Code. */
 TgINLINE TgRESULT
 FCN_VO(tgCO_SP_Sweep_SG)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_OBJ_T(TgSEGMENT,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_OBJ_T(TgSEGMENT,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a segment.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -647,7 +647,7 @@ FCN_VO(tgCO_SP_Sweep_SG)(
     @return Result Code. */
 TgINLINE TgRESULT
 FCN_VO(tgCO_SG_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSEGMENT,CPC) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSEGMENT,CPC) ARG3, VEC_OBJ_T(TgSPHERE,CPC) ARG4, VEC_OBJ_T(TgDELTA,CPC) ARG5 );
 
 /** @brief Clip the segment so that it is fully contained by the sphere.
     @param [out] OUT0 Pointer to a vector holding a full broadcast of the parametric value for the 1st point from clipping the segment.
@@ -707,7 +707,7 @@ FCN_VO(tgCO_SP_Intersect_LR11)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_SP_Sweep_LR11)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_T(1,C) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_OBJ_T(TgSPHERE,CPC) ARG3, VEC_T(1,C) ARG4, VEC_T(1,C) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
 
 /** @brief Update the collision packet with the result of sweeping a sphere versus a segment.
     @param [in,out] OUT0 Pointer to an object holding parameters, existing contact points and updated due to new contact points.
@@ -722,7 +722,7 @@ FCN_VO(tgCO_SP_Sweep_LR11)(
     @return Result Code. */
 TgEXTN TgRESULT
 FCN_VO(tgCO_LR11_Sweep_SP)(
-    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P OKNULL OUT2, VEC_T(1,C) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgSPHERE,CPC) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
+    VEC_OBJ_T(STg2_CO_Packet,PC) OUT0, VEC_T(1,PC) OUT1, TgRSIZE_P TgANALYSIS_OK_NULL OUT2, VEC_T(1,C) ARG3, VEC_T(1,C) ARG4, VEC_OBJ_T(TgSPHERE,CPC) ARG5, VEC_OBJ_T(TgDELTA,CPC) ARG6 );
 
 
 /* ---- Sphere - Plane ----------------------------------------------------------------------------------------------------------------------------------------------------------- */

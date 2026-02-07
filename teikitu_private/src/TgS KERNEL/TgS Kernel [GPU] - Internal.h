@@ -4,11 +4,11 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.20 | »GUID« DE461472-5528-4A5B-A7F4-09CCAD73387B */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_KERNEL_INTERNAL_GPU_H) && defined(TgBUILD_FEATURE__GRAPHICS)
+#if !defined(TGS_KERNEL_GPU_INTERNAL_H) && defined(TgBUILD_FEATURE__GRAPHICS)
 #if !defined (ENABLE_RELOAD_GUARD)
 
 #include "TgS Common.h"
@@ -19,6 +19,7 @@
 #include "TgS Kernel.h"
 
 #include "TgS Kernel [GPU].h"
+#include "TgS Kernel [GPU] - Internal - Constants.h"
 #include "TgS Kernel [GPU] - Internal - Type.h"
 #include "TgS Kernel [GPU] - Internal - Data.h"
 #include "TgS Kernel [GPU] - Internal [EXT].h"
@@ -27,6 +28,55 @@
 
 
 /* == Kernel ===================================================================================================================================================================== */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
+/*  Internal OS and API Module Lifecycle Functions                                                                                                                                 */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
+
+/** @brief Standard Module function: First part of initialization process. Set the state of the module.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_OS_GPU_Module_Init( TgVOID );
+
+/** @brief Standard Module function: Last part of initialization process. Used for setup and other necessary tasks prior to the use of the module.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_OS_GPU_Module_Boot( TgVOID );
+
+/** @brief Standard Module function: Used for close the module as part of the shutdown process. Module is not to be used after this is executed. */
+TgEXTN TgVOID
+tgKN_OS_GPU_Module_Stop( TgVOID );
+
+/** @brief Standard Module function: Final part of shutdown process. Release any remaining allocated memory, and reset the state of the module. */
+TgEXTN TgVOID
+tgKN_OS_GPU_Module_Free( TgVOID );
+
+/** @brief Standard Module function: First part of initialization process. Set the state of the module.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_OS_GPU_API_Module_Init( TgVOID );
+
+/** @brief Standard Module function: Last part of initialization process. Used for setup and other necessary tasks prior to the use of the module.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_OS_GPU_API_Module_Boot( TgVOID );
+
+/** @brief Standard Module function: Used for close the module as part of the shutdown process. Module is not to be used after this is executed. */
+TgEXTN TgVOID
+tgKN_OS_GPU_API_Module_Stop( TgVOID );
+
+/** @brief Standard Module function: Final part of shutdown process. Release any remaining allocated memory, and reset the state of the module. */
+TgEXTN TgVOID
+tgKN_OS_GPU_API_Module_Free( TgVOID );
+
+#if TgS_STAT__KERNEL || TgS_DEBUG__KERNEL
+TgEXTN TgVOID
+tgSTAT_KN_OS_GPU_Physical_Device_Output( TgVOID );
+/*# TgS_STAT__KERNEL || TgS_DEBUG__KERNEL */
+#endif
+
+
+
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 /*  Internal Functions                                                                                                                                                             */
@@ -75,19 +125,6 @@ TgEXTN TgVOID
 tgKN_GPU__Execute__Free(
     TgKN_GPU_CXT_EXEC_ID_C ARG0 );
 
-/** @brief Initialize render debug output resources.
-    @param [in] ARG0 UID of the execution context.
-    @return Result Code. */
-TgEXTN TgRESULT
-tgKN_GPU__Execute__Init_Debug(
-    TgKN_GPU_CXT_EXEC_ID_C ARG0 );
-
-/** @brief Initialize render debug output resources.
-    @param [in] ARG0 UID of the execution context. */
-TgEXTN TgVOID
-tgKN_GPU__Execute__Free_Debug(
-    TgKN_GPU_CXT_EXEC_ID_C ARG0 );
-
 
 /** @brief Initialize a new context (if one is available). [Single-Threaded]
     @param [out] OUT0 Pointer to result data structure that is filled in with the resulting UID(s) of the allocated contexts.
@@ -105,14 +142,22 @@ TgEXTN TgVOID
 tgKN_GPU__SwapChain__Free(
     TgKN_GPU_CXT_SWAP_ID_C ARG0 );
 
+/** @brief Update the output (monitor) expectations and capabilities for the swap chain
+    @param [in] ARG0 UID for the Context.
+    @param [in] ARG1 Windows OS window handle encoded as an integer.
+    @param [in] ARG2 Boolean, if true will re-validate the output device that the window is predominantly using. */
+TgEXTN TgVOID
+tgKN_OS_GPU_CXT_SWAP_Update_Output( 
+    TgKN_GPU_CXT_SWAP_ID_C ARG0, TgUINT_PTR_C ARG1, TgBOOL_C ARG2 );
+
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
 
 /** @brief Initialize render debug output resources.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 UID of the context. */
 TgEXTN TgVOID
 tgKN_GPU__SwapChain__Present_Print_Debug_Stats(
-    UTg2_KN_GPU_CMD_C ARG0, TgKN_GPU_CXT_SWAP_ID_C ARG1 );
+    STg2_KN_GPU_CMD_PC ARG0, TgKN_GPU_CXT_SWAP_ID_C ARG1 );
 
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
@@ -123,24 +168,24 @@ tgKN_GPU__SwapChain__Present_Print_Debug_Stats(
    resource may have context specific copies or it may be shared. */
 
 /** @brief Create a off-screen render target. 
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Enumeration of the memory allocation method used for the resource.
     @param [in] ARG2 Pointer to a texture image descriptor.
     @return UID for the initialized resource instance, or the INVALID ID otherwise. 
 */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_RT_IMG__Create(
-    UTg2_KN_GPU_CMD_C ARG0, ETgKN_GPU_ALLOCATOR_C ARG1, STg2_KN_GPU_TX_IMG_DESC_CPCU ARG2 );
+tgKN_GPU__CMD__RT_IMG__Create(
+    STg2_KN_GPU_CMD_PC ARG0, TgUINT_E64_C ARG1, STg2_KN_GPU_TX_IMG_DESC_CPCU ARG2 );
 
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
 
 /** @brief Create a resource instance of a texture filled with a constant colour.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Pointer to a font data structure.
     @return UID for the initialized resource instance, or the INVALID ID otherwise. */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_TX_IMG_Inst__Font_ROM(
-    UTg2_KN_GPU_CMD_C ARG0, STg2_KN_GPU_FONT_PC ARG1 );
+tgKN_GPU__CMD__TX_IMG_Inst__Font_ROM(
+    STg2_KN_GPU_CMD_PC ARG0, STg2_KN_GPU_FONT_PC ARG1 );
 
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
@@ -148,27 +193,27 @@ tgKN_GPU_TX_IMG_Inst__Font_ROM(
 #if TgS_DEBUG__KERNEL || TgS_DEBUG__RENDER
 
 /** @brief Create a resource instance of a texture filled with a constant colour.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Integer width of the texture to be created.
     @param [in] ARG2 Integer height of the texture to be created.
     @param [in] ARG3 Pointer to a UTF8 string to name the resource.
     @return UID for the initialized resource instance, or the INVALID ID otherwise. */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_TX_IMG_Inst__Init_MIP(
-    UTg2_KN_GPU_CMD_C ARG0, TgUINT_E32 ARG1, TgUINT_E32 ARG2, TgCHAR_U8_CPCU ARG3 );
+tgKN_GPU__CMD__TX_IMG_Inst__Init_MIP(
+    STg2_KN_GPU_CMD_PC ARG0, TgUINT_E32 ARG1, TgUINT_E32 ARG2, TgCHAR_U8_CPCU ARG3 );
 
 /** @brief Create a resource instance of a texture filled with a constant colour.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Integer width of the texture to be created.
     @param [in] ARG2 Integer height of the texture to be created.
     @param [in] ARG3 Pointer to a UTF8 string to name the resource.
     @return UID for the initialized resource instance, or the INVALID ID otherwise. */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test(
-    UTg2_KN_GPU_CMD_C ARG0, TgUINT_E32 ARG1, TgUINT_E32 ARG2, TgCHAR_U8_CPCU ARG3 );
+tgKN_GPU__CMD__TX_IMG_Inst__Init_Gamma_Test(
+    STg2_KN_GPU_CMD_PC ARG0, TgUINT_E32 ARG1, TgUINT_E32 ARG2, TgCHAR_U8_CPCU ARG3 );
 
 /** @brief Create a resource instance of a texture filled with a constant colour.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Integer width of the texture to be created.
     @param [in] ARG2 Integer height of the texture to be created.
     @param [in] ARG3 Structure of a 32bit colour used for the 1st colour of the checker pattern.
@@ -176,8 +221,8 @@ tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test(
     @param [in] ARG5 Pointer to a UTF8 string to name the resource.
     @return UID for the initialized resource instance, or the INVALID ID otherwise. */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern(
-    UTg2_KN_GPU_CMD_C ARG0, TgUINT_E32 ARG1, TgUINT_E32 ARG2, TgCOLOUR32_C ARG3, TgCOLOUR32_C ARG4, TgCHAR_U8_CPCU ARG5 );
+tgKN_GPU__CMD__TX_IMG_Inst__Init_Checker_Pattern(
+    STg2_KN_GPU_CMD_PC ARG0, TgUINT_E32 ARG1, TgUINT_E32 ARG2, TgCOLOUR32_C ARG3, TgCOLOUR32_C ARG4, TgCHAR_U8_CPCU ARG5 );
 
 /*# TgS_DEBUG__KERNEL || TgS_DEBUG__RENDER */
 #endif
@@ -186,6 +231,55 @@ tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern(
 /* ---- GPU - Debug -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
+
+/** @brief Initialize a new context (if one is available). [Single-Threaded]
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_GPU__Host__Init_Debug( TgVOID );
+
+/** @brief Free the context and all associated resource, returning it to a free pool. */
+TgEXTN TgVOID
+tgKN_GPU__Host__Free_Debug( TgVOID );
+
+/** @brief Initialize a new context (if one is available). [Single-Threaded]
+    @param [in] ARG0 UID of the context.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_GPU__Execute__Init_Debug(
+    TgKN_GPU_CXT_EXEC_ID_C ARG0 );
+
+/** @brief Free the context and all associated resource, returning it to a free pool.
+    @param [in] ARG0 UID of the context. */
+TgEXTN TgVOID
+tgKN_GPU__Execute__Free_Debug(
+    TgKN_GPU_CXT_EXEC_ID_C ARG0 );
+
+/** @brief Initialize render debug output resources.
+    @param [in] ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_GPU__Execute__Init_Debug__Create_Resources(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0 );
+
+/** @brief Initialize render debug output resources.
+    @param [in] ARG0 Pointer to the command structure returned by tgKN_GPU_EXT__WORK__Acquire_Command. */
+TgEXTN TgVOID
+tgKN_GPU__Execute__Free_Debug__Destroy_Resources(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0 );
+
+/** @brief Initialize a new context (if one is available). [Single-Threaded]
+    @param [in] ARG0 UID of the context.
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_GPU__Swap__Init_Debug(
+    TgKN_GPU_CXT_SWAP_ID_C ARG0 );
+
+/** @brief Free the context and all associated resource, returning it to a free pool.
+    @param [in] ARG0 UID of the context. */
+TgEXTN TgVOID
+tgKN_GPU__Swap__Free_Debug(
+    TgKN_GPU_CXT_SWAP_ID_C ARG0 );
+
 
 TgEXTN TgVOID
 tgKN_GPU_DBG_Init_Mesh_Sphere(
@@ -235,9 +329,29 @@ tgKN_GPU_Set_CN_Render_Text(
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
 
+
+/* ---- GPU - Utility Functions -------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+/** @brief Convert a GPU format enumeration to UTF-8 string representation.
+    @param [in] ARG0 GPU format enumeration value.
+    @return Pointer to UTF-8 string representation of the format. */
 TgEXTN TgCHAR_U8_CP
-tgKN_GPU_Format_To_String(
-    ETgKN_GPU_EXT_FORMAT_C enFormat );
+tgKN_GPU_FMT_To_USZ(
+    ETgKN_GPU_EXT_FORMAT_C ARG0 );
+
+/** @brief Convert a GPU format enumeration to wide character string representation.
+    @param [in] ARG0 GPU format enumeration value.
+    @return Pointer to wide character string representation of the format. */
+TgEXTN TgCHAR_WC_CP
+tgKN_GPU_FMT_To_WSZ(
+    ETgKN_GPU_EXT_FORMAT_C ARG0 );
+
+/** @brief Get the number of bytes per pixel for a given GPU format enumeration.
+    @param [in] ARG0 GPU format enumeration value.
+    @return Number of bytes per pixel for the format, or 0 if the format is unknown or compressed. */
+TgEXTN TgRSIZE
+tgKN_GPU_FMT_Bytes_Per_Pixel(
+    ETgKN_GPU_EXT_FORMAT_C ARG0 );
 
 
 /* ---- GPU - Resource ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -248,7 +362,7 @@ tgKN_GPU_Format_To_String(
 #undef ENABLE_RELOAD_GUARD
 #undef __PARENT_FILE__
 
-#define TGS_KERNEL_INTERNAL_GPU_H
+#define TGS_KERNEL_GPU_INTERNAL_H
 
 
 /*# defined (ENABLE_RELOAD_GUARD) */
@@ -309,7 +423,7 @@ T(tgKN_GPU_,_INST_LIB_DESC__Check)(
     @return Result Code. */
 TgEXTN TgRESULT
 T(tgKN_GPU_,__Execute_Load)(
-    TgKN_FILE_ID_C ARG0, TgRSIZE_C ARG1, T(STg2_KN_GPU_,_DESC_CPC) ARG2, ETgKN_GPU_ALLOCATOR_C ARG3, T(TgKN_GPU_,_ID_C) ARG4 );
+    TgKN_FILE_ID_C ARG0, TgRSIZE_C ARG1, T(STg2_KN_GPU_,_DESC_CPC) ARG2, TgUINT_E64_C ARG3, T(TgKN_GPU_,_ID_C) ARG4 );
 
 /** @brief Free all associated resources with the resource UID.
     @param [in] ARG0 UID of the resource to be modified.

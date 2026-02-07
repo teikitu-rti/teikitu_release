@@ -254,21 +254,100 @@ ENDMACRO ()
 
 
 ##########################################################################################################################################################################################################
+# Function to create a symlink immediately upon execution (configure time)
+FUNCTION (create_symlink_at_configure TARGET_PATH LINK_PATH)
+    
+    GET_FILENAME_COMPONENT(_LINK_DIR "${LINK_PATH}" DIRECTORY)
+
+    # Use the portable cmake -E create_symlink command
+    EXECUTE_PROCESS (
+        # Ensure parent directory for the link exists
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_LINK_DIR}"
+        RESULT_VARIABLE _result
+    )
+    IF (_result EQUAL 0)
+        # MESSAGE (STATUS "Folder created successfully: ${_LINK_DIR}")
+    ENDIF ()
+
+    EXECUTE_PROCESS (
+        COMMAND ${CMAKE_COMMAND} -E create_symlink "${TARGET_PATH}" "${LINK_PATH}"
+        RESULT_VARIABLE _result
+    )
+    IF (_result EQUAL 0)
+        MESSAGE (STATUS "Creating symlink: ${LINK_PATH} -> ${TARGET_PATH}")
+    ELSE ()
+        # This message will only appear if the error wasn't fatal (i.e., if 
+        # COMMAND_ERROR_IS_FATAL_LAST was not used or failed for other reasons)
+        MESSAGE (FATAL_ERROR "Failed to create symlink. Result code: ${_result}")
+    ENDIF ()
+
+ENDFUNCTION ()
+
+
+##########################################################################################################################################################################################################
 # add a source file to the given list
-MACRO(TGS_ADD_FILE_TO_IDE source_files header_files test_assigned test_current file)
+FUNCTION (TGS_ADD_FILE_TO_IDE source_files header_files test_assigned test_current file)
     CMAKE_PARSE_ARGUMENTS (TGS_ADD_FILE_TO_IDE "" "IDE_PATH" "" ${ARGN} )
     #MESSAGE("${source_files}")
     #MESSAGE("${TGS_ADD_FILE_TO_IDE_IDE_PATH}")
     #MESSAGE("${file}")
     #MESSAGE(TEST: ${test_current} ${test_assigned})
 
+    SET (TGS_ADD_FILE_TO_IDE__FOUND FALSE PARENT_SCOPE)
+
+    IF (NOT EXISTS ${file})
+        STRING (REPLACE "teikitu_private/src" "teikitu_private/int" link_file ${file})
+        STRING (REPLACE "teikitu_sdk" "teikitu_private/int" link_file ${link_file})
+        #MESSAGE (STATUS "Creating symlink for file: ${link_file}")
+
+        # Automatically attempt to fall back to POSIX implementation if OS file does not exist.
+        STRING (REPLACE "MAC" "POSIX" posix_file ${file})
+        IF (EXISTS ${posix_file} AND NOT EXISTS ${link_file})
+            create_symlink_at_configure ("${posix_file}" "${link_file}")
+            IF (NOT EXISTS ${link_file})
+                MESSAGE("FILE DOES NOT EXIST AFTER SYMLINK CREATION: " ${link_file})
+                RETURN ()
+            ENDIF ()
+        ENDIF ()
+
+        # Automatically attempt to fall back to POSIX implementation if OS file does not exist.
+        STRING (REPLACE "IOS" "POSIX" posix_file ${file})
+        IF (EXISTS ${posix_file} AND NOT EXISTS ${link_file})
+            create_symlink_at_configure ("${posix_file}" "${link_file}")
+            IF (NOT EXISTS ${link_file})
+                MESSAGE("FILE DOES NOT EXIST AFTER SYMLINK CREATION: " ${link_file})
+                RETURN ()
+            ENDIF ()
+        ENDIF ()
+
+        # Automatically attempt to fall back to POSIX implementation if OS file does not exist.
+        STRING (REPLACE "APPLE" "CLANG" posix_file ${file})
+        IF (EXISTS ${posix_file} AND NOT EXISTS ${link_file})
+            create_symlink_at_configure ("${posix_file}" "${link_file}")
+            IF (NOT EXISTS ${link_file})
+                MESSAGE("FILE DOES NOT EXIST AFTER SYMLINK CREATION: " ${link_file})
+                RETURN ()
+            ENDIF ()
+        ENDIF ()
+
+    ELSE ()
+        SET (link_file ${file})
+    ENDIF ()
+
+    IF (NOT EXISTS ${link_file})
+        MESSAGE("FILE DOES NOT EXIST: " ${file})
+        RETURN ()
+    ENDIF ()
+
+    SET (TGS_ADD_FILE_TO_IDE__FOUND TRUE PARENT_SCOPE)
+
     # Add the file to the correct list for compilation
     IF ((${test_current} STREQUAL ${test_assigned}))
-        SET (${source_files} ${${source_files}} "${file}")
+        SET (${source_files} ${${source_files}} "${link_file}" PARENT_SCOPE)
 
     ELSEIF (MK_IDE__INCLUDE_NON_SOURCE_FILES)
-        SET (${header_files} ${${header_files}} "${file}")
-        SET_PROPERTY(SOURCE ${file} PROPERTY HEADER_FILE_ONLY TRUE)
+        SET (${header_files} ${${header_files}} "${link_file}" PARENT_SCOPE)
+        SET_PROPERTY(SOURCE ${link_file} PROPERTY HEADER_FILE_ONLY TRUE)
 
     ENDIF ()
 
@@ -282,60 +361,61 @@ MACRO(TGS_ADD_FILE_TO_IDE source_files header_files test_assigned test_current f
         ENDIF ()
         #MESSAGE("${IDE_PATH_FIXED}")
 
-        SOURCE_GROUP ("${IDE_PATH_FIXED}" FILES "${file}")
+        SOURCE_GROUP ("${IDE_PATH_FIXED}" FILES "${link_file}")
 
     ENDIF ()
-ENDMACRO ()
+ENDFUNCTION ()
 
 
 ##########################################################################################################################################################################################################
 # add a source file to the given list
-MACRO(TGS_ADD_SOURCE_FILE source_files header_files test_assigned test_current ide_path file)
-    IF (EXISTS ${file})
-        TGS_ADD_FILE_TO_IDE(${source_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
-        IF ((${test_current} STREQUAL ${test_assigned}))
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_EXPLICIT_FILE_TYPE sourcecode.c.c)
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE sourcecode.c.c)
-        ELSE ()
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_EXPLICIT_FILE_TYPE sourcecode.c.h)
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE sourcecode.c.h)
-        ENDIF ()
-    ELSE ()
-        MESSAGE("FILE DOES NOT EXIST: " ${file})
+FUNCTION (TGS_ADD_SOURCE_FILE source_files header_files test_assigned test_current ide_path file)
+
+    TGS_ADD_FILE_TO_IDE(${source_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
+    IF (NOT TGS_ADD_FILE_TO_IDE__FOUND)
+        RETURN ()
     ENDIF ()
-ENDMACRO ()
+
+    SET (${source_files} ${${source_files}} PARENT_SCOPE)
+    SET (${header_files} ${${header_files}} PARENT_SCOPE)
+
+ENDFUNCTION ()
 
 
 ##########################################################################################################################################################################################################
 # add a source file to the given list
-MACRO(TGS_ADD_INCSRC_FILE source_files header_files test_assigned test_current ide_path file)
-    IF(MK_IDE__INCLUDE_NON_SOURCE_FILES)
-        IF (EXISTS ${file})
-            TGS_ADD_FILE_TO_IDE(${header_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_EXPLICIT_FILE_TYPE sourcecode.c.h)
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE sourcecode.c.h)
-            SET_PROPERTY(SOURCE ${file} PROPERTY HEADER_FILE_ONLY TRUE)
-        ELSE ()
-            MESSAGE("FILE DOES NOT EXIST: " ${file})
-        ENDIF ()
+FUNCTION (TGS_ADD_INCSRC_FILE source_files header_files test_assigned test_current ide_path file)
+
+    TGS_ADD_FILE_TO_IDE(${header_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
+    IF (NOT TGS_ADD_FILE_TO_IDE__FOUND)
+        RETURN ()
     ENDIF ()
-ENDMACRO ()
+
+    SET (${source_files} ${${source_files}} PARENT_SCOPE)
+    SET (${header_files} ${${header_files}} PARENT_SCOPE)
+
+    SET_PROPERTY(SOURCE ${local_file} PROPERTY XCODE_EXPLICIT_FILE_TYPE sourcecode.c.h)
+    SET_PROPERTY(SOURCE ${local_file} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE sourcecode.c.h)
+    SET_PROPERTY(SOURCE ${local_file} PROPERTY HEADER_FILE_ONLY TRUE)
+ENDFUNCTION ()
 
 
 ##########################################################################################################################################################################################################
 # add a source file to the given list
-MACRO(TGS_ADD_HEADER_FILE source_files header_files test_assigned test_current ide_path file)
-    IF(MK_IDE__INCLUDE_NON_SOURCE_FILES)
-        IF (EXISTS ${file})
-            TGS_ADD_FILE_TO_IDE(${header_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_EXPLICIT_FILE_TYPE sourcecode.c.h)
-            SET_PROPERTY(SOURCE ${file} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE sourcecode.c.h)
-            SET_PROPERTY(SOURCE ${file} PROPERTY  HEADER_FILE_ONLY TRUE)
-        ELSE ()
-            MESSAGE("FILE DOES NOT EXIST: " ${file})
-        ENDIF ()
+FUNCTION (TGS_ADD_HEADER_FILE source_files header_files test_assigned test_current ide_path file)
+
+    TGS_ADD_FILE_TO_IDE(${header_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
+    IF (NOT TGS_ADD_FILE_TO_IDE__FOUND)
+        RETURN ()
     ENDIF ()
-ENDMACRO ()
+
+    SET (${source_files} ${${source_files}} PARENT_SCOPE)
+    SET (${header_files} ${${header_files}} PARENT_SCOPE)
+
+    SET_PROPERTY(SOURCE ${local_file} PROPERTY XCODE_EXPLICIT_FILE_TYPE sourcecode.c.h)
+    SET_PROPERTY(SOURCE ${local_file} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE sourcecode.c.h)
+    SET_PROPERTY(SOURCE ${local_file} PROPERTY  HEADER_FILE_ONLY TRUE)
+ENDFUNCTION ()
 
 
 ##########################################################################################################################################################################################################
@@ -354,17 +434,16 @@ ENDMACRO()
 ##########################################################################################################################################################################################################
 # Validate the DXC path for DX12 and Vulkan
 IF (NOT "${MK_BUILD__GRAPHICS_NAME}" STREQUAL "REF" AND NOT "${MK_BUILD__GRAPHICS_NAME}" STREQUAL "NONE")
-    FIND_PATH (DXC_COMPILER_PATH dxc.exe)
-    CMAKE_PATH (SET CMAKE_DXC_COMPILER NORMALIZE "${DXC_COMPILER_PATH}/dxc.exe")
+    FIND_PROGRAM (CMAKE_DXC_COMPILER NAMES dxc HINTS "$ENV{VULKAN_SDK}/bin")
 
-    EXECUTE_PROCESS (
-        COMMAND ${CMAKE_DXC_COMPILER} --version
-        OUTPUT_VARIABLE DXC_VERSION
-    )
-    STRING (REGEX MATCHALL "[0-9.]+\\s" DXC_VERSION_REGEX "${DXC_VERSION}")
-    SET (CMAKE_DXC_VERSION "${DXC_VERSION_REGEX}")
-
-    IF (NOT DEFINED CMAKE_DXC_COMPILER)
+    IF (EXISTS "${CMAKE_DXC_COMPILER}")
+        EXECUTE_PROCESS (
+            COMMAND ${CMAKE_DXC_COMPILER} --version
+            OUTPUT_VARIABLE DXC_VERSION
+        )
+        STRING (REGEX MATCHALL "[0-9.]+\\s" DXC_VERSION_REGEX "${DXC_VERSION}")
+        SET (CMAKE_DXC_VERSION "${DXC_VERSION_REGEX}")
+    ELSE ()
         MESSAGE (FATAL_ERROR "DXC compiler not found")
     ENDIF ()
 ENDIF ()
@@ -372,7 +451,7 @@ ENDIF ()
 
 ##########################################################################################################################################################################################################
 # add a source file to the given list
-MACRO(TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_assigned test_current ide_path file)
+FUNCTION (TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_assigned test_current ide_path file)
     IF (NOT EXISTS ${file})
         MESSAGE (SEND_ERROR "FILE DOES NOT EXIST: " ${file})
         RETURN ()
@@ -426,7 +505,7 @@ MACRO(TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_ass
     ENDIF ()
 
     STRING (REPLACE "/" "\\" INCLUDE_FIXED "${GIT_ROOT_PATH}/teikitu_sdk/TgS KERNEL")
-    STRING (REPLACE "/" "\\" MK_BUILD_MODULE_FIXED "${MK_BUILD_MODULE__SRC_DIR}")
+    STRING (REPLACE "/" "\\" MK_BUILD_MODULE_FIXED "${MK_BUILD_MODULE__INT_DIR}")
 
     FOREACH (SHADER_CONFIG IN ITEMS ${SHADER_CONFIG_LIST})
         STRING (TOUPPER ${SHADER_CONFIG} SHADER_CONFIG_UPPER)
@@ -453,7 +532,7 @@ MACRO(TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_ass
 
         # Add all of the generated header files to the IDE project list.
         IF (MK_IDE__INCLUDE_NON_SOURCE_FILES)
-            SET (HEADER_PATH "${MK_BUILD_MODULE__SRC_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.hlsl.h")
+            SET (HEADER_PATH "${MK_BUILD_MODULE__INT_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.hlsl.h")
             IF (NOT EXISTS "${HEADER_PATH}")
                 FILE (WRITE "${HEADER_PATH}" "")
                 MESSAGE (STATUS "Created file: ${HEADER_PATH}")
@@ -463,7 +542,7 @@ MACRO(TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_ass
             CMAKE_PATH (SET IDE_HEADER_PATH NORMALIZE "${ide_path}/../Header Files/${SHADER_CONFIG}")
 
             TGS_ADD_FILE_TO_IDE (${header_files} ${header_files} ${test_assigned} ${test_current} "${HEADER_PATH}" IDE_PATH ${IDE_HEADER_PATH})
-            SET_PROPERTY (SOURCE "${MK_BUILD_MODULE__SRC_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.hlsl.h" PROPERTY HEADER_FILE_ONLY TRUE)
+            SET_PROPERTY (SOURCE "${MK_BUILD_MODULE__INT_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.hlsl.h" PROPERTY HEADER_FILE_ONLY TRUE)
         ENDIF ()
     ENDFOREACH ()
 
@@ -480,7 +559,190 @@ MACRO(TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_ass
         TGS_ADD_FILE_TO_IDE(${header_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
     ENDIF ()
 
-ENDMACRO ()
+ENDFUNCTION ()
+
+
+##########################################################################################################################################################################################################
+# add a GLSL file and compile it to a header file
+FUNCTION (TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER source_files header_files test_assigned test_current ide_path file)
+    MESSAGE(STATUS "Configuring GLSL Shader: ${file}")
+
+    IF (NOT EXISTS ${file})
+        MESSAGE (SEND_ERROR "FILE DOES NOT EXIST: " ${file})
+        RETURN ()
+    ENDIF ()
+
+    GET_FILENAME_COMPONENT (FILE_NAME_E "${file}" NAME_WLE)
+    GET_FILENAME_COMPONENT (GLSL_CHECK "${file}" LAST_EXT)
+
+    IF (NOT ${GLSL_CHECK} STREQUAL ".glsl")
+        MESSAGE (SEND_ERROR "FILE NAME DOES NOT TERMINATE WITH GLSL: " ${GLSL_CHECK} " - " ${file})
+        RETURN ()
+    ENDIF ()
+
+    GET_FILENAME_COMPONENT (FILE_NAME "${FILE_NAME_E}" NAME_WE)
+    GET_FILENAME_COMPONENT (SHADER_TYPE "${FILE_NAME_E}" LAST_EXT)
+
+    IF (${SHADER_TYPE} STREQUAL ".vert")
+
+        SET (SHADER_TYPE_NAME "Vertex")
+        SET (SHADER_TYPE_EXT_UPPER "VERT")
+        SET (SHADER_TYPE_EXT_LOWER "vert")
+
+    ELSEIF (${SHADER_TYPE} STREQUAL ".frag")
+
+        SET (SHADER_TYPE_NAME "Fragment")
+        SET (SHADER_TYPE_EXT_UPPER "FRAG")
+        SET (SHADER_TYPE_EXT_LOWER "frag")
+
+    ELSEIF (${SHADER_TYPE} STREQUAL ".mesh")
+
+        SET (SHADER_TYPE_NAME "Mesh")
+        SET (SHADER_TYPE_EXT_UPPER "MESH")
+        SET (SHADER_TYPE_EXT_LOWER "mesh")
+
+    ELSEIF (${SHADER_TYPE} STREQUAL ".comp")
+
+        SET (SHADER_TYPE_NAME "Compute")
+        SET (SHADER_TYPE_EXT_UPPER "COMP")
+        SET (SHADER_TYPE_EXT_LOWER "comp")
+
+    ELSEIF (${SHADER_TYPE} STREQUAL ".task")
+
+        SET (SHADER_TYPE_NAME "Task")
+        SET (SHADER_TYPE_EXT_UPPER "TASK")
+        SET (SHADER_TYPE_EXT_LOWER "task")
+
+    ELSE ()
+
+        MESSAGE (SEND_ERROR "UNKNOWN GLSL SHADER FILE TYPE: " ${SHADER_TYPE} " - " ${file})
+        RETURN ()
+
+    ENDIF ()
+
+    GET_PROPERTY (isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    IF (isMultiConfig)
+        SET (SHADER_CONFIG_LIST "${CMAKE_CONFIGURATION_TYPES}")
+    ELSE ()
+        SET (SHADER_CONFIG_LIST "${MK_COMPILE__TYPE}")
+    ENDIF ()
+
+    IF (NOT TARGET ${MK_BUILD_ROOT__MODULE_NAME}-Shaders)
+        MESSAGE(STATUS "Creating Custom Target: ${MK_BUILD_ROOT__MODULE_NAME}-Shaders")
+        DEFINE_PROPERTY (TARGET PROPERTY "GLSL_SHADER_GENERATED")
+        ADD_CUSTOM_TARGET (
+            ${MK_BUILD_ROOT__MODULE_NAME}-Shaders
+            ALL
+            DEPENDS $<TARGET_PROPERTY:${MK_BUILD_ROOT__MODULE_NAME}-Shaders,GLSL_SHADER_GENERATED>
+        )
+        SET_TARGET_PROPERTIES("${MK_BUILD_ROOT__MODULE_NAME}-Shaders" PROPERTIES FOLDER "External Dependencies")
+    ENDIF ()
+
+    IF (CMAKE_HOST_WIN32)
+        STRING (REPLACE "/" "\\" INCLUDE_FIXED "${GIT_ROOT_PATH}/teikitu_sdk/TgS KERNEL")
+        STRING (REPLACE "/" "\\" MK_BUILD_MODULE_FIXED "${MK_BUILD_MODULE__INT_DIR}")
+    ELSE ()
+        SET (INCLUDE_FIXED "${GIT_ROOT_PATH}/teikitu_sdk/TgS KERNEL")
+        SET (MK_BUILD_MODULE_FIXED "${MK_BUILD_MODULE__INT_DIR}")
+    ENDIF ()
+
+    FIND_PROGRAM (CMAKE_GLSLANGVALIDATOR NAMES glslangValidator HINTS "$ENV{VULKAN_SDK}/bin")
+    IF (NOT EXISTS "${CMAKE_GLSLANGVALIDATOR}")
+        MESSAGE (FATAL_ERROR "glslangValidator not found")
+    ENDIF ()
+
+    FOREACH (SHADER_CONFIG IN ITEMS ${SHADER_CONFIG_LIST})
+        STRING (TOUPPER ${SHADER_CONFIG} SHADER_CONFIG_UPPER)
+        SET (SHADER_OUTPUT_FULL_PATH "${CMAKE_BINARY_DIR}/lib/${SHADER_CONFIG_UPPER}/${FILE_NAME}")
+        SET (SHADER_OUTPUT_FULL_PATH_FIXED "${SHADER_OUTPUT_FULL_PATH}")
+        # STRING (REPLACE "/" "\\" SHADER_OUTPUT_FULL_PATH_FIXED "${SHADER_OUTPUT_FULL_PATH}")
+
+        # Add the custom command to compile GLSL to header
+        IF (${test_current} STREQUAL ${test_assigned})
+            SET (SHADER_HEADER_OUTPUT "${MK_BUILD_MODULE__INT_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.glsl.h")
+
+            MESSAGE(STATUS "Adding Custom Command for: '${SHADER_HEADER_OUTPUT}'")
+
+            # Create a list of potential dependency files (headers that might be included)
+            FILE(GLOB_RECURSE POTENTIAL_DEPENDENCIES "${INCLUDE_FIXED}/*HLSL.*" "${GIT_ROOT_PATH}/teikitu_private/src/TgS KERNEL/Default_VLKN_Common.glsl")
+
+            # Add a custom command that forces regeneration if output doesn't exist or is empty
+            ADD_CUSTOM_COMMAND (
+                OUTPUT "${SHADER_HEADER_OUTPUT}"
+                WORKING_DIRECTORY ${GIT_ROOT_PATH}
+
+                # Step 0: Create output directory
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 0: Creating directories for ${SHADER_HEADER_OUTPUT}"
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/lib/${SHADER_CONFIG_UPPER}"
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${MK_BUILD_MODULE__INT_DIR}/${SHADER_CONFIG_UPPER}"
+
+                # Step 1: Check if output exists and has content, if not force rebuild
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 1: Touching output file"
+                COMMAND ${CMAKE_COMMAND} -E touch "${SHADER_HEADER_OUTPUT}"
+
+                # Step 2: Preprocess with DXC to expand includes and dependencies
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 2: Preprocessing ${file} with DXC"
+                COMMAND pwsh -Command "& '${CMAKE_DXC_COMPILER}' -P -E main -I '${GIT_ROOT_PATH}/teikitu_sdk/TgS KERNEL' -Fi '${SHADER_OUTPUT_FULL_PATH_FIXED}_temp.${SHADER_TYPE_EXT_LOWER}.glsl' '${file}'"
+
+                # Step 3: Remove line directives (platform-specific) and add GLSL required headers
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 3: Filtering line directives"
+                COMMAND pwsh -Command "& '${CMAKE_COMMAND}' --log-level=ERROR -P '${GIT_ROOT_PATH}/cmake/filter_line_directives_and_add_header.cmake' '${SHADER_OUTPUT_FULL_PATH_FIXED}_temp.${SHADER_TYPE_EXT_LOWER}.glsl' '${SHADER_OUTPUT_FULL_PATH_FIXED}_processed.${SHADER_TYPE_EXT_LOWER}.glsl'"
+
+                # Step 4: Compile with glslangValidator to header file
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 4: Compiling with glslangValidator"
+                COMMAND pwsh -Command "& '${CMAKE_GLSLANGVALIDATOR}' -e main -S ${SHADER_TYPE_EXT_LOWER} -o '${SHADER_HEADER_OUTPUT}' --target-env vulkan1.3 --vn 'g_ui${FILE_NAME}_${SHADER_TYPE_EXT_UPPER}_Compiled' '${SHADER_OUTPUT_FULL_PATH_FIXED}_processed.${SHADER_TYPE_EXT_LOWER}.glsl'"
+
+                # Step 5: Verify the output file was created and has content
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 5: Verifying output"
+                COMMAND pwsh -Command "& '${CMAKE_COMMAND}' --log-level=ERROR -P '${GIT_ROOT_PATH}/cmake/verify_shader_output.cmake' '${SHADER_HEADER_OUTPUT}'"
+
+                # Step 6: Clean up temporary files
+                COMMAND ${CMAKE_COMMAND} -E echo "Build Step 6: Cleaning up"
+                COMMAND ${CMAKE_COMMAND} -E remove -f "${SHADER_OUTPUT_FULL_PATH_FIXED}_temp.${SHADER_TYPE_EXT_LOWER}.glsl" "${SHADER_OUTPUT_FULL_PATH_FIXED}_processed.${SHADER_TYPE_EXT_LOWER}.glsl"
+
+                MAIN_DEPENDENCY "${file}"
+                DEPENDS ${POTENTIAL_DEPENDENCIES}
+                COMMENT "Compiling GLSL shader '${file}' to header files"
+                VERBATIM
+            )
+
+            # Add the generated file as a dependency to the custom target
+            SET_PROPERTY (TARGET ${MK_BUILD_ROOT__MODULE_NAME}-Shaders APPEND PROPERTY GLSL_SHADER_GENERATED "${SHADER_HEADER_OUTPUT}")
+
+            # Ensure the file exists so CMake doesn't complain during configure
+            IF (NOT EXISTS "${SHADER_HEADER_OUTPUT}")
+                FILE (WRITE "${SHADER_HEADER_OUTPUT}" "")
+                MESSAGE (STATUS "Created placeholder file: ${SHADER_HEADER_OUTPUT}")
+            ENDIF ()
+
+            # Add the generated file to the target sources so CMake tracks the dependency
+            CMAKE_PATH (SET IDE_HEADER_PATH NORMALIZE "${ide_path}/../Header Files/${SHADER_CONFIG}")
+            TGS_ADD_FILE_TO_IDE (${header_files} ${header_files} ${test_assigned} ${test_current} "${SHADER_HEADER_OUTPUT}" IDE_PATH ${IDE_HEADER_PATH})
+            SET_PROPERTY (SOURCE "${SHADER_HEADER_OUTPUT}" PROPERTY HEADER_FILE_ONLY TRUE)
+
+        ENDIF ()
+
+        # Add all of the generated header files to the IDE project list (for other configs or if IDE flag is on)
+        IF (MK_IDE__INCLUDE_NON_SOURCE_FILES AND NOT (${test_current} STREQUAL ${test_assigned}))
+            SET (HEADER_PATH "${MK_BUILD_MODULE__INT_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.glsl.h")
+            IF (NOT EXISTS "${HEADER_PATH}")
+                FILE (WRITE "${HEADER_PATH}" "")
+                MESSAGE (STATUS "Created file: ${HEADER_PATH}")
+            ENDIF ()
+
+            CMAKE_PATH (SET HEADER_PATH_NORMALIZED NORMALIZE "${HEADER_PATH}")
+            CMAKE_PATH (SET IDE_HEADER_PATH NORMALIZE "${ide_path}/../Header Files/${SHADER_CONFIG}")
+
+            TGS_ADD_FILE_TO_IDE (${header_files} ${header_files} ${test_assigned} ${test_current} "${HEADER_PATH}" IDE_PATH ${IDE_HEADER_PATH})
+            SET_PROPERTY (SOURCE "${MK_BUILD_MODULE__INT_DIR}/${SHADER_CONFIG_UPPER}/${FILE_NAME}_${SHADER_TYPE_EXT_LOWER}.glsl.h" PROPERTY HEADER_FILE_ONLY TRUE)
+        ENDIF ()
+    ENDFOREACH ()
+
+    IF (MK_IDE__INCLUDE_NON_SOURCE_FILES)
+        TGS_ADD_FILE_TO_IDE(${header_files} ${header_files} ${test_assigned} ${test_current} ${file} IDE_PATH ${ide_path})
+    ENDIF ()
+
+ENDFUNCTION ()
 
 
 ##########################################################################################################################################################################################################
@@ -578,6 +840,11 @@ ENDMACRO ()
 # ========================================================================================================================================================================================================
 #  Function: TGS_SET_STANDARD_PROPERTIES
 # ========================================================================================================================================================================================================
+# Scope Keywords (PRIVATE, PUBLIC, INTERFACE) in CMAKE
+# PRIVATE: The PCH is used only for building this target (my_app).
+# INTERFACE: The PCH is not used for this target, but is added to targets that link to it.
+# PUBLIC: Used for this target and propagated to targets that link to it.
+# ========================================================================================================================================================================================================
 
 MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE SOURCE_FILES HEADER_FILES SDK_HEADER_FILES)
 
@@ -590,9 +857,27 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
     TARGET_INCLUDE_DIRECTORIES(${TARGET} BEFORE PRIVATE "${PROJECT_SOURCE_PATH}")
     #MESSAGE( STATUS "CMAKE BUILD: INCLUDE PATH ${PROJECT_SOURCE_PATH}")
 
+    CMAKE_PATH ( SET LINK_SOURCE_PATH NORMALIZE "${GIT_ROOT_PATH}/teikitu_private/int/")
+    TARGET_INCLUDE_DIRECTORIES(${TARGET} BEFORE PRIVATE "${LINK_SOURCE_PATH}")
+    #MESSAGE( STATUS "CMAKE BUILD: INCLUDE PATH ${LINK_SOURCE_PATH}")
+
     # Custom properties used in our version of CMake to set the intermediate directory
     SET_TARGET_PROPERTIES (${TARGET} PROPERTIES INTERMEDIATE_OUTPUT_DIRECTORY ${CMAKE_MODULE_OBJECT_OUTPUT_DIRECTORY})
-    SET_TARGET_PROPERTIES (${TARGET} PROPERTIES VS_LLVM_VERSION 15.0.4)
+    SET_TARGET_PROPERTIES (${TARGET} PROPERTIES VS_LLVM_VERSION 21)
+
+    IF (NOT MK_COMPILER_FRONTEND__MSVC)
+        SET_TARGET_PROPERTIES (${TARGET} PROPERTIES
+            C_STANDARD 23
+            C_STANDARD_REQUIRED ON
+            C_EXTENSIONS OFF
+        )
+    ENDIF ()
+
+    SET_TARGET_PROPERTIES (${TARGET} PROPERTIES
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+    )
 
     # Add the name of the target as a compiler definition
     STRING (REPLACE "-" "_" TARGET_DEFINITION_NAME ${TARGET})
@@ -606,7 +891,9 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
         ENDIF ()
 
         # _Ring_0___TgS_COMMON__OS_PRELOAD needs to be the first library on the link line. Executable, Shared Library, Module specific link additions need to be done after setting the SDK properties.
-        TARGET_LINK_LIBRARIES (${TARGET} PRIVATE _Ring_0___TgS_COMMON__OS_PRELOAD)
+        IF (MK_BUILD__PRELOAD__MALLOC_OVERRIDE)
+            TARGET_LINK_LIBRARIES (${TARGET} PRIVATE _Ring_0___TgS_COMMON__OS_PRELOAD)
+        ENDIF ()
 
         # Check to see if the target has any runtime DLL dependencies, and if so copy them to the build target directory.
         IF (MK_BUILD_OS__WINDOWS AND (NOT "${MK_BUILD_AUTOMATION}" STREQUAL "CICD_BUILD"))
@@ -625,7 +912,8 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
     ENDIF ()
 
     # Create a dependency with the module shader target, if it exists
-    IF ( TARGET ${MK_BUILD_ROOT__MODULE_NAME}-Shaders)
+    IF (TARGET ${MK_BUILD_ROOT__MODULE_NAME}-Shaders)
+        #MESSAGE( STATUS "Adding Dependency: ${TARGET} ${MK_BUILD_ROOT__MODULE_NAME}-Shaders")
         ADD_DEPENDENCIES (${TARGET} ${MK_BUILD_ROOT__MODULE_NAME}-Shaders)
     ENDIF ()
 
@@ -638,21 +926,27 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
     FOREACH (MK_LIST_ITEM__FILE_NAME IN ITEMS ${${SOURCE_FILES}} )
 
         TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "FI\"${PCH_INCLUDE}\"") # Force include
-        TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "Yu\"${PCH_INCLUDE}\"") # Use PCH
 
         GET_FILENAME_COMPONENT( FILE_EXTENSION "${MK_LIST_ITEM__FILE_NAME}" EXT )
+
         IF (MK_COMPILER__MSVC OR ${FILE_EXTENSION} STREQUAL ".cpp")
-            # stdatomic is not supported in MSVC 2022. Compile everything as a C++ project
+            # stdatomic is not supported in MSVC 2022, and there CAS2 implementation is still wrong (10+ years later). Compile everything as a C++ project
             SET_PROPERTY(SOURCE "${MK_LIST_ITEM__FILE_NAME}" PROPERTY LANGUAGE CXX)
             SET_PROPERTY(SOURCE "${MK_LIST_ITEM__FILE_NAME}" APPEND_STRING PROPERTY COMPILE_DEFINITIONS TgCOMPILE_FILE__CXX)
-            TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "std:c++20") # Set the CXX standard
-            TGS_SOURCE_APPEND_GNU_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "std=c++20") # Set the CXX standard
-            TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" [=[Fp"$(IntDir)$(TargetName)_CXX.pch"]=])
-        ELSE ()
-            SET_PROPERTY(SOURCE "${MK_LIST_ITEM__FILE_NAME}" PROPERTY LANGUAGE C)
-            TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "std:c17") # Set the C standard
-            TGS_SOURCE_APPEND_GNU_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "std=c17") # Set the C standard
-            TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" [=[Fp"$(IntDir)$(TargetName)_C.pch"]=])
+        ELSEIF (${FILE_EXTENSION} STREQUAL ".mm")
+            SET_PROPERTY(SOURCE "${MK_LIST_ITEM__FILE_NAME}" PROPERTY LANGUAGE OBJCXX)
+            SET_PROPERTY(SOURCE "${MK_LIST_ITEM__FILE_NAME}" APPEND_STRING PROPERTY COMPILE_DEFINITIONS TgCOMPILE_FILE__CXX)
+        ENDIF ()
+
+        GET_SOURCE_FILE_PROPERTY (IS_PCH_SKIPPED "${MK_LIST_ITEM__FILE_NAME}" SKIP_PRECOMPILE_HEADERS)
+
+        IF (NOT IS_PCH_SKIPPED)
+            TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" "Yu\"${PCH_INCLUDE}\"") # Use PCH
+            IF (MK_COMPILER__MSVC OR ${FILE_EXTENSION} STREQUAL ".cpp")
+                TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" [=[Fp"$(IntDir)$(TargetName)_CXX.pch"]=])
+            ELSEIF (${FILE_EXTENSION} STREQUAL ".c")
+                TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${MK_LIST_ITEM__FILE_NAME}" [=[Fp"$(IntDir)$(TargetName)_C.pch"]=])
+            ENDIF ()
         ENDIF ()
 
     ENDFOREACH ()
@@ -666,6 +960,7 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
     IF (EXISTS "${PCH_SOURCE_DIR}/${PCH_SOURCE}.c")
         TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION ("${PCH_SOURCE_DIR}/${PCH_SOURCE}.c" [=[Yc]=]) # Set the CXX standard
     ENDIF ()
+
 
 
 
@@ -686,10 +981,9 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
 
     IF (MK_BUILD__MIMALLOC_ALLOCATOR)
         TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
-    ENDIF ()
-
-    IF (MK_BUILD__MIMALLOC_DEFAULT)
-        TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE TgBUILD_FEATURE__MIMALLOC_DEFAULT)
+        IF (MK_BUILD__MIMALLOC_DEFAULT)
+            TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE TgBUILD_FEATURE__MIMALLOC_DEFAULT)
+        ENDIF ()
     ENDIF ()
 
     TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE TgCOMPILE_DEFAULT_PCH=${PCH_INCLUDE})
@@ -716,23 +1010,34 @@ MACRO (TGS_SET_STANDARD_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_INCLUDE 
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE $<$<CONFIG:Debug>:/Od /RTC1>)
     ENDIF ()
 
-    IF (MK_COMPILER_FRONTEND__GNU OR MK_COMPILER_FRONTEND__APPLE)
+    IF (MK_COMPILER_FRONTEND__GNU)
         # No precompiled headers for clang as they are primarily for template processing (literally not really supported)
+        TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE _XOPEN_SOURCE=700)
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -include ${PCH_SOURCE_DIR}/${PCH_INCLUDE})
-        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -fno-exceptions) # Disable runtime exception handling
-        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -fno-rtti) # Disable Run Time Type Information
-        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -fvisibility-inlines-hidden) # Do not add inline functions into the linker symbol tables
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -fno-short-enums) # Include support for UTF8 character type and literals
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -finline-functions) # Inline suitable functions
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Weverything) # Enable "Everything" warning level
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Werror) # Enforce warnings as errors
-        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-reserved-macro-identifier) #
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-reserved-macro-identifier) # 
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-poison-system-directories) # 
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Xclang -fno-dllexport-inlines) # Do not add inline functions into the linker symbol tables
-        TARGET_COMPILE_DEFINITIONS(${TARGET} PRIVATE _XOPEN_SOURCE=700)
-    ENDIF ()
-
-    IF (MK_BUILD_OS__POSIX AND (MK_COMPILER_FRONTEND__GNU OR MK_COMPILER_FRONTEND__APPLE))
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE  $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>)
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE  $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE  $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-old-style-cast)
         TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-zero-as-null-pointer-constant)
     ENDIF()
+
+    IF (MK_COMPILER__APPLE)
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-missing-include-dirs)
+        TARGET_COMPILE_OPTIONS (${TARGET} PRIVATE -Wno-c++98-compat-pedantic)
+        TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE _DARWIN_C_SOURCE)
+        TARGET_COMPILE_DEFINITIONS (${TARGET} PRIVATE __DARWIN_C_LEVEL=__DARWIN_C_FULL)
+    ENDIF()
+
+    IF (MK_COMPILER_FRONTEND__APPLE)
+        MESSAGE(FATAL_ERROR "Apple compiler support is not currently maintained.")
+    ENDIF ()
 
     IF (MK_COMPILER__MSVC)
         TARGET_COMPILE_DEFINITIONS(${TARGET} PRIVATE D_ANALYSIS)
@@ -845,6 +1150,12 @@ MACRO (TGS_SET_STANDARD_LIBRARY_PROPERTIES TARGET PCH_SOURCE_DIR PCH_SOURCE PCH_
     ELSE ()
         MESSAGE (FATAL_ERROR "TGS_SET_STANDARD_LIBRARY_PROPERTIES being called on a target that is not a library.")
     ENDIF ()
+
+    CMAKE_PATH ( SET MK_BUILD_MODULE__LINK_DIR NORMALIZE "${GIT_ROOT_PATH}/teikitu_private/int/TgS ${MK_BUILD_ROOT__MODULE_NAME}" )
+    IF (EXISTS ${MK_BUILD_MODULE__LINK_DIR})
+        TARGET_INCLUDE_DIRECTORIES(${TARGET} BEFORE PRIVATE "${MK_BUILD_MODULE__LINK_DIR}")
+    ENDIF ()
+
     TGS_SET_STANDARD_PROPERTIES ( ${TARGET} ${PCH_SOURCE_DIR} ${PCH_SOURCE} ${PCH_INCLUDE} ${SOURCE_FILES} ${HEADER_FILES} ${SDK_HEADER_FILES})
 
 ENDMACRO (TGS_SET_STANDARD_LIBRARY_PROPERTIES)

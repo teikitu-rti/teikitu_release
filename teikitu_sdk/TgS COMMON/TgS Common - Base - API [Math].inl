@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -223,7 +223,8 @@ TgINLINE VAR_T() FCM(FLR_ALGN_PW2)( VAR_T(C) ARG0, VAR_T(C) ARG1 )
         VAR_T()                             fVal;
         
         fVal = FPM(ABS)( ARG0 ) & ~(ARG1 - 1 );
-        return (ARG0 > 0 ? fVal : -fVal);
+        return (ARG0 > 0 ? fVal : (0 - fVal));
+
     }
 #else
     return ((ARG0)& ~(ARG1 - 1u));
@@ -243,7 +244,7 @@ TgINLINE VAR_T() FCM(CEL_ALGN_PW2)( VAR_T(C) ARG0, VAR_T(C) ARG1 )
         VAR_T()                             fVal;
 
         fVal = (FPM(ABS)( ARG0 ) + ARG1 - 1) & ~(ARG1 - 1 );
-        return (ARG0 > 0 ? fVal : -fVal);
+        return (ARG0 > 0 ? fVal : (0 - fVal));
     }
 #else
     return ((ARG0 + ARG1 - 1u) & ~(ARG1 - 1u));
@@ -265,7 +266,7 @@ TgINLINE VAR_T() FCM(PRV_PW2)( VAR_T(C) ARG0 )
     fSCAN = (ARG0 == 0) ? 0 : ( VAR_T() ) ( (UVAR_T())1 << UFCN_F(tgPM_BSR)( (UVAR_T())fABS_A ) );
     fPW2 = FCM(IS_PW2)( fABS_A ) ? fABS_A : fSCAN;
 
-    return (ARG0 > 0 ? fPW2 : -fPW2);
+    return (ARG0 > 0 ? fPW2 : (0 - fPW2));
 #else
     return ((FCM(IS_PW2)( ARG0 )) ? ARG0 : (VAR_T())((ARG0 == 0) ? 0 : (1 << FPM(BSR)( ARG0 ))) );
 /*# defined(TEMPLATE__ENABLE_UNSIGNED) */
@@ -286,7 +287,7 @@ TgINLINE VAR_T() FCM(NXT_PW2)( VAR_T(C) ARG0 )
     fSCAN = (VAR_T())((ARG0 == 0) ? 1 : (2 << UFCN_F(tgPM_BSR)( (UVAR_T())fABS_A )));
     fPW2 = (FCM(IS_PW2)( fABS_A )) ? fABS_A : fSCAN;
 
-    return (ARG0 > 0 ? fPW2 : -fPW2);
+    return (ARG0 > 0 ? fPW2 : (0 - fPW2));
 #else
     return ((FCM(IS_PW2)( ARG0 )) ? ARG0 : (VAR_T())((ARG0 == 0) ? 1 : (2 << FPM(BSR)( ARG0 ))) );
 /*# defined(TEMPLATE__ENABLE_UNSIGNED) */

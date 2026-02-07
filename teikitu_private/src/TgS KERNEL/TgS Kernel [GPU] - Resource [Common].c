@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -39,7 +39,7 @@ TgCOMPILER_ASSERT( T(KTgKN_GPU_MAX_,_INST) <= (1 << KTgKN_GPU_RSI_BIT__MAX_INDEX
 
 static T(TgKN_GPU_,_ID)
 T(tgKN_GPU_,__Load_Internal)(
-    TgKN_FILE_ID_C ARG0, TgRSIZE_C ARG1, T(STg2_KN_GPU_,_DESC_CPC) ARG2, ETgKN_GPU_ALLOCATOR_C ARG3 );
+    TgKN_FILE_ID_C ARG0, TgRSIZE_C ARG1, T(STg2_KN_GPU_,_DESC_CPC) ARG2, TgUINT_E64_C ARG3 );
 
 
 
@@ -51,7 +51,8 @@ T(tgKN_GPU_,__Load_Internal)(
 /* ---- T(tgKN_GPU_,__Load_From_OS_File_System) ---------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if !defined(TGS_FINAL)
-T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_OS_File_System)( TgKN_FS_MOUNT_ID_C tiFS_Mount, TgCHAR_U8_CPC uszPath, TgCHAR_U8_CPC uszFile, ETgKN_GPU_ALLOCATOR_C enAllocator )
+T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_OS_File_System)( TgKN_FS_MOUNT_ID_C tiFS_Mount, TgCHAR_U8_CPC uszPath, TgCHAR_U8_CPC uszFile,
+                                                          TgUINT_E64_C uiResource_Descriptor )
 {
     STg2_KN_File_Open_Command           sOpen_Cmd;
     TgKN_FILE_ID                        tiFile;
@@ -63,7 +64,8 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_OS_File_System)( TgKN_FS_MOUNT_ID_C tiF
     if (TgFAILED(tgUSZ_Hash( &sOpen_Cmd.m_uiFile, uszFile, KTgMAX_RSIZE )))
     {
         TgERROR_SEV_MSG( false, KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, uszFile ? uszFile : u8"" );
-        return (T(KTgKN_GPU_,_ID__INVALID));
+        sID_Ret = T(KTgKN_GPU_,_ID__INVALID);
+        return (sID_Ret);
     };
 
     if (TgFAILED(tgUSZ_Hash( &sOpen_Cmd.m_uiPath, uszPath, KTgMAX_RSIZE )))
@@ -81,11 +83,12 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_OS_File_System)( TgKN_FS_MOUNT_ID_C tiF
     if (KTgKN_FILE_ID__INVALID.m_uiKI == tiFile.m_uiKI)
     {
         TgERROR_SEV_MSG( false, KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, uszFile ? uszFile : u8"" );
-        return (T(KTgKN_GPU_,_ID__INVALID));
+        sID_Ret = T(KTgKN_GPU_,_ID__INVALID);
+        return (sID_Ret);
     };
 
     /* 2. Load the contents of the file using the standard loader. */
-    sID_Ret = T(tgKN_GPU_,__Load_From_KN_File_System)( tiFile, 0, enAllocator );
+    sID_Ret = T(tgKN_GPU_,__Load_From_KN_File_System)( tiFile, 0, uiResource_Descriptor );
 
     /* 3. Close the file and return. */
     tgKN_FS_BL_Close( tiFile );
@@ -98,26 +101,26 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_OS_File_System)( TgKN_FS_MOUNT_ID_C tiF
 
 /* ---- T(tgKN_GPU_,__Load_From_KN_File_System) ---------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_KN_File_System)( TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, ETgKN_GPU_ALLOCATOR_C enAllocator )
+T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_KN_File_System)( TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, TgUINT_E64_C uiResource_Descriptor )
 {
-    return (T(tgKN_GPU_,__Load_Internal)( tiFile, uiFile_Offset, nullptr, enAllocator ));
+    return (T(tgKN_GPU_,__Load_Internal)( tiFile, uiFile_Offset, nullptr, uiResource_Descriptor ));
 }
 
 
 /* ---- T(tgKN_GPU_,__Load_From_Memory) ------------------------------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_Memory)( T(STg2_KN_GPU_,_DESC_CPC) psDESC, ETgKN_GPU_ALLOCATOR_C enAllocator )
+T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_From_Memory)( T(STg2_KN_GPU_,_DESC_CPC) psDESC, TgUINT_E64_C uiResource_Descriptor )
 {
-    return (T(tgKN_GPU_,__Load_Internal)( KTgKN_FILE_ID__INVALID, 0, psDESC, enAllocator ));
+    return (T(tgKN_GPU_,__Load_Internal)( KTgKN_FILE_ID__INVALID, 0, psDESC, uiResource_Descriptor ));
 }
 
 
 /* ---- T(tgKN_GPU_,_Inst__Init) ------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(MACRO_BUILD_TEXTURE)
-T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_,_Inst__Init)( UTg2_KN_GPU_CMD_C uCMD, T(TgKN_GPU_,_ID_C) sID_RS, TgCHAR_U8_CPCU puszName )
+T(TgKN_GPU_,_INST_ID) T(tgKN_GPU__CMD__,_Inst__Init)( STg2_KN_GPU_CMD_PC psCMD, T(TgKN_GPU_,_ID_C) sID_RS, TgCHAR_U8_CPCU puszName )
 {
-    TgRSIZE                             uiEXEC = (uCMD.ps->m_tiCXT_WORK.m_uiI >> 16) & 0xFFFF;
+    TgRSIZE                             uiEXEC = (psCMD->m_tiCXT_WORK.m_uiI >> 16) & 0xFFFF;
     STg2_KN_GPU_CXT_EXEC_PC             psCXT_EXEC = g_asKN_GPU_CXT_EXEC + uiEXEC;
     T(STg2_KN_GPU_,_INST_LIB_DESC_PCU)  psLibRSI = &psCXT_EXEC->T(m_s,_Inst_LIB_DESC);
 
@@ -128,12 +131,14 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_,_Inst__Init)( UTg2_KN_GPU_CMD_C uCMD, T(TgKN_G
     TgPARAM_CHECK_INDEX( uiEXEC, g_asKN_GPU_CXT_EXEC );
     TgPARAM_CHECK( T(KTgKN_GPU_,_ID__INVALID).m_uiKI != sID_RS.m_uiKI );
 
+    sNew = T(KTgKN_GPU_,_INST_ID__INVALID);
+
     /* 1. Allocate a new resource instance from the free list of the library, and initialize the identifier. */
-    puiData = (TgUINT_E08_P)tgCM_UT_LF__ST__Pop( psLibRSI->m_psList );
+    puiData = (TgUINT_E08_P)tgCM_UT_LF__ST_Unaligned__Pop( psLibRSI->m_psList );
     if (nullptr == puiData)
     {
         TgWARNING_MSGF( false, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to allocate a resource entry" );
-        return (T(KTgKN_GPU_,_INST_ID__INVALID));
+        return (sNew);
     };
 
     sID_RS_INST.m_uiIndex = (TgUINT_E32)((TgRSIZE)(puiData - psLibRSI->m_puiData) / psLibRSI->m_uiStride);
@@ -148,7 +153,7 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_,_Inst__Init)( UTg2_KN_GPU_CMD_C uCMD, T(TgKN_G
     psLibRSI->m_psRS[sID_RS_INST.m_uiIndex] = sID_RS;
 
     /* 2. Execute the instance initialize function */
-    iResult = T(tgKN_GPU_EXT_,_Inst__Init)( uCMD, sID_RS_INST, puszName );
+    iResult = T(tgKN_GPU_EXT__CMD__,_Inst__Init)( psCMD, sID_RS_INST, puszName );
 
     /* 3. Check for failure, and return the id to the usage pool before returning with an error state. */
     if (TgFAILED( iResult ))
@@ -156,7 +161,7 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_,_Inst__Init)( UTg2_KN_GPU_CMD_C uCMD, T(TgKN_G
         union
         {
             TgUINT_E08_P                        pui08;
-            STg2_UT_ST__ST_Node_P               psNode;
+            STg2_UT_ST__ST_Node_Unaligned_P     psNode;
         }                                   sLibData;
 
         TgWARNING_MSGF( false, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to allocate a shader instance entry in context" );
@@ -164,8 +169,8 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_,_Inst__Init)( UTg2_KN_GPU_CMD_C uCMD, T(TgKN_G
 
         TgSTD_ATOMIC(store)( psLibRSI->m_pxsID_Inst_Ref_Singleton + sID_RS_INST.m_uiIndex, T(KTgKN_GPU_,_INST_ID__INVALID) );
         sLibData.pui08 = psLibRSI->m_puiData + sID_RS_INST.m_uiIndex*psLibRSI->m_uiStride;
-        tgCM_UT_LF__ST__Push( psLibRSI->m_psList, sLibData.psNode );
-        return (T(KTgKN_GPU_,_INST_ID__INVALID));
+        tgCM_UT_LF__ST_Unaligned__Push( psLibRSI->m_psList, sLibData.psNode );
+        return (sNew);
     };
 
 #if TgS_DEBUG__KERNEL
@@ -212,12 +217,14 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__IncRef)( T(TgKN_GPU_,_INST_ID_C) sID_R
     {
         if (sOrig.m_uiFree || (sOrig.m_uiK != sID_RS_INST.m_uiK) || (sOrig.m_uiCXT != sID_RS_INST.m_uiCXT) || (sOrig.m_uiIndex != sID_RS_INST.m_uiIndex))
         {
-            return (T(KTgKN_GPU_,_INST_ID__INVALID));
+            sNew = T(KTgKN_GPU_,_INST_ID__INVALID);
+            return (sNew);
         };
 
         if (sOrig.m_uiRef >= (1 << KTgKN_GPU_RSI_BIT__REFERENCE_COUNT) - 1)
         {
-            return (T(KTgKN_GPU_,_INST_ID__INVALID)); /* We could auto create a new reference at this point? */
+            sNew = T(KTgKN_GPU_,_INST_ID__INVALID);
+            return (sNew); /* We could auto create a new reference at this point? */
         };
 
         /* 2. Increment the reference count. */
@@ -235,14 +242,17 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__IncRef)( T(TgKN_GPU_,_INST_ID_C) sID_R
 /* ---- T(tgKN_GPU_,_Inst_Release) ----------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(MACRO_BUILD_TEXTURE)
-T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__Release)( T(TgKN_GPU_,_INST_ID_C) sID_RS_INST )
+T(TgKN_GPU_,_INST_ID) T(tgKN_GPU__CMD__, _Inst__Release)( STg2_KN_GPU_CMD_PC psCMD, T(TgKN_GPU_,_INST_ID_C) sID_RS_INST )
 {
     T(STg2_KN_GPU_,_INST_LIB_DESC_PCU)  psLibRSI = &g_asKN_GPU_CXT_EXEC[sID_RS_INST.m_uiCXT].T(m_s,_Inst_LIB_DESC);
 
     T(TgKN_GPU_,_INST_ID)               sNew, sOrig;
 
     if (KTgID__INVALID_VALUE == sID_RS_INST.m_uiKI)
-        return (sID_RS_INST);
+    {
+        sNew = sID_RS_INST;
+        return (sNew);
+    }
 
     TgPARAM_CHECK_INDEX(sID_RS_INST.m_uiCXT, g_asKN_GPU_CXT_EXEC);
     TgPARAM_CHECK((nullptr != psLibRSI) && (sID_RS_INST.m_uiIndex < psLibRSI->m_nuiRSI));
@@ -256,14 +266,15 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__Release)( T(TgKN_GPU_,_INST_ID_C) sID_
             union
             {
                 TgUINT_E08_P                        pui08;
-                STg2_UT_ST__ST_Node_P               psNode;
+                STg2_UT_ST__ST_Node_Unaligned_P     psNode;
             }                                   sLibData;
 
             /* 1. Mark the identifier for deletion. */
             do {
                 if (sOrig.m_uiFree || (sOrig.m_uiK != sID_RS_INST.m_uiK) || (sOrig.m_uiCXT != sID_RS_INST.m_uiCXT) || (sOrig.m_uiIndex != sID_RS_INST.m_uiIndex))
                 {
-                    return (T(KTgKN_GPU_,_INST_ID__INVALID));
+                    sNew = T(KTgKN_GPU_,_INST_ID__INVALID);
+                    return (sNew);
                 };
 
                 /* 2. Mark the identifier for deletion. */
@@ -278,7 +289,7 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__Release)( T(TgKN_GPU_,_INST_ID_C) sID_
         #endif
 
             /* 2. Execute the Free function. */
-            T(tgKN_GPU_EXT_,_Inst__Free)( sOrig, tgKN_GPU_CXT_EXEC_ID_Query_Unsafe( &g_asKN_GPU_CXT_EXEC[sID_RS_INST.m_uiCXT].m_tiCXT_EXEC_S ) );
+            T(tgKN_GPU_EXT__CMD__,_Inst__Free)( psCMD, sOrig );
 
             TgSTD_ATOMIC(store)( psLibRSI->m_pxsID_Inst_Ref_Singleton + sOrig.m_uiIndex, T(KTgKN_GPU_,_INST_ID__INVALID) );
 
@@ -289,18 +300,20 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__Release)( T(TgKN_GPU_,_INST_ID_C) sID_
             do {
                 if ((sOrig.m_uiK != sID_RS_INST.m_uiK) || (sOrig.m_uiCXT != sID_RS_INST.m_uiCXT) || (sOrig.m_uiIndex != sID_RS_INST.m_uiIndex))
                 {
-                    return (T(KTgKN_GPU_,_INST_ID__INVALID));
+                    sNew = T(KTgKN_GPU_,_INST_ID__INVALID);
+                    return (sNew);
                 };
             }
             while(!TgSTD_ATOMIC(compare_exchange_weak)( psLibRSI->m_pxsID_Inst_Ref_Singleton + sID_RS_INST.m_uiIndex, &sOrig, T(KTgKN_GPU_,_INST_ID__INVALID) ));
             sLibData.pui08 = psLibRSI->m_puiData + (TgRSIZE)sID_RS_INST.m_uiIndex*psLibRSI->m_uiStride;
-            tgCM_UT_LF__ST__Push( psLibRSI->m_psList, sLibData.psNode );
+            tgCM_UT_LF__ST_Unaligned__Push( psLibRSI->m_psList, sLibData.psNode );
         };
 
         TgERROR(!sOrig.m_uiFree);
         if (sOrig.m_uiFree || (sOrig.m_uiK != sID_RS_INST.m_uiK) || (sOrig.m_uiCXT != sID_RS_INST.m_uiCXT) || (sOrig.m_uiIndex != sID_RS_INST.m_uiIndex))
         {
-            return (T(KTgKN_GPU_,_INST_ID__INVALID));
+            sNew = T(KTgKN_GPU_,_INST_ID__INVALID);
+            return (sNew);
         };
 
         /* 4. Decrements the reference count. */
@@ -325,21 +338,22 @@ T(TgKN_GPU_,_INST_ID) T(tgKN_GPU_, _Inst__Release)( T(TgKN_GPU_,_INST_ID_C) sID_
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 T(TgKN_GPU_,_ID) T(tgKN_GPU_,__IncRef)( T(TgKN_GPU_,_ID_C) sID_RS )
 {
-    T(TgKN_GPU_,_ID)                    sNew, sOrig;
+    T(TgKN_GPU_,_ID)                    sNew, sOrig, sReturn;
 
     TgPARAM_CHECK((T(KTgKN_GPU_,_ID__INVALID).m_uiKI != sID_RS.m_uiKI) && (sID_RS.m_uiIndex < T(KTgKN_GPU_MAX_,)));
 
     sOrig = TgSTD_ATOMIC(load)( T(g_axsKN_Lib_,_Ref_Singleton) + sID_RS.m_uiIndex );
+    sReturn = T(KTgKN_GPU_,_ID__INVALID);
     do
     {
         if (sOrig.m_uiFree || (sOrig.m_uiK != sID_RS.m_uiK) || (sOrig.m_uiIndex != sID_RS.m_uiIndex))
         {
-            return (T(KTgKN_GPU_,_ID__INVALID));
+            return (sReturn);
         };
 
         if (sOrig.m_uiRef >= (1 << KTgKN_GPU_RS_BIT__REFERENCE_COUNT) - 1)
         {
-            return (T(KTgKN_GPU_,_ID__INVALID)); /* TODO: We could auto create a new reference at this point? */
+            return (sReturn); /* TODO: We could auto create a new reference at this point? */
         };
 
         /* 2. Increment the reference count. */
@@ -348,7 +362,8 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__IncRef)( T(TgKN_GPU_,_ID_C) sID_RS )
     }
     while(!TgSTD_ATOMIC(compare_exchange_weak)( T(g_axsKN_Lib_,_Ref_Singleton) + sID_RS.m_uiIndex, &sOrig, sNew ));
 
-    return (sID_RS);
+    sReturn = sID_RS;
+    return (sReturn);
 }
 
 
@@ -376,7 +391,8 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Release)( T(TgKN_GPU_,_ID_C) sID_RS )
             do {
                 if (sOrig.m_uiFree || (sOrig.m_uiK != sID_RS.m_uiK) || (sOrig.m_uiIndex != sID_RS.m_uiIndex))
                 {
-                    return (T(KTgKN_GPU_,_ID__INVALID));
+                    sNew = T(KTgKN_GPU_,_ID__INVALID);
+                    return (sNew);
                 };
 
                 /* 2. Mark the identifier for deletion. */
@@ -404,19 +420,22 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Release)( T(TgKN_GPU_,_ID_C) sID_RS )
             do {
                 if ((sOrig.m_uiK != sID_RS.m_uiK) || (sOrig.m_uiIndex != sID_RS.m_uiIndex))
                 {
-                    return (T(KTgKN_GPU_,_ID__INVALID));
+                    sNew = T(KTgKN_GPU_,_ID__INVALID);
+                    return (sNew);
                 };
             }
             while(!TgSTD_ATOMIC(compare_exchange_weak)( T(g_axsKN_Lib_,_Ref_Singleton) + sID_RS.m_uiIndex, &sOrig, T(KTgKN_GPU_,_ID__INVALID) ));
             sLibData.psData = T(g_asKN_Lib_,_Data) + sID_RS.m_uiIndex;
             tgCM_UT_LF__ST__Push( &T(g_sKN_Lib_,).m_sStack, sLibData.psNode );
-            return (T(KTgKN_GPU_,_ID__INVALID));
+            sNew = T(KTgKN_GPU_,_ID__INVALID);
+            return (sNew);
         };
 
         TgERROR(!sOrig.m_uiFree);
         if (sOrig.m_uiFree || (sOrig.m_uiK != sID_RS.m_uiK) || (sOrig.m_uiIndex != sID_RS.m_uiIndex))
         {
-            return (T(KTgKN_GPU_,_ID__INVALID));
+            sNew = T(KTgKN_GPU_,_ID__INVALID);
+            return (sNew);
         };
 
         /* 4. Decrements the reference count. */
@@ -437,7 +456,8 @@ T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Release)( T(TgKN_GPU_,_ID_C) sID_RS )
 
 /* ---- tgKN_GPU_,__Load_Internal ------------------------------------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-static T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_Internal)( TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, T(STg2_KN_GPU_,_DESC_CPC) psDESC, ETgKN_GPU_ALLOCATOR_C enAllocator )
+static T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_Internal)( TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, T(STg2_KN_GPU_,_DESC_CPC) psDESC,
+                                                      TgUINT_E64_C uiResource_Descriptor )
 {
     union
     {
@@ -447,14 +467,16 @@ static T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_Internal)( TgKN_FILE_ID_C tiFile, TgR
     TgRESULT                            iResult;
     T(TgKN_GPU_,_ID)                    sID, sNew, sOrig;
 
-    TgPARAM_CHECK(ETgKN_GPU_ALLOCATOR__INVALID != enAllocator);
+    TgPARAM_CHECK(ETgKN_GPU_RESOURCE_DESCRIPTOR__INVALID != uiResource_Descriptor);
+
+    sNew = T(KTgKN_GPU_,_ID__INVALID);
 
     /* 1. Allocate a new resource from the free list of the library, and initialize the identifier. */
     sLibData.psNode = tgCM_UT_LF__ST__Pop( &T(g_sKN_Lib_,).m_sStack );
     if (nullptr == sLibData.psNode)
     {
         TgWARNING_MSGF( false, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to allocate a resource entry" );
-        return (T(KTgKN_GPU_,_ID__INVALID));
+        return (sNew);
     };
 
     sID.m_uiIndex = (TgRSIZE)(sLibData.psData - T(g_asKN_Lib_,_Data));
@@ -471,7 +493,7 @@ static T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_Internal)( TgKN_FILE_ID_C tiFile, TgR
     T(g_uiKN_Size_GPU_,)[sID.m_uiIndex] = 0;
 #endif
 
-    iResult = T(tgKN_GPU_,__Execute_Load)( tiFile, uiFile_Offset, psDESC, enAllocator, sID );
+    iResult = T(tgKN_GPU_,__Execute_Load)( tiFile, uiFile_Offset, psDESC, uiResource_Descriptor, sID );
 
     /* 3. On failure return the slot to the free list. */
     if (TgFAILED(iResult))
@@ -479,7 +501,7 @@ static T(TgKN_GPU_,_ID) T(tgKN_GPU_,__Load_Internal)( TgKN_FILE_ID_C tiFile, TgR
         TgSTD_ATOMIC(store)( T(g_axsKN_Lib_,_Ref_Singleton) + sID.m_uiIndex, T(KTgKN_GPU_,_ID__INVALID) );
         tgCM_UT_LF__ST__Push( &T(g_sKN_Lib_,).m_sStack, sLibData.psNode );
         TgERROR_SEV_MSG( false, KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"" );
-        return (T(KTgKN_GPU_,_ID__INVALID));
+        return (sNew);
     };
 
 #if TgS_DEBUG__KERNEL

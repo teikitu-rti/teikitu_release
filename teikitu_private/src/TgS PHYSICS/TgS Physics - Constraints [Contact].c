@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -38,12 +38,12 @@ TgPH_CONSTRAINT_ID tgPH_Constraint_Contact__Init_IMM( STg2_PH_Form_CPC psFM0, ST
     psCT->m_nuiDoF = 3;
     psCT->m_bEnabled = true;
 
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
     if (g_apfnPH_Debug__World__Contact_Complete[psCT->m_tiConstraint.m_uiWorld]) TgATTRIBUTE_UNLIKELY
     {
         g_apfnPH_Debug__World__Contact_Complete[psCT->m_tiConstraint.m_uiWorld]( psCT );
     }
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
     return psCT->m_tiConstraint;
@@ -60,7 +60,7 @@ TgVOID tgPH_Constraint_Contact__Free_IMM( STg2_PH_Constraint_PC psCT )
 
 /* ---- tgPH_World_Set_User_FCN__Constraint_Contact_Init_Complete ---------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 TgRESULT tgPH_World_Set_User_FCN__Constraint_Contact_Init_Complete( TgPH_FCN_USER_CONTACT_COMPLETE_P ppfnReturn, TgPH_WORLD_ID_C tiWorld, TgPH_FCN_USER_CONTACT_COMPLETE pfnFUNC )
 {
     STg2_PH_World_CPC                   psWorld = tgPH_World_Get_World_From_ID( tiWorld );
@@ -78,13 +78,13 @@ TgRESULT tgPH_World_Set_User_FCN__Constraint_Contact_Init_Complete( TgPH_FCN_USE
     g_apfnPH_Debug__World__Contact_Complete[tiWorld.m_uiI] = pfnFUNC;
     return (KTgS_OK);
 }
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 
 /* ---- tgPH_Constraint_Contact__CNPrintF_IMM ------------------------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 TgVOID tgPH_Constraint_Contact__CNPrintF_IMM( STg2_PH_Constraint_CPC psCT )
 {
     TgCHAR_U8                           uszBuffer[1024];
@@ -103,7 +103,7 @@ TgVOID tgPH_Constraint_Contact__CNPrintF_IMM( STg2_PH_Constraint_CPC psCT )
     
     TgLOGF(KTgCN_CHANEL_LOG|KTgCN_SEVERITY_A, STD_MSG_LITERAL_1X, STD_MSG_POST, uszBuffer );
 }
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
 

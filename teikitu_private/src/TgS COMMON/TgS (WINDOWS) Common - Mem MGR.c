@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -60,11 +60,7 @@ TgRSIZE tgMM_PM_Page_Size( TgVOID )
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgVOID_P tgMM_PM_Virtual_Reserve( TgRSIZE_C uiSize )
 {
-#if defined(TgBUILD_UNIVERSAL__UWP)
-    return (g_pfnVirtualAllocFromApp( nullptr, uiSize, 0x2000, 0x04 ));
-#else
     return (g_pfnVirtualAlloc( nullptr, uiSize, 0x2000, 0x04 ));
-#endif
 }
 
 
@@ -72,13 +68,10 @@ TgVOID_P tgMM_PM_Virtual_Reserve( TgRSIZE_C uiSize )
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgVOID_P tgMM_PM_Virtual_Commit( TgVOID_PC pMem, TgRSIZE_C uiOffset, TgRSIZE_C uiSize )
 {
-#if defined(TgBUILD_UNIVERSAL__UWP)
-    TgVOID_PC pCheck = g_pfnVirtualAllocFromApp( pMem, uiSize, 0x1000u | (nullptr == pMem ? 0x2000u : 0), 0x04u );
-#else
-    TgVOID_PC pCheck = g_pfnVirtualAlloc( (TgUINT_E08_P)pMem + (nullptr == pMem ? 0 : uiOffset), uiSize, 0x1000u | (nullptr == pMem ? 0x2000u : 0), 0x04u );
-#endif
-    TgCRITICAL( (0 == pMem) || (0 == pCheck) || (pCheck == (TgVOID_P)((TgUINT_PTR)pMem & (~(TgUINT_PTR)(tgMM_Page_Size() - 1)))) );
-    return (pCheck);
+    TgUN_PTR_C                          sPTR = { .m_uiPTR = (TgUINT_PTR_C)pMem + (nullptr == pMem ? 0 : uiOffset) };
+    TgUN_PTR_C                          sCheck = { .m_pVoid = g_pfnVirtualAlloc( sPTR.m_pVoid, uiSize, 0x1000u | (nullptr == pMem ? 0x2000u : 0), 0x04u ) };
+    TgCRITICAL( (0 == pMem) || (0 == sCheck.m_pVoid) || (sCheck.m_uiPTR == (sPTR.m_uiPTR & (~(TgUINT_PTR)(tgMM_Page_Size() - 1)))) );
+    return (sCheck.m_pVoid);
 }
 
 

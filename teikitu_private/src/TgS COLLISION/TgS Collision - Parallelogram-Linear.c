@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -88,6 +88,8 @@ VEC_T(1) VI(tgCO_PE_ClosestSq_PM_LR)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, VEC_
     TgBOOL_C                            bValid_E1_EN0 = FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LT)( FCN_V(tgMH_ABS)( vE1_EN0 ), FCN_V(tgMH_SET1)( VAR_K(KTgEPS) ) ) );
     TgBOOL_C                            bValid_E0_EN1 = FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LT)( FCN_V(tgMH_ABS)(vE0_EN1), FCN_V(tgMH_SET1)( VAR_K(KTgEPS) ) ) );
 
+    VEC_T(1)                            vDistSq;
+
     TgPARAM_CHECK( FCN_VO(tgGM_PE_Is_Valid)(psPE0) && FCN_V(tgMH_Is_Valid_Point)(vS0) && FCN_V(tgMH_Is_Valid_Vector)(vD0) );
 
     if (TgEXPECT_FALSE( FCN_V(tgMH_Is_NR0)( vX0_X0 ) || bValid_E1_EN0 || bValid_E0_EN1 ) )
@@ -95,7 +97,8 @@ VEC_T(1) VI(tgCO_PE_ClosestSq_PM_LR)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, VEC_
         /* Degenerate parallelogram - One or both of the edges has a near-zero length */
         /* Quick Out - the point is within tolerance of rectangle origin. */
         *pvPE0 =  *pvPE1 = *pvLN0 = FCN_V(tgMH_SET1)( TYPE_K(0) );
-        return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+        vDistSq = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+        return (vDistSq);
     }
     else
     {
@@ -137,8 +140,9 @@ VEC_T(1) VI(tgCO_PE_ClosestSq_PM_LR)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, VEC_
                     *pvPE0 = FCN_V(tgMH_DIV)( vINT_EN1, vE0_EN1 );
                     *pvPE1 = FCN_V(tgMH_DIV)( vINT_EN0, vE1_EN0 );
                     *pvLN0 = vInt;
+                    vDistSq = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
 
-                    return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+                    return (vDistSq);
                 };
             };
         };
@@ -203,7 +207,7 @@ VEC_T(1) VI(tgCO_PE_ClosestSq_PM_LR)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, VEC_
                 TgBOOL_C                            bF9 = false;
             #endif
 
-            VEC_T(1)                            vPE0, vPE1, vG1, vT0, vT1, vTestSq, vDistSq;
+            VEC_T(1)                            vPE0, vPE1, vG1, vT0, vT1, vTestSq;
             TgSINT_E32                          iTest = 0;
 
             vPE0 = vPE1 = vG1 = vT0 = vT1 = vTestSq = FCN_V(tgMH_SET1)( TYPE_K(0) );
@@ -233,16 +237,18 @@ VEC_T(1) VI(tgCO_PE_ClosestSq_PM_LR)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, VEC_
                     *pvPE0 = FCN_V(tgMH_DIV)( v01, vE0_EN1 );
                     *pvPE1 = FCN_V(tgMH_DIV)( v00, vE1_EN0 );
                     *pvLN0 = FCN_V(tgMH_SET1)( TYPE_K(0) );
+                    vDistSq = FCN_V(tgMH_MUL)( vX0_N, vX0_N );
 
-                    return (FCN_V(tgMH_MUL)( vX0_N, vX0_N ));
+                    return (vDistSq);
                 }
                 else
                 {
                     *pvPE0 = FCN_V(tgMH_DIV)( v11, vE0_EN1 );
                     *pvPE1 = FCN_V(tgMH_DIV)( v10, vE1_EN0 );
                     *pvLN0 = FCN_V(tgMH_SET1)( TYPE_K(1) );
+                    vDistSq = FCN_V(tgMH_MUL)( vX1_N, vX1_N );
 
-                    return (FCN_V(tgMH_MUL)( vX1_N, vX1_N ));
+                    return (vDistSq);
                 };
             };
 

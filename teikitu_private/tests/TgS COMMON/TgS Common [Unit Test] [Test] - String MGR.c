@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -308,7 +308,7 @@ TEST_METHOD( UNIT_TEST__TEST__SM_Dict_Query_String )
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TEST_METHOD( UNIT_TEST__TEST__SM_Table_Load )
 {
-    TgCHAR_U8 TgALIGN(16)               mbzBuffer[128];
+    TgALIGN(16) TgCHAR_U8               mbzBuffer[128];
     TgSTRING_TABLE_ID                   tiString_Table;
     STg2_Input_MEM                      sInput;
 
@@ -333,7 +333,7 @@ TEST_METHOD( UNIT_TEST__TEST__SM_Table_Load )
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TEST_METHOD( UNIT_TEST__TEST__SM_Table_Free )
 {
-    TgCHAR_U8 TgALIGN(16)               mbzBuffer[128];
+    TgALIGN(16) TgCHAR_U8               mbzBuffer[128];
     TgSTRING_TABLE_ID                   tiString_Table;
     STg2_Input_MEM                      sInput;
 
@@ -352,7 +352,7 @@ TEST_METHOD( UNIT_TEST__TEST__SM_Table_Free )
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TEST_METHOD( UNIT_TEST__TEST__SM_Table_Is_Loaded )
 {
-    TgCHAR_U8 TgALIGN(16)               mbzBuffer[128];
+    TgALIGN(16) TgCHAR_U8               mbzBuffer[128];
     TgSTRING_TABLE_ID                   tiString_Table;
     STg2_Input_MEM                      sInput;
 
@@ -373,7 +373,7 @@ TEST_METHOD( UNIT_TEST__TEST__SM_Table_Is_Loaded )
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TEST_METHOD( UNIT_TEST__TEST__SM_Table_Query_String )
 {
-    TgCHAR_U8 TgALIGN(16)               mbzBuffer[128];
+    TgALIGN(16) TgCHAR_U8               mbzBuffer[128];
     TgSTRING_TABLE_ID                   tiString_Table;
     TgCHAR_U8_CP                        mbzValue;
     TgRSIZE                             nbyValue;

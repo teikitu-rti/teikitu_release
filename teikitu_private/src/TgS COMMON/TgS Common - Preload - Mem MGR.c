@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -66,16 +66,20 @@ enum { KTgMAX_POOLS                         = 25 }; /* Number of pools to fit ma
 
 TgCOMPILER_ASSERT(16 == KTgMIN_BLOCK_SIZE,);
 
-TgTYPE_ENUM(ETgMM_PAGE_STATE,TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgMM_PAGE_STATE_OPENED = 0x10,
     ETgMM_PAGE_STATE_REOPENED = 0x11,
     ETgMM_PAGE_STATE_CLOSED = 0x20,
     ETgMM_PAGE_STATE_REOPENED_QUEUED = 0x30,
-);
+} ETgMM_PAGE_STATE;
+TgTYPE_MODIFIER_DEFAULT(ETgMM_PAGE_STATE);
 
-TgTYPE_ENUM_FLAG(ETgMM_ALLOCATION_FLAG,TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM_FLAG
+{
     ETgMM_ALLOCATION_FLAG_SMALL_ALLOCATOR = 0x1,
-);
+} ETgMM_ALLOCATION_FLAG;
+TgTYPE_MODIFIER_DEFAULT(ETgMM_ALLOCATION_FLAG);
 
 
 
@@ -95,7 +99,7 @@ TgCOMPILER_ASSERT( sizeof(TgMEM_OS_HEADER) == 32, 0 );
 
 TgTYPE_UNION(TgMEM_PAGE_HEADER,) /* 32 Byte Header Block */
 {
-    STg2_UT_ST__ST_Node                         m_sStack_Header;                                    /* Used to track open pages */
+    STg2_UT_ST__ST_Node_Unaligned               m_sStack_Header;                                    /* Used to track open pages */
     STg2_UT_ST__LT_Node                         m_sList_Header;                                     /* Used to track closed pages */
     TgMEM_OS_HEADER                             m_sOS_Header;
     struct
@@ -130,23 +134,23 @@ tgMM_OS__Free_MGR( TgVOID );
 
 static TgRESULT
 tgMM_OS__Size(
-    TgUINT_E32_P NONULL, TgUINT_E32_P NONULL, TgVOID_CPC NONULL );
+    TgUINT_E32_P TgANALYSIS_NO_NULL, TgUINT_E32_P TgANALYSIS_NO_NULL, TgVOID_CPC TgANALYSIS_NO_NULL );
 
 static TgRESULT
 tgMM_OS__Malloc(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PP NONULL, TgRSIZE_C, TgRSIZE_C );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PP TgANALYSIS_NO_NULL, TgRSIZE_C, TgRSIZE_C );
 
 static TgRESULT
 tgMM_OS__Reserve(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PP NONULL, TgRSIZE_C );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PP TgANALYSIS_NO_NULL, TgRSIZE_C );
 
 static TgRESULT
 tgMM_OS__Commit(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PP NONULL, TgRSIZE_C, TgRSIZE_C );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PP TgANALYSIS_NO_NULL, TgRSIZE_C, TgRSIZE_C );
 
 static TgRESULT
 tgMM_OS__Free(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PC NONULL );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PC TgANALYSIS_NO_NULL );
 
 
 /* Memory Pool */
@@ -159,25 +163,25 @@ tgMM_Pool__Free_MGR( TgVOID );
 
 static TgRESULT
 tgMM_Pool__Size(
-    TgUINT_E32_P NONULL, TgUINT_E32_P NONULL, TgVOID_CPC NONULL );
+    TgUINT_E32_P TgANALYSIS_NO_NULL, TgUINT_E32_P TgANALYSIS_NO_NULL, TgVOID_CPC TgANALYSIS_NO_NULL );
 
 static TgRESULT
 tgMM_Pool__Malloc(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PP NONULL, TgRSIZE_C, TgRSIZE_C );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PP TgANALYSIS_NO_NULL, TgRSIZE_C, TgRSIZE_C );
 
 static TgRESULT
 tgMM_Pool__Free(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PC NONULL );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PC TgANALYSIS_NO_NULL );
 
 static TgRESULT
 tgMM_Pool__Realloc(
-    TgMEM_INFO_HEADER_P NONULL, TgVOID_PP NONULL, TgMEM_INFO_HEADER_P NONULL, TgVOID_PC NONULL, TgRSIZE_C, TgRSIZE_C );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PP TgANALYSIS_NO_NULL, TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL, TgVOID_PC TgANALYSIS_NO_NULL, TgRSIZE_C, TgRSIZE_C );
 
 #if TgS_STAT__COMMON
 
 static TgVOID
 tgMM_Pool__Stats(
-    TgRSIZE (*)( STg2_Output_PC NONULL, TgCHAR_U8_CPC NONULL, ... ), STg2_Output_PC NONULL );
+    TgRSIZE (*)( STg2_Output_PC TgANALYSIS_NO_NULL, TgCHAR_U8_CPC TgANALYSIS_NO_NULL, ... ), STg2_Output_PC TgANALYSIS_NO_NULL );
 
 static TgVOID
 tgMM_Pool__Stats_Pool(
@@ -198,7 +202,7 @@ tgMM_Pool__Check_Page_Is_Empty(
 
 TgINLINE TgVOID
 tgMM_Stat_Internal__Entry(
-    TgMEM_INFO_HEADER_P NONULL );
+    TgMEM_INFO_HEADER_P TgANALYSIS_NO_NULL );
 
 /*# TgS_STAT__COMMON */
 #endif
@@ -242,12 +246,14 @@ static TgRSIZE_A                            s_auiStat_Max_Reserved[ETgMM_ALLOCAT
 
 /* ---- tgMM_Set_CN_PrintF ------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgVOID tgMM_Set_CN_PrintF( TgVOID (*pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP NONULL, ... ) )
+TgVOID tgMM_Set_CN_PrintF( TgVOID (*pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP, ... ) )
 {
 #if defined(TgBUILD_PRELOAD__HAS_CONSOLE)
     g_pfnCN_PrintF = pfnCN_PrintF;
 #endif
+#if defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
     tgMM_MI_Set_CN_PrintF( pfnCN_PrintF );
+#endif
 }
 
 
@@ -328,7 +334,7 @@ TgRESULT tgMM_Query_Stats( STg2_MM_Preload_Stats_P pMM_Stats )
 /* ---- tgMM_Stats_Allocator ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgS_STAT__COMMON
-TgVOID tgMM_Stats_Allocator( TgRSIZE (*pfnIO_PrintF)( STg2_Output_PC NONULL, TgCHAR_U8_CPC NONULL, ... ), STg2_Output_PC psOUT )
+TgVOID tgMM_Stats_Allocator( TgRSIZE (*pfnIO_PrintF)( STg2_Output_PC TgANALYSIS_NO_NULL, TgCHAR_U8_CPC, ... ), STg2_Output_PC psOUT )
 {
     TgRSIZE                             uiIndex;
 
@@ -370,6 +376,16 @@ TgVOID tgMM_Register_Allocator( ETgMM_ALLOCATOR_C enAllocator, STg2_MM_MGR_P psM
     TgCRITICAL( psMem_MGR && psMem_MGR->m_pfnFree && psMem_MGR->m_pfnMalloc && psMem_MGR->m_pfnSize );
 
     tgMM_Copy( s_asAllocator + enAllocator, sizeof( s_asAllocator[0] ), psMem_MGR, sizeof( STg2_MM_MGR ) );
+}
+
+
+/* ---- tgMM_Is_Allocator_Registered --------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+TgBOOL tgMM_Is_Allocator_Registered( ETgMM_ALLOCATOR_C enAllocator )
+{
+    TgPARAM_CHECK_INDEX( enAllocator, s_asAllocator );
+
+    return (s_asAllocator[enAllocator].m_pfnFree && s_asAllocator[enAllocator].m_pfnMalloc && s_asAllocator[enAllocator].m_pfnSize);
 }
 
 
@@ -1020,7 +1036,7 @@ static TgRESULT tgMM_Pool__Free_MGR( TgVOID )
 /* ---- tgMM_Pool__Stats --------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgS_STAT__COMMON
-TgVOID tgMM_Pool__Stats( TgRSIZE (*pfnIO_PrintF)( STg2_Output_PC NONULL, TgCHAR_U8_CPC NONULL, ... ), STg2_Output_PC psOUT )
+TgVOID tgMM_Pool__Stats( TgRSIZE (*pfnIO_PrintF)( STg2_Output_PC, TgCHAR_U8_CPC, ... ), STg2_Output_PC psOUT )
 {
     TgRSIZE                             uiIndex;
 
@@ -1083,7 +1099,7 @@ static TgRESULT tgMM_Pool__Size( TgUINT_E32_P pnbyReserve, TgUINT_E32_P pnbyAllo
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 static TgRESULT tgMM_Pool__Malloc( TgMEM_INFO_HEADER_P psInfo, TgVOID_PP ppReturn, TgRSIZE_C uiSize, TgRSIZE_C uiAlignment )
 {
-    TgRSIZE                             uiBitPool, uiSize_Align, uiPool_MSD, uiPool_LSD, uiIndex_Pool;
+    TgRSIZE                             uiAligned_Size, uiBitPool, uiSize_Align, uiPool_MSD, uiPool_LSD, uiIndex_Pool;
     union
     {
         STg2_UT_ST__ST_Node_P               psStack_Header;
@@ -1093,17 +1109,18 @@ static TgRESULT tgMM_Pool__Malloc( TgMEM_INFO_HEADER_P psInfo, TgVOID_PP ppRetur
     TgUN_PTR                            uRet;
     TgUINT_E16                          uiFree, uiNext;
 
-    if (uiSize > s_uiMaxBlock) /* Use the OS allocator (can always replace later) */
+    uiAligned_Size = tgCM_CEL_ALGN_PW2_UMAX(uiSize, uiAlignment);
+    if (uiAligned_Size > s_uiMaxBlock) /* Use the OS allocator (can always replace later) */
     {
         return (tgMM_OS__Malloc( psInfo, ppReturn, uiSize, uiAlignment ));
     };
 
     /* Retrieve a Block of Memory from the corresponding pool */
 
-    uiBitPool = (TgRSIZE)tgPM_BSR_UMAX( uiSize | KTgMIN_BLOCK_SIZE ); /* Guaranteed to be at least 4 */
-    uiSize_Align = tgCM_CEL_ALGN_PW2_UMAX( uiSize, ((TgRSIZE)1 << (uiBitPool - 2)) );
+    uiBitPool = (TgRSIZE)tgPM_BSR_UMAX(uiAligned_Size | KTgMIN_BLOCK_SIZE ); /* Guaranteed to be at least 4 */
+    uiSize_Align = tgCM_CEL_ALGN_PW2_UMAX(uiAligned_Size, ((TgRSIZE)1 << (uiBitPool - 2)) );
     uiBitPool = (TgRSIZE)tgPM_BSR_UMAX( uiSize_Align | KTgMIN_BLOCK_SIZE );
-    uiSize_Align = tgCM_CEL_ALGN_PW2_UMAX( uiSize, ((TgRSIZE)1 << (uiBitPool - 2)) );
+    uiSize_Align = tgCM_CEL_ALGN_PW2_UMAX(uiAligned_Size, ((TgRSIZE)1 << (uiBitPool - 2)) );
 
     TgCRITICAL( uiSize_Align <= 1024 );
     TgCRITICAL( uiBitPool <= 10 );
@@ -1167,7 +1184,7 @@ static TgRESULT tgMM_Pool__Malloc( TgMEM_INFO_HEADER_P psInfo, TgVOID_PP ppRetur
     };
 
     TgVERIFY(uMem.psMem_Page->m_uiState == ETgMM_PAGE_STATE_OPENED || uMem.psMem_Page->m_uiState == ETgMM_PAGE_STATE_REOPENED)
-    TgCRITICAL( uMem.psMem_Page->m_uiBlock_Size >= uiSize );
+    TgCRITICAL( uMem.psMem_Page->m_uiBlock_Size >= uiAligned_Size);
 
     /* At this point we have a thread local pointer to a global memory structure (the memory page). Allocations that were made from this page could be freed at any point of time
        on other threads. Therefore, any fields that may be modified by the free routine need to be treated with standard multi-threaded precautions. However, those that are used
@@ -1295,7 +1312,7 @@ static TgRESULT tgMM_Pool__Free( TgMEM_INFO_HEADER_P psInfo, TgVOID_PC pMem )
             TgVERIFY(nullptr == uMem.psMem_Page->m_sList_Header.m_pPrev_Node);
             TgVERIFY(nullptr == uMem.psMem_Page->m_sStack_Header.m_pNext_Node);
             uMem.psMem_Page->m_uiState = ETgMM_PAGE_STATE_REOPENED_QUEUED;
-            tgCM_UT_LF__ST__Push( &s_asPage_Open[uiIndex_Pool].m_sStack, &uMem.psMem_Page->m_sStack_Header );
+            tgCM_UT_LF__ST__Push( &s_asPage_Open[uiIndex_Pool].m_sStack, uMem.psStack_Header );
         };
         tgCM_UT_LF__SN__Signal( &s_asPage_Spin_Lock[uiIndex_Pool].m_sLock );
 
@@ -1304,7 +1321,7 @@ static TgRESULT tgMM_Pool__Free( TgMEM_INFO_HEADER_P psInfo, TgVOID_PC pMem )
     
     return (KTgS_OK);
 }
-
+TgCOMPILER_ASSERT(0 == offsetof(TgMEM_PAGE_HEADER,m_sStack_Header), 0);
 
 /* ---- tgMM_Pool__Realloc ------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */

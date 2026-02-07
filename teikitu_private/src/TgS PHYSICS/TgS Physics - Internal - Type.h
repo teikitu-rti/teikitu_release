@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_PHYSICS_INTERNAL_TYPE_H)
 #define TGS_PHYSICS_INTERNAL_TYPE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 /* == Physics ==================================================================================================================================================================== */
 
@@ -21,109 +24,114 @@
 /* -- Form ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* #TODO #OPT Do we want to cache the transformed collision primitive? */
 
-TgTYPE_STRUCT( STg2_PH_Form, )
+TgTYPE_UNION( STg2_PH_Form, )
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
     {
-        STg2_UT_ST__ST_Node                         m_sStack_Node;
         TgRSIZE                                     m_uiUsed_Index;
+        TgPH_FORM_ID                                m_tiForm; /**< Unique identifier for this Form. */
+
+        TgUINT_E64                                  m_uiCategory;  /**< Bitfield representing the fields this form is categorized. */
+        TgUINT_E64                                  m_uiCollide; /**< Bitfield representing those fields this form collides. */
+        TgPH_MATERIAL_ID                            m_tiMaterial; /**< Physical material properties. */
+        TgUINT_E32                                  m_uiPad0;
+
+        ETgPM_SHORT                                 m_enPM; /**< Collision primitive used by a Form. */
+        UTg2_CO_Primitive_F32_04                    m_uPM; /**< Union of available collision primitives. */
+        TgVOID                                      (*m_pfnPM_Copy_TX)( TgVOID_PCU, TgVOID_CPCU, TgVOID_CPCU ); /* Function used to transform the primitive for collision test. */
+        TgVOID                                      (*m_pfnPM_Sweep_BA)( TgVOID_PCU, TgVOID_CPCU, TgVEC_F32_04_1_C ); /* Function used to transform the primitive for collision test. */
+        TgVEC_F32_04_1                              (*m_pfnPM_Support_Point)( TgVOID_CPCU, TgVEC_F32_04_1_C ); /* Function used to transform the primitive for collision test. */
+
+        TgPH_BODY_ID                                m_tiBY; /**< Parent Body. */
+        TgPH_FORM_ID                                m_tiNext; /**< Next form that is linked to the same parent body. */
+        TgPARTITION_OBJECT_ID                       m_tiPnS; /**< Prune and Sweep ID. */
+
+        TgVEC_F32_04_1                              m_vPos_O2B; /**< Position of the Form in Parent Reference Frame. */
+        TgVEC_F32_04_1                              m_vRot_O2B; /**< Quaternion rotation of the Form in Parent Reference Frame. */
+        TgVEC_F32_04_1                              m_vScale; /**< Scale that is applied in Body space prior to other transforms. */
+        TgVEC_F32_04_3                              m_mLocal_O2B; /**< Transform for the Form in the owning Body space. */
+        TgBOXAA_F32_04                              m_sBA_O; /**< Axis-Aligned Bounding Box of the Form. */
+
+        TgVEC_F32_04_1                              m_vPos_Last_Valid_O2W; /**< Previous Position of the Form in World Space. */
+        TgVEC_F32_04_1                              m_vPos_O2W; /**< Position of the Form in World Space. */
+        TgVEC_F32_04_3                              m_mFinal_O2W; /**< Transform into world space. */
+        TgBOXAA_F32_04                              m_sBA_W; /**< Axis-Aligned Bounding Box of the Form. */
+
+        TgVEC_F32_04_1                              m_vDebug_Colour;
+
+        TgFLOAT32                                   m_fDisable_Timer; /**< A measure of the time the form has experienced movement under the sleep threshold. */
+        TgUINT_E08                                  m_uiUpdate : 1;
+        TgUINT_E08                                  m_uiFlags : 7;
+    #if 0 != (139 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad1[139 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-    TgPH_FORM_ID                                m_tiForm; /**< Unique identifier for this Form. */
-
-    TgUINT_E64                                  m_uiCategory;  /**< Bitfield representing the fields this form is categorized. */
-    TgUINT_E64                                  m_uiCollide; /**< Bitfield representing those fields this form collides. */
-    TgPH_MATERIAL_ID                            m_tiMaterial; /**< Physical material properties. */
-    TgUINT_E32                                  m_uiPad0;
-
-    ETgPM_SHORT                                 m_enPM; /**< Collision primitive used by a Form. */
-    UTg2_CO_Primitive_F32_04                    m_uPM; /**< Union of available collision primitives. */
-    TgVOID                                      (*m_pfnPM_Copy_TX)( TgVOID_PCU, TgVOID_CPCU, TgVOID_CPCU ); /* Function used to transform the primitive for collision test. */
-    TgVOID                                      (*m_pfnPM_Sweep_BA)( TgVOID_PCU, TgVOID_CPCU, TgVEC_F32_04_1_C ); /* Function used to transform the primitive for collision test. */
-    TgVEC_F32_04_1                              (*m_pfnPM_Support_Point)( TgVOID_CPCU, TgVEC_F32_04_1_C ); /* Function used to transform the primitive for collision test. */
-
-    TgPH_BODY_ID                                m_tiBY; /**< Parent Body. */
-    TgPH_FORM_ID                                m_tiNext; /**< Next form that is linked to the same parent body. */
-    TgPARTITION_OBJECT_ID                       m_tiPnS; /**< Prune and Sweep ID. */
-
-    TgVEC_F32_04_1                              m_vPos_O2B; /**< Position of the Form in Parent Reference Frame. */
-    TgVEC_F32_04_1                              m_vRot_O2B; /**< Quaternion rotation of the Form in Parent Reference Frame. */
-    TgVEC_F32_04_1                              m_vScale; /**< Scale that is applied in Body space prior to other transforms. */
-    TgVEC_F32_04_3                              m_mLocal_O2B; /**< Transform for the Form in the owning Body space. */
-    TgBOXAA_F32_04                              m_sBA_O; /**< Axis-Aligned Bounding Box of the Form. */
-
-    TgVEC_F32_04_1                              m_vPos_Last_Valid_O2W; /**< Previous Position of the Form in World Space. */
-    TgVEC_F32_04_1                              m_vPos_O2W; /**< Position of the Form in World Space. */
-    TgVEC_F32_04_3                              m_mFinal_O2W; /**< Transform into world space. */
-    TgBOXAA_F32_04                              m_sBA_W; /**< Axis-Aligned Bounding Box of the Form. */
-
-    TgVEC_F32_04_1                              m_vDebug_Colour;
-
-    TgFLOAT32                                   m_fDisable_Timer; /**< A measure of the time the form has experienced movement under the sleep threshold. */
-    TgUINT_E08                                  m_uiUpdate : 1;
-    TgUINT_E08                                  m_uiFlags : 7;
-    TgUINT_E08                                  m_uiPad[11];
 };
 
 
 /* -- Body ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT( STg2_PH_Body, )
+TgTYPE_UNION( STg2_PH_Body, )
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
     {
-        STg2_UT_ST__ST_Node                         m_sStack_Node;
         TgRSIZE                                     m_uiUsed_Index;
+        TgPH_BODY_ID                                m_tiBody;
+        TgPH_FORM_ID                                m_tiFM_Head; /**< The first form associated with this body.  */
+        TgPH_CONSTRAINT_ID                          m_tiCT_Head; /**< The first constraint associated with this body.  */
+
+        STg2_PH_Mass                                m_sMass; /**< Mass representation in body space  */
+
+        TgVEC_F32_04_1                              m_vPos_Last_Valid_O2W; /**< Last Position  */
+        TgVEC_F32_04_1                              m_vPos_O2W; /**< Position  */
+        TgVEC_F32_04_1                              m_vRot_O2W; /**< Rotation in quaternion form. */
+        TgVEC_F32_04_3                              m_mRot_O2W; /**< Rotation in matrix form. */
+        TgVEC_F32_04_3                              m_mFinal_O2W; /**< Full Transform, used primarily for rotation  */
+
+        TgVEC_F32_04_1                              m_vLV; /**< Linear Velocity  */
+        TgVEC_F32_04_1                              m_vPF; /**< Persistent Force  */
+
+        TgVEC_F32_04_1                              m_vAV; /**< Angular Velocity  */
+        TgVEC_F32_04_1                              m_vPT; /**< Persistent Torque  */
+
+        TgVEC_F32_04_1                              m_vForce_Field_Factor; /**< Floating Point Flag - 1.0 if influenced by the force field.  */
+        TgVEC_F32_04_1                              m_vTime_Factor; /**< Used to manipulate time on a per-body basis (Matrix Effect).  */
+
+        TgPH_FCN_CALCFM                             m_pfnCalcFM; /**< User defined function to generate force and moments.  */
+        TgPH_FCN_CONTACT                            m_pfnContact; /**< Function called when a contact occurs involving this body.  */
+        TgPH_FCN_MOVED                              m_pfnMoved; /**< Function called when a contact occurs involving this body.  */
+        TgUINT_PTR                                  m_uiContext; /**< Void pointed passed into one of the user defined call backs.  */
+        TgUINT_PTR                                  m_uiPad0;
+
+        TgUINT_E32                                  m_bUpdate : 1; /**< Set indicates that the body is enabled (but may not be active). */
+        TgUINT_E32                                  m_bRagdoll : 1; /**< Set indicates that the body is part of a ragdoll. */
+        TgUINT_E32                                  m_bPad_1 : 30;
+
+                                                    /* Calculated and used during world update. */
+        TgFLOAT32                                   m_fDisable_Timer; /**< Timer for auto-disabling the body  */
+        TgVEC_F32_04_3                              m_mInverse_Inertia_Tensor; /**< Inverse Inertia Tensor: Used to transform torque into rotation updates, and in the solver. */
+        TgVEC_F32_04_1                              m_vXF; /**< Force Accumulation: Used for predicted and final position. */
+        TgVEC_F32_04_1                              m_vXT; /**< Torque Accumulation: Used for predicted and final rotation. */
+    #if 0 != (224 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad1[224 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-    TgPH_BODY_ID                                m_tiBody;
-    TgPH_FORM_ID                                m_tiFM_Head; /**< The first form associated with this body.  */
-    TgPH_CONSTRAINT_ID                          m_tiCT_Head; /**< The first constraint associated with this body.  */
-
-    STg2_PH_Mass                                m_sMass; /**< Mass representation in body space  */
-
-    TgVEC_F32_04_1                              m_vPos_Last_Valid_O2W; /**< Last Position  */
-    TgVEC_F32_04_1                              m_vPos_O2W; /**< Position  */
-    TgVEC_F32_04_1                              m_vRot_O2W; /**< Rotation in quaternion form. */
-    TgVEC_F32_04_3                              m_mRot_O2W; /**< Rotation in matrix form. */
-    TgVEC_F32_04_3                              m_mFinal_O2W; /**< Full Transform, used primarily for rotation  */
-
-    TgVEC_F32_04_1                              m_vLV; /**< Linear Velocity  */
-    TgVEC_F32_04_1                              m_vPF; /**< Persistent Force  */
-
-    TgVEC_F32_04_1                              m_vAV; /**< Angular Velocity  */
-    TgVEC_F32_04_1                              m_vPT; /**< Persistent Torque  */
-
-    TgVEC_F32_04_1                              m_vForce_Field_Factor; /**< Floating Point Flag - 1.0 if influenced by the force field.  */
-    TgVEC_F32_04_1                              m_vTime_Factor; /**< Used to manipulate time on a per-body basis (Matrix Effect).  */
-
-    TgPH_FCN_CALCFM                             m_pfnCalcFM; /**< User defined function to generate force and moments.  */
-    TgPH_FCN_CONTACT                            m_pfnContact; /**< Function called when a contact occurs involving this body.  */
-    TgPH_FCN_MOVED                              m_pfnMoved; /**< Function called when a contact occurs involving this body.  */
-    TgUINT_PTR                                  m_uiContext; /**< Void pointed passed into one of the user defined call backs.  */
-    TgUINT_PTR                                  m_uiPad;
-
-    TgUINT_E32                                  m_bUpdate : 1; /**< Set indicates that the body is enabled (but may not be active). */
-    TgUINT_E32                                  m_bRagdoll : 1; /**< Set indicates that the body is part of a ragdoll. */
-    TgUINT_E32                                  m_bPad_1 : 30;
-
-                                                /* Calculated and used during world update. */
-    TgFLOAT32                                   m_fDisable_Timer; /**< Timer for auto-disabling the body  */
-    TgVEC_F32_04_3                              m_mInverse_Inertia_Tensor; /**< Inverse Inertia Tensor: Used to transform torque into rotation updates, and in the solver. */
-    TgVEC_F32_04_1                              m_vXF; /**< Force Accumulation: Used for predicted and final position. */
-    TgVEC_F32_04_1                              m_vXT; /**< Torque Accumulation: Used for predicted and final rotation. */
 };
 
 
 /* -- Motor ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT(STg2_PH_Motor,)
+TgTYPE_UNION(STg2_PH_Motor,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
     {
-        STg2_UT_ST__ST_Node                         m_sStack_Node;
         TgRSIZE                                     m_uiUsed_Index;
+        TgPH_MOTOR_ID                               m_tiMotor;
+        TgUINT_E64                                  m_uiCategory;  /**< Bitfield representing the fields this form is categorized  */
     };
-    TgPH_MOTOR_ID                               m_tiMotor;
-    TgUINT_E64                                  m_uiCategory;  /**< Bitfield representing the fields this form is categorized  */
 };
 
 
@@ -143,44 +151,48 @@ TgTYPE_STRUCT(STg2_PH_Constraint_Contact,)
     TgVEC_F32_04_1                              m_vRestitution_Factor;
 };
 
-TgTYPE_STRUCT(STg2_PH_Constraint,)
+TgTYPE_UNION(STg2_PH_Constraint,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
     {
-        STg2_UT_ST__ST_Node                         m_sStack_Node;
         TgRSIZE                                     m_uiUsed_Index;
+        TgPH_CONSTRAINT_ID                          m_tiConstraint;
+        TgPH_BODY_ID                                m_tiBY0; /**< Identifier for the first body in the constraint. */
+        TgPH_CONSTRAINT_ID                          m_tiNext_0; /**< Identifier for the next constraint that is associated with Body 0. */
+        TgPH_BODY_ID                                m_tiBY1; /**< Identifier for the second body in the constraint. */
+        TgPH_CONSTRAINT_ID                          m_tiNext_1; /**< Identifier for the next constraint that is associated with Body 1. */
+
+        ETgPH_CONSTRAINT                            m_enConstraint;
+
+        TgFLOAT32                                   m_fMin; /**< Lower Limit, Point of compression failure. */
+        TgFLOAT32                                   m_fMax; /**< Upper Limit, Point of fracture. */
+        TgFLOAT32                                   m_fMax_Moment;
+        TgFLOAT32                                   m_fμs, m_fμd; /**< Static and Dynamic coefficients of friction. */
+
+        TgUINT_E32                                  m_bBreakable : 1;
+        TgUINT_E32                                  m_bEnabled : 1;
+        TgUINT_E32                                  m_uiPad0 : 30;
+
+        TgUINT_E32                                  m_nuiDoF; /**< Number of degrees of freedom for the joint. */
+        TgVEC_F32_04_1                              m_vOffset;
+        TgVEC_F32_04_1                              m_VFoR_Rot; /**< Frame of Reference of the constraint, Quaternion */
+        TgVEC_F32_04_1                              m_VFoR_Pos; /**< Frame of Reference of the constraint, Position */
+
+        union {
+            STg2_PH_Constraint_Ball_Socket          m_sBall_Socket;
+            STg2_PH_Constraint_Contact              m_sContact;
+        };
+
+    #if defined(TGS_PS_JOINT_FEEDBACK)
+        TgVEC_F32_04_1                              m_tvF0, m_tvT0;
+        TgVEC_F32_04_1                              m_tvF1, m_tvT1;
+    #endif
+
+    #if 0 != (32 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad[32 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-    TgPH_CONSTRAINT_ID                          m_tiConstraint;
-    TgPH_BODY_ID                                m_tiBY0; /**< Identifier for the first body in the constraint. */
-    TgPH_CONSTRAINT_ID                          m_tiNext_0; /**< Identifier for the next constraint that is associated with Body 0. */
-    TgPH_BODY_ID                                m_tiBY1; /**< Identifier for the second body in the constraint. */
-    TgPH_CONSTRAINT_ID                          m_tiNext_1; /**< Identifier for the next constraint that is associated with Body 1. */
-
-    ETgPH_CONSTRAINT                            m_enConstraint;
-
-    TgFLOAT32                                   m_fMin; /**< Lower Limit, Point of compression failure. */
-    TgFLOAT32                                   m_fMax; /**< Upper Limit, Point of fracture. */
-    TgFLOAT32                                   m_fMax_Moment;
-    TgFLOAT32                                   m_fμs, m_fμd; /**< Static and Dynamic coefficients of friction. */
-
-    TgUINT_E32                                  m_bBreakable : 1;
-    TgUINT_E32                                  m_bEnabled : 1;
-    TgUINT_E32                                  m_uiPad0 : 30;
-
-    TgUINT_E32                                  m_nuiDoF; /**< Number of degrees of freedom for the joint. */
-    TgVEC_F32_04_1                              m_vOffset;
-    TgVEC_F32_04_1                              m_VFoR_Rot; /**< Frame of Reference of the constraint, Quaternion */
-    TgVEC_F32_04_1                              m_VFoR_Pos; /**< Frame of Reference of the constraint, Position */
-
-    union {
-        STg2_PH_Constraint_Ball_Socket          m_sBall_Socket;
-        STg2_PH_Constraint_Contact              m_sContact;
-    };
-
-#if defined(TGS_PS_JOINT_FEEDBACK)
-    TgVEC_F32_04_1                              m_tvF0, m_tvT0;
-    TgVEC_F32_04_1                              m_tvF1, m_tvT1;
-#endif
 };
 
 typedef TgVOID(*TgPH_FCN_USER_CONTACT_COMPLETE)( STg2_PH_Constraint_CPC );
@@ -203,33 +215,36 @@ TgTYPE_STRUCT(STg2_PH_Ragdoll_Bone,)
 };
 
 
-TgTYPE_STRUCT(STg2_PH_Ragdoll,)
+TgTYPE_UNION(STg2_PH_Ragdoll,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
     {
-        STg2_UT_ST__ST_Node                         m_sStack_Node;
         TgRSIZE                                     m_uiUsed_Index;
+        TgPH_RAGDOLL_ID                             m_tiRagdoll;
+        STg2_PH_Ragdoll_Bone_P                      m_asBone[KTgPH_MAX_BONES]; /**< List of rag doll bones. */
+        TgRSIZE                                     m_nuiBone; /**< Number of rag doll bones. */
+        TgUINT_PTR                                  m_uiContext; /**< The owning object - most often an actor. */
+        TgUINT_E64                                  m_bConstraint_Init : 1;
+        TgUINT_E64                                  m_bConstraint_Locked : 1;
+        TgUINT_E64                                  m_uiPad : 62;
+    #if 0 != (216 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad1[216 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-    TgPH_RAGDOLL_ID                             m_tiRagdoll;
-    STg2_PH_Ragdoll_Bone_P                      m_asBone[KTgPH_MAX_BONES]; /**< List of rag doll bones. */
-    TgRSIZE                                     m_nuiBone; /**< Number of rag doll bones. */
-    TgUINT_PTR                                  m_uiContext; /**< The owning object - most often an actor. */
-    TgUINT_E64                                  m_bConstraint_Init : 1;
-    TgUINT_E64                                  m_bConstraint_Locked : 1;
-    TgUINT_E64                                  m_uiPad : 62;
 };
 
 
 /* ---- Scene -------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT(STg2_PH_Scene,)
+TgTYPE_UNION(STg2_PH_Scene,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
     {
-        STg2_UT_ST__ST_Node                         m_sStack_Node;
         TgRSIZE                                     m_uiUsed_Index;
+        TgPH_SCENE_ID                               m_tiScene;
     };
-    TgPH_SCENE_ID                               m_tiScene;
 };
 
 
@@ -332,27 +347,27 @@ TgTYPE_STRUCT( STg2_PH_Solver__Set, )
 
 /* ---- Job Data ----------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT(STg2_PH_Job__Update_World__Simulate_Data,)
+TgTYPE_STRUCT(STg2_PH_Job__Update_World__Simulate_Data, )
 {
-    TgPH_WORLD_ID TgALIGN(16)                   m_tiWorld;
+    TgALIGN(16) TgPH_WORLD_ID                   m_tiWorld;
     TgRSIZE                                     m_uiBody_Index_Begin;
     TgRSIZE                                     m_uiBody_Index_End;
     TgUINT_E08                                  m_uiPad[8];
 };
 TgCOMPILER_ASSERT( sizeof( STg2_PH_Job__Update_World__Simulate_Data ) <= KTgJOB_DATA_SIZE, 0 );
 
-TgTYPE_STRUCT(STg2_PH_Job__Update_World__Collide_Data,)
+TgTYPE_STRUCT(STg2_PH_Job__Update_World__Collide_Data, )
 {
-    TgPH_WORLD_ID TgALIGN(16)                   m_tiWorld;
+    TgALIGN(16) TgPH_WORLD_ID                   m_tiWorld;
     TgRSIZE                                     m_uiForm_Index_Begin;
     TgRSIZE                                     m_uiForm_Index_End;
     TgUINT_E08                                  m_uiPad[8];
 };
 TgCOMPILER_ASSERT( sizeof( STg2_PH_Job__Update_World__Collide_Data ) <= KTgJOB_DATA_SIZE, 0 );
 
-TgTYPE_STRUCT(STg2_PH_Job__Update_World__Build_Set_Data,)
+TgTYPE_STRUCT(STg2_PH_Job__Update_World__Build_Set_Data, )
 {
-    TgPH_WORLD_ID TgALIGN(16)                   m_tiWorld;
+    TgALIGN(16) TgPH_WORLD_ID                   m_tiWorld;
     TgUINT_E08                                  m_bSimulation : 1;
     TgUINT_E08                                  m_bCollision : 1;
     TgUINT_E08                                  m_uiFlags : 6;
@@ -360,9 +375,9 @@ TgTYPE_STRUCT(STg2_PH_Job__Update_World__Build_Set_Data,)
 };
 TgCOMPILER_ASSERT( sizeof( STg2_PH_Job__Update_World__Build_Set_Data ) <= KTgJOB_DATA_SIZE, 0 );
 
-TgTYPE_STRUCT(STg2_PH_Job__Update_World__Solve_Set_Data,)
+TgTYPE_STRUCT(STg2_PH_Job__Update_World__Solve_Set_Data, )
 {
-    TgPH_WORLD_ID TgALIGN(16)                   m_tiWorld;
+    TgALIGN(16) TgPH_WORLD_ID                   m_tiWorld;
     TgUINT_E08                                  m_uiPad0[8];
     STg2_PH_Solver__Set                         m_sSolver_Set;
     TgUINT_E08                                  m_uiPad1[8];

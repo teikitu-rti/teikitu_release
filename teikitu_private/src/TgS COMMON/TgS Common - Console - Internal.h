@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_CONSOLE_INTERNAL_H)
 #define TGS_COMMON_CONSOLE_INTERNAL_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -26,7 +29,8 @@ enum { KTgCN_MAX_COMMAND_HASH_SET          = KTgHASH_LG_SIZE };
 enum { KTgCN_MAX_COMMAND_LEXICAL_LIST      = 29 * 29 * 29 };
 enum { KTgCN_CMD_FLAG_USED                 = 1 };
 
-TgTYPE_ENUM( ETgCN_COMMAND, TgSINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCN_COMMAND__UNKNOWN,         ETgCN_COMMAND__FCN,             ETgCN_COMMAND__VAR_BOOL,        ETgCN_COMMAND__VAR_S08,         ETgCN_COMMAND__VAR_S16,
     ETgCN_COMMAND__VAR_S32,         ETgCN_COMMAND__VAR_S64,         ETgCN_COMMAND__VAR_U08,         ETgCN_COMMAND__VAR_U16,         ETgCN_COMMAND__VAR_U32,
     ETgCN_COMMAND__VAR_U64,         ETgCN_COMMAND__VAR_F32,         ETgCN_COMMAND__VAR_F32_04,      ETgCN_COMMAND__VAR_STRING,
@@ -40,14 +44,16 @@ TgTYPE_ENUM( ETgCN_COMMAND, TgSINT_E32,
     ETgCN_COMMAND__VAR_COUNT = ETgCN_COMMAND__VAR_END - ETgCN_COMMAND__VAR_START,
 
     ETgCN_COMMAND_COUNT = ETgCN_COMMAND__FCN_COUNT + ETgCN_COMMAND__VAR_COUNT
-);
+} ETgCN_COMMAND;
+TgTYPE_MODIFIER_DEFAULT(ETgCN_COMMAND);
+
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 /*  File Local Types                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
-TgTYPE_STRUCT(STg2_CN_Command_Common,)
+TgTYPE_STRUCT(STg2_CN_Command_Common, )
 {
     TgCHAR_U8_CP                                m_mbzName;
     TgRSIZE                                     m_nbyName;
@@ -139,7 +145,7 @@ TgEXTN TgRSIZE                              g_nuiOS_Console_Render_Page_Height;
 /*# TgCOMPILE__CONSOLE */
 #endif
 
-TgEXTN STg2_UT_LF__RW                       g_sCN_Command_Name_Lock;
+TgEXTN STg2_UT_LF_ISO__RW                   g_sCN_Command_Name_Lock;
 TgEXTN STg2_CN_Command_Common_P             g_apsCN_Command_Hash_Set[KTgCN_MAX_COMMAND_HASH_SET];
 TgEXTN STg2_CN_Command_Common_P             g_apsCommand_Lexical_Set[KTgCN_MAX_COMMAND_LEXICAL_LIST];
 

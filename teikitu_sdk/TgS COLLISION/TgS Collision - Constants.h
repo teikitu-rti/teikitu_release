@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COLLISION_CONSTANTS_H)
 #define TGS_COLLISION_CONSTANTS_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Collision ================================================================================================================================================================== */
@@ -137,8 +140,8 @@ enum
     KTgCO_REQUEST__MAX_IGNORE = 32
 };
 
-TgTYPE_ENUM(ETgCO_PURPOSE, TgSINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCO_PURPOSE__UNDEFINED,
     ETgCO_PURPOSE__LINE_OF_SIGHT,
     ETgCO_PURPOSE__DAMAGE,
@@ -153,10 +156,12 @@ TgTYPE_ENUM(ETgCO_PURPOSE, TgSINT_E32,
     ETgCO_PURPOSE__RAY_CAST,
 
     ETgCO_PURPOSE__MAX
-);
+} ETgCO_PURPOSE;
+TgTYPE_MODIFIER_DEFAULT(ETgCO_PURPOSE);
 
-TgTYPE_ENUM(ETgCO_FILTER, TgSINT_E32,
 
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCO_FILTER__NONE = 1 << 0,
     ETgCO_FILTER__ACTOR = 1 << 1,
     ETgCO_FILTER__STATIC_HIGH = 1 << 2,
@@ -170,20 +175,24 @@ TgTYPE_ENUM(ETgCO_FILTER, TgSINT_E32,
     ETgCO_FILTER__RENDER = 1 << 10,
 
     ETgCO_FILTER__EDITOR__DRAFT = 1u << 30,
-);
+} ETgCO_FILTER;
+TgTYPE_MODIFIER_DEFAULT(ETgCO_FILTER);
 
-TgTYPE_ENUM(ETgCO_INTERFACE, TgSINT_E32,
 
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCO_INTERFACE__FAIL,
     ETgCO_INTERFACE__INTERSECTION,
     ETgCO_INTERFACE__NONE,
     ETgCO_INTERFACE__CONTAINED,
 
     ETgCO_INTERFACE__MAX
-);
+} ETgCO_INTERFACE;
+TgTYPE_MODIFIER_DEFAULT(ETgCO_INTERFACE);
 
-TgTYPE_ENUM(ETgCO_TEST, TgSINT_E32,
 
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCO_TEST__UNKNOWN,
     ETgCO_TEST__DIST,
     ETgCO_TEST__CLOSEST,
@@ -197,15 +206,19 @@ TgTYPE_ENUM(ETgCO_TEST, TgSINT_E32,
     ETgCO_TEST__COLLECT, /* ETgCO_TEST__BOOLEAN */
 
     ETgCO_TEST__MAX
-);
+} ETgCO_TEST;
+TgTYPE_MODIFIER_DEFAULT(ETgCO_TEST);
 
-TgTYPE_ENUM(ETgCO_AXIS_CONTACT_DIRECTION, TgSINT_E32,
 
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCO_AXIS_CONTACT_DIRECTION__UNKNOWN,
     ETgCO_AXIS_CONTACT_DIRECTION__POSITIVE,
     ETgCO_AXIS_CONTACT_DIRECTION__NEGATIVE,
     ETgCO_AXIS_CONTACT_DIRECTION__PENETRATED
-);
+} ETgCO_AXIS_CONTACT_DIRECTION;
+TgTYPE_MODIFIER_DEFAULT(ETgCO_AXIS_CONTACT_DIRECTION);
+
 
 /* Intersection tests results are kept in both the time and depth values.  This allows the user to select the ability to retain results that are closest to the origin or */
 /* furthest from the origin. */
@@ -217,13 +230,15 @@ TgTYPE_ENUM(ETgCO_AXIS_CONTACT_DIRECTION, TgSINT_E32,
 /*   ETg_FLAGS_ORDER_PARAMETER is TRUE: Retain results that have the largest penetration depths. */
 /*   ETg_FLAGS_ORDER_PARAMETER is FALSE: Retains results that are closest to a zero time result. */
 
-TgTYPE_ENUM(ETgCO_REQUEST_CONFIG, TgSINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCO_FLAGS_IGNORE_ALL = 1 << 0,
     ETgCO_FLAGS_OWNS_DATA = 1 << 1,
     ETgCO_FLAGS_NO_SORT = 1 << 2,
     ETgCO_FLAGS_ORDER_PARAMETER = 1 << 3, /**< Depth or Time sort parameter */
-);
+} ETgCO_REQUEST_CONFIG;
+TgTYPE_MODIFIER_DEFAULT(ETgCO_REQUEST_CONFIG);
+
 
 #define OK_PROC( A, B )
 #define WARN_PROC( A, B )       ETgRET_CODE__##A,

@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -257,7 +257,7 @@ TgVOID tgKN_FS_JB_Cancel( TgKN_FILE_JOB_ID_C tiFile_Job )
     psJob->m_sCmd.m_sCancel.m_tiFile_Job = tiFile_Job;
     psJob->m_enCmd = ETgFILE_COMMAND__CANCEL;
 
-    tgCM_UT_LF__ST__Push( &psFS->m_sComplete_Job.m_sStack, (STg2_UT_ST__ST_Node_P)psJob );
+    tgCM_UT_LF__ST__Push( &psFS->m_sComplete_Job.m_sStack, &psJob->m_sNode_Stack );
 }
 
 
@@ -373,7 +373,7 @@ TgVOID tgKN_FS_Job_Complete( STg2_KN_File_Job_PCU psJob )
     }
     else
     {
-        tgCM_UT_LF__ST__Push( &psFS->m_sComplete_Job.m_sStack, (STg2_UT_ST__ST_Node_P)psJob );
+        tgCM_UT_LF__ST__Push( &psFS->m_sComplete_Job.m_sStack, &psJob->m_sNode_Stack );
     };
 }
 
@@ -556,10 +556,12 @@ TgKN_FILE_ID tgKN_FS_JB_Open_Internal( STg2_KN_File_Open_Command_CPCU psCmd, TgB
     TgPARAM_CHECK( nullptr != psCmd );
     TgPARAM_CHECK( bBlocking );
 
+    tiFile = KTgKN_FILE_ID__INVALID;
+
     /* Validate the file parameters from the command */
     if (!tgKN_FS_Open_Command_Test( psCmd ))
     {
-        return (KTgKN_FILE_ID__INVALID);
+        return (tiFile);
     };
 
     /* Attempt to acquire a kernel file data structure for the request */
@@ -567,7 +569,7 @@ TgKN_FILE_ID tgKN_FS_JB_Open_Internal( STg2_KN_File_Open_Command_CPCU psCmd, TgB
 
     if (KTgID__INVALID_VALUE == tiFile.m_uiKI)
     {
-        return (KTgKN_FILE_ID__INVALID);
+        return (tiFile);
     };
 
     psJob = tgKN_FS_Mount_Get_Job_Command();
@@ -597,9 +599,11 @@ TgKN_FILE_JOB_ID tgKN_FS_JB_Read_Internal( STg2_KN_File_Read_Command_CPCU psCmd,
 
     TgPARAM_CHECK( nullptr != psCmd );
 
+    tiFile_Job = KTgKN_FILE_JOB_ID__INVALID;
+
     if (!tgKN_FS_Command_Test( psCmd->m_tiFile, ETgFILE_COMMAND__READ_ASYNC ))
     {
-        return (KTgKN_FILE_JOB_ID__INVALID);
+        return (tiFile_Job);
     };
 
     psJob = tgKN_FS_Mount_Get_Job_Command();
@@ -624,9 +628,11 @@ TgKN_FILE_JOB_ID tgKN_FS_JB_Cache_Internal( STg2_KN_File_Cache_Command_CPCU psCm
 
     TgPARAM_CHECK( nullptr != psCmd );
 
+    tiFile_Job = KTgKN_FILE_JOB_ID__INVALID;
+
     if (!tgKN_FS_Command_Test( psCmd->m_tiFile, ETgFILE_COMMAND__CACHE ))
     {
-        return (KTgKN_FILE_JOB_ID__INVALID);
+        return (tiFile_Job);
     };
 
     psJob = tgKN_FS_Mount_Get_Job_Command();
@@ -651,9 +657,11 @@ TgKN_FILE_JOB_ID tgKN_FS_JB_Write_Internal( STg2_KN_File_Write_Command_CPCU psCm
 
     TgPARAM_CHECK( nullptr != psCmd );
 
+    tiFile_Job = KTgKN_FILE_JOB_ID__INVALID;
+
     if (!tgKN_FS_Command_Test( psCmd->m_tiFile, ETgFILE_COMMAND__WRITE_ASYNC ))
     {
-        return (KTgKN_FILE_JOB_ID__INVALID);
+        return (tiFile_Job);
     };
 
     psJob = tgKN_FS_Mount_Get_Job_Command();
@@ -678,9 +686,11 @@ TgKN_FILE_JOB_ID tgKN_FS_JB_Flush_Internal( TgKN_FILE_ID_C tiFile, TgBOOL_C bBlo
 
     TgPARAM_CHECK( KTgID__INVALID_VALUE != tiFile.m_uiKI );
 
+    tiFile_Job = KTgKN_FILE_JOB_ID__INVALID;
+
     if (!tgKN_FS_Command_Test( tiFile, ETgFILE_COMMAND__FLUSH ))
     {
-        return (KTgKN_FILE_JOB_ID__INVALID);
+        return (tiFile_Job);
     };
 
     psJob = tgKN_FS_Mount_Get_Job_Command();
@@ -704,9 +714,11 @@ TgKN_FILE_JOB_ID tgKN_FS_JB_Close_Internal( TgKN_FILE_ID_C tiFile, TgBOOL_C bBlo
 
     TgPARAM_CHECK( KTgID__INVALID_VALUE != tiFile.m_uiKI );
 
+    tiFile_Job = KTgKN_FILE_JOB_ID__INVALID;
+
     if (!tgKN_FS_Command_Test( tiFile, ETgFILE_COMMAND__CLOSE ))
     {
-        return (KTgKN_FILE_JOB_ID__INVALID);
+        return (tiFile_Job);
     };
 
     psJob = tgKN_FS_Mount_Get_Job_Command();
@@ -824,7 +836,7 @@ static TgVOID tgKN_FS_Job_Complete_Final( STg2_KN_File_System_PC psFS, STg2_KN_F
 
         } while (0);
 
-        tgCM_UT_LF__ST__Push( &g_sKN_File_Job__Free_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)psJob );
+        tgCM_UT_LF__ST__Push( &g_sKN_File_Job__Free_Stack.m_sStack, &psJob->m_sNode_Stack );
         return;
     };
 
@@ -869,7 +881,7 @@ static TgVOID tgKN_FS_Job_Complete_Final( STg2_KN_File_System_PC psFS, STg2_KN_F
         psJob->m_pmxBL = nullptr;
     };
 
-    tgCM_UT_LF__ST__Push( &g_sKN_File_Job__Free_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)psJob);
+    tgCM_UT_LF__ST__Push( &g_sKN_File_Job__Free_Stack.m_sStack, &psJob->m_sNode_Stack);
 }
 
 

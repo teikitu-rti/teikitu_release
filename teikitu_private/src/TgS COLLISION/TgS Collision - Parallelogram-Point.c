@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -46,6 +46,8 @@ VEC_T(1) FCN_VO(tgCO_PE_ClosestSq_PM_PT)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, 
     VEC_T(1,C)                          vE1_EN0 = FCN_V(tgMH_DOT)( psPE0->m_avEdge_Normal[0], psPE0->m_avEdge[1] );
     VEC_T(1,C)                          vE0_EN1 = FCN_V(tgMH_DOT)( psPE0->m_avEdge_Normal[1], psPE0->m_avEdge[0] );
 
+    VEC_T(1)                            vDistSq;
+
     TgPARAM_CHECK( FCN_VO(tgGM_PE_Is_Valid)(psPE0) && FCN_V(tgMH_Is_Valid_Point)(vS0) );
 
     if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LE)( vDS_DS, vPOS_EPS ) ))
@@ -53,13 +55,15 @@ VEC_T(1) FCN_VO(tgCO_PE_ClosestSq_PM_PT)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, 
         /* Quick Out - the point is within tolerance of rectangle origin. */
         *pvPE0 = FCN_V(tgMH_SET1)( TYPE_K(0) );
         *pvPE1 = FCN_V(tgMH_SET1)( TYPE_K(0) );
-        return (FCN_V(tgMH_SET1)( TYPE_K(0) ));
+        vDistSq = FCN_V(tgMH_SET1)( TYPE_K(0) );
+        return (vDistSq);
     };
 
     if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LE)( vE1_EN0, vPOS_EPS ) ) || FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LE)( vE0_EN1, vPOS_EPS ) ))
     {
         /* Degenerate parallelogram - One or both of the edges has a near-zero length */
-        return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+        vDistSq = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+        return (vDistSq);
     }
     else
     {
@@ -70,7 +74,7 @@ VEC_T(1) FCN_VO(tgCO_PE_ClosestSq_PM_PT)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, 
 
         VEC_T(1,C)                          vDS_N = FCN_V(tgMH_DOT)( vDS, psPE0->m_vNormal );
 
-        VEC_T(1)                            vPE0, vPE1, vDistSq, vT0, vTestSq;
+        VEC_T(1)                            vPE0, vPE1, vT0, vTestSq;
 
         vPE0 = vPE1 = vDistSq = FCN_V(tgMH_SET1)( VAR_K(KTgMAX) );
 
@@ -81,7 +85,8 @@ VEC_T(1) FCN_VO(tgCO_PE_ClosestSq_PM_PT)( VEC_T(1,PC) pvPE0, VEC_T(1,PC) pvPE1, 
         {
             *pvPE0 = FCN_V(tgMH_DIV)( v01, vE0_EN1 );
             *pvPE1 = FCN_V(tgMH_DIV)( v00, vE1_EN0 );
-            return (FCN_V(tgMH_MUL)( vDS_N, vDS_N ));
+            vDistSq = FCN_V(tgMH_MUL)( vDS_N, vDS_N );
+            return (vDistSq);
         };
 
         if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LT)( v00, vPOS_EPS ) ))

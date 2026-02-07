@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Common [Unit Test] [Test] - Math API [Vector].c_inc
+    »File«      TgS Common [Unit Test] [Test] - Math [Vector].c
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -98,7 +98,7 @@ TEST_METHOD_DEFINE( FCN_V_UT(tgMH_SETU) )
         VEC_T(1)                            v;
         VEC_S_T(1)                          vS;
     }                                   uV0;
-    VAR_T() TgALIGN(16)                 at1[TEMPLATE__VECTOR_DIM*2];
+    TgALIGN(16) VAR_T()                 at1[TEMPLATE__VECTOR_DIM*2];
 
     for (TgRSIZE uiIndex = 0; uiIndex < TEMPLATE__VECTOR_DIM*2; ++uiIndex)
     {
@@ -128,7 +128,7 @@ TEST_METHOD_DEFINE( FCN_V_UT(tgMH_SETA) )
         VEC_T(1)                            v;
         VEC_S_T(1)                          vS;
     }                                   uV0;
-    VAR_T() TgALIGN(16)                 at1[TEMPLATE__VECTOR_DIM];
+    TgALIGN(16) VAR_T()                 at1[TEMPLATE__VECTOR_DIM];
     TgRSIZE                             uiIndex;
 
     for (uiIndex = 0; uiIndex < TEMPLATE__VECTOR_DIM; ++uiIndex)

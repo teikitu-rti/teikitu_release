@@ -1,17 +1,17 @@
-From 9b44ef5ed430c0a53252821d3afcbd7d09d0ba15 Mon Sep 17 00:00:00 2001
+From d09014133211d4501bab694a2b4cc04b467b2bc7 Mon Sep 17 00:00:00 2001
 From: Andrew Aye <github.very069@passmail.net>
-Date: Tue, 12 Nov 2024 08:13:26 -0800
-Subject: [PATCH 3/4] Update CMakeLists.txt
+Date: Sat, 30 Aug 2025 00:01:55 -0700
+Subject: [PATCH 3/5] Update CMakeLists.
 
 ---
  CMakeLists.txt | 15 +++++++++++++--
  1 file changed, 13 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 4729e5b..8455b43 100644
+index 5ce084f6..1b229902 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -295,7 +295,7 @@ if(MI_USE_CXX)
+@@ -355,7 +355,7 @@ if(MI_USE_CXX)
    set_source_files_properties(${mi_sources} PROPERTIES LANGUAGE CXX )
    set_source_files_properties(src/static.c test/test-api.c test/test-api-fill test/test-stress PROPERTIES LANGUAGE CXX )
    if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
@@ -20,7 +20,7 @@ index 4729e5b..8455b43 100644
    endif()
    if(CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM")
      list(APPEND mi_cflags -Kc++)
-@@ -426,7 +426,7 @@ set(mi_install_bindir       "${CMAKE_INSTALL_BINDIR}")
+@@ -512,7 +512,7 @@ endif()
  # static libraries and object files, includes, and cmake config files
  # are either installed at top level, or use versioned directories for side-by-side installation (default)
  if (MI_INSTALL_TOPLEVEL)
@@ -29,7 +29,7 @@ index 4729e5b..8455b43 100644
    set(mi_install_incdir     "${CMAKE_INSTALL_INCLUDEDIR}")
    set(mi_install_cmakedir   "${CMAKE_INSTALL_LIBDIR}/cmake/mimalloc")
  else()
-@@ -543,6 +543,17 @@ install(FILES include/mimalloc-new-delete.h DESTINATION ${mi_install_incdir})
+@@ -646,6 +646,17 @@ install(FILES include/mimalloc-stats.h DESTINATION ${mi_install_incdir})
  install(FILES cmake/mimalloc-config.cmake DESTINATION ${mi_install_cmakedir})
  install(FILES cmake/mimalloc-config-version.cmake DESTINATION ${mi_install_cmakedir})
  
@@ -41,12 +41,12 @@ index 4729e5b..8455b43 100644
 +      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/bin/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.lib" $<TARGET_FILE_DIR:mimalloc-static>
 +      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/bin/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.dll" $<TARGET_FILE_DIR:mimalloc-static>
 +      COMMENT "Copy mimalloc-redirect${MIMALLOC_REDIRECT_SUFFIX}.dll to output directory")
-+    install(FILES "$<TARGET_FILE_DIR:mimalloc-static>/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.lib" DESTINATION ${mi_install_libdir})
-+    install(FILES "$<TARGET_FILE_DIR:mimalloc-static>/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.dll" DESTINATION ${mi_install_libdir})
++    install(FILES "$<TARGET_FILE_DIR:mimalloc-static>/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.lib" DESTINATION ${CMAKE_INSTALL_BINDIR})
++    install(FILES "$<TARGET_FILE_DIR:mimalloc-static>/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.dll" DESTINATION ${CMAKE_INSTALL_BINDIR})
 +endif()
  
  # single object file for more predictable static overriding
  if (MI_BUILD_OBJECT)
 -- 
-2.46.2.windows.1
+2.47.1.windows.1
 

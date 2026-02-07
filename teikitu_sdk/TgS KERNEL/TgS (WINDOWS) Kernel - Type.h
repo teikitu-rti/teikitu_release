@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 #if !defined(TGS_WINDOWS_KERNEL_TYPE_H)
 #define TGS_WINDOWS_KERNEL_TYPE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #if !defined(TGS_KERNEL_H)
 #error Base Kernel include chain should be prior to this file.
@@ -55,14 +58,18 @@ TgTYPE_STRUCT(STg2_KN_OS_Window_Configuration,)
     TgUINT_E32                                  m_bTitle_Include_Default: 1; /**< True when the default title is included when rebuilding the window title. */
     TgUINT_E32                                  m_bTitle_Include_Dimensions : 1; /**< True when the window dimensions are included when rebuilding the window title. */
 
-    TgUINT_E32                                  m_bPad: 16;
+    TgUINT_E32                                  m_bPad: 18;
 };
 
 TgTYPE_STRUCT(STg2_KN_OS_UNIT_TEST__UTIL__Window,)
 {
-    TgSINT_PTR                          m_iWnd;
-    TgFLOAT32                           m_fFrame_Elapsed_Time;
     TgSINT_E32                          m_iOutput;
+    TgUINT_E32                          m_uiPad;
+    TgSINT_PTR                          m_iWnd;
+    TgFLOAT32                           m_afCPU_Frame_Elapsed_Time[128];
+    TgFLOAT32                           m_afGPU_Frame_Elapsed_Time[128];
+    TgRSIZE                             m_uiElapsed_Time;
+    TgRSIZE                             m_uiTimestamp_Start, m_uiTimestamp_End;
     union
     {
         HWND                                m_hWnd;

@@ -86,7 +86,7 @@ SET (MK_BUILD_PACKAGE_PROJECT_NAME "teikitu")
 # ========================================================================================================================================================================================================
 
 # Disable Vulkan and Metal
-IF ("${MK_FEATURE__GRAPHICS}" STREQUAL "VULKAN" OR "${MK_FEATURE__GRAPHICS}" STREQUAL "METAL")
+IF ("${MK_FEATURE__GRAPHICS}" STREQUAL "METAL")
     SET (MK_FEATURE__GRAPHICS "REF")
 ENDIF ()
 

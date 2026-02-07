@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -203,14 +203,14 @@ TEST_METHOD( UNIT_TEST__TEST__FX_GPU_Render_Enumeration )
 {
 #if defined(TgBUILD_FEATURE__GRAPHICS)
 
-    STg2_KN_GPU_Adapter_CP              apAdapter[KTgKN_GPU_MAX_ADAPTER];
+    STg2_KN_GPU_Physical_Device_CP      apPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE];
 
     /* Enumerate all the device and device instantiations (including software (WARP on DX12) adapters). */
     Test__Expect_EQ(KTgS_OK, tgKN_GPU_Enumerate());
 
     /* Unit Test validation that we pulled back at least one adapter, and the output list is legal (though potential empty). */
-    Test__Expect_EQ(KTgS_OK, tgKN_GPU_Query_Adapter_List( apAdapter, KTgKN_GPU_MAX_ADAPTER ));
-    Test__Expect_NE(nullptr, apAdapter[0]);
+    Test__Expect_EQ(KTgS_OK, tgKN_GPU__Host__Query_Physical_Device_List( apPhysical_Device, KTgKN_GPU_MAX_PHYSICAL_DEVICE ));
+    Test__Expect_NE(nullptr, apPhysical_Device[0]);
 
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
@@ -262,21 +262,6 @@ static TgRESULT UNIT_TEST__TEST__FX_GPU_Render_Simple_Job( STg2_Job_CPC psJob )
 {
     union { TgUINT_E08_CP pui; UT_KN_GPU_Render_Simple_Job_Data_CP ps; } const uJob_Data = { .pui = psJob->m_auiData };
     (void)uJob_Data;
-
-#if defined(TgBUILD_OS__WINDOWS)
-    TgOSCHAR                            szBuffer[256];
-    TgFLOAT32                           fFrame_Start_Time;
-
-    fFrame_Start_Time = tgTM_Query_Time();
-    tgUnit_Test__FX__Render( uJob_Data.ps->m_tiCXT_EXEC, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiCXT_WORK, 0 );
-    s_shWnd[uJob_Data.ps->m_uiWindow].m_fFrame_Elapsed_Time = tgTM_Query_Time() - fFrame_Start_Time;
-
-    /* Add the frame time to the windows title. */
-    TgOS_TEXT_FCN(PrintF)( szBuffer, 256, TgOS_TEXT(" Render Time: % 2.2fms, Update Time: % 2.2fms"), (double)s_shWnd[uJob_Data.ps->m_uiWindow].m_fFrame_Elapsed_Time,
-                           (double)s_fTotal_Elapse_Frame_Time );
-    tgKN_OS_Set_Window_Title(s_shWnd[uJob_Data.ps->m_uiWindow].m_iWnd, szBuffer, 256 );
-/*# defined(TgBUILD_OS__WINDOWS) */
-#endif
 
     TgSTD_ATOMIC(fetch_add)( &s_xuiRender_Counter, 1 );
     return (KTgS_OK);
@@ -421,7 +406,7 @@ TEST_METHOD( UNIT_TEST__TEST__FX_GPU_Render_Simple )
 
         asJob[uiSwap].m_pfnExecute = UNIT_TEST__TEST__FX_GPU_Render_Simple_Job;
 
-        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT__MAX, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
+        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT_UNDEFINED, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
         tgUnit_Test__FX__Create_Resources( uJob_Data[uiSwap].ps->m_tiCXT_EXEC, uJob_Data[uiSwap].ps->m_tiCXT_SWAP, uJob_Data[uiSwap].ps->m_uiNodeMask );
     };
 
@@ -514,7 +499,7 @@ TEST_METHOD( UNIT_TEST__TEST__FX_GPU_Render_Simple )
         {
             if (atiCXT_WORK[uiSwap].m_uiKI != 0)
             {
-                tgKN_GPU_EXT__Execute__Frame_End( atiCXT_WORK[uiSwap] );
+                tgKN_GPU_EXT__WORK__Frame_End( atiCXT_WORK[uiSwap] );
                 atiCXT_WORK[uiSwap].m_uiKI = 0;
             }
         }
@@ -621,17 +606,17 @@ TgVOID tgUnit_Test__FX__Setup_Scene_Constant_Buffer( STg2_KN_GPU_Render_Buffer_C
     TgFLOAT32                           fCosTheta, fSinTheta, fCosPhi, fSinPhi;
     TgVEC_S_F32_04_4                    mS2C;
 
-    tgMH_PProj_FoVLH_S_F32_04_4( &g_sSceneConstantBuffer.m_mC2S, fFoV, fAspect_Ratio, 0.01F, 1000.0F );
-    tgMM_Copy( &g_sCamera.m_xFrustum_C2S, sizeof(g_sCamera.m_xFrustum_C2S), &g_sSceneConstantBuffer.m_mC2S, sizeof(g_sSceneConstantBuffer.m_mC2S) );
-    tgMH_INV_S_F32_04_4( &mS2C, &g_sSceneConstantBuffer.m_mC2S );
-    tgMM_Copy( &g_sCamera.m_xFrustum_S2C, sizeof(g_sCamera.m_xFrustum_S2C), &mS2C, sizeof(mS2C) );
+    tgMH_PProj_FoVLH_S_F32_04_4( &g_sSceneConstantBuffer.m_avC2S, fFoV, fAspect_Ratio, 0.01F, 1000.0F );
+    tgMM_Copy( &g_sCamera.m_sCamera_Shared.m_avC2S, sizeof(g_sCamera.m_sCamera_Shared.m_avC2S), &g_sSceneConstantBuffer.m_avC2S, sizeof(g_sSceneConstantBuffer.m_avC2S) );
+    tgMH_INV_S_F32_04_4( &mS2C, &g_sSceneConstantBuffer.m_avC2S );
+    tgMM_Copy( &g_sCamera.m_sCamera_Shared.m_avS2C, sizeof(g_sCamera.m_sCamera_Shared.m_avS2C), &mS2C, sizeof(mS2C) );
 
     if (fAspect_Ratio < 1.0F)
     {
-        TgFLOAT32_C                         fSwap = g_sSceneConstantBuffer.m_mC2S._11;
+        TgFLOAT32_C                         fSwap = g_sSceneConstantBuffer.m_avC2S._11;
 
-        g_sSceneConstantBuffer.m_mC2S._11 = g_sSceneConstantBuffer.m_mC2S._22 / fAspect_Ratio;
-        g_sSceneConstantBuffer.m_mC2S._22 = fSwap * fAspect_Ratio;
+        g_sSceneConstantBuffer.m_avC2S._11 = g_sSceneConstantBuffer.m_avC2S._22 / fAspect_Ratio;
+        g_sSceneConstantBuffer.m_avC2S._22 = fSwap * fAspect_Ratio;
     }
 
     tgPM_SINCOS_F32( &fSinTheta, &fCosTheta, s_fTheta[0] );
@@ -644,15 +629,14 @@ TgVOID tgUnit_Test__FX__Setup_Scene_Constant_Buffer( STg2_KN_GPU_Render_Buffer_C
     vAt = tgMH_Init_Point_ELEM_S_F32_04_1( 0.0F, 0.0f, 0.0F );
     vUp = tgMH_Init_Vector_ELEM_S_F32_04_1( 0.0f, 1.0f, 0.0f );
 
-    tgMH_LookLH_S_F32_04_4( &g_sSceneConstantBuffer.m_mW2C, vEye, vAt, vUp );
-    tgMM_Copy( &g_sCamera.m_xFrustum_W2C, sizeof(g_sCamera.m_xFrustum_W2C), &g_sSceneConstantBuffer.m_mW2C, sizeof(g_sSceneConstantBuffer.m_mW2C) );
+    tgMH_LookLH_S_F32_04_4( &g_sSceneConstantBuffer.m_avW2C, vEye, vAt, vUp );
+    tgMM_Copy( &g_sCamera.m_sCamera_Shared.m_avW2C, sizeof(g_sCamera.m_sCamera_Shared.m_avW2C), &g_sSceneConstantBuffer.m_avW2C, sizeof(g_sSceneConstantBuffer.m_avW2C) );
 
-    g_sCamera.m_sCamera.m_uCam_Position.m_vS_F32_04_1 = vEye;
+    g_sCamera.m_sConfiguration.m_uCamera_Position.m_vS_F32_04_1 = vEye;
 
-    g_sCamera.m_vCam_Forward = tgMH_Init_Vector_F32_04_1( g_sCamera.m_xFrustum_W2C.m_vC2 );
-    g_sCamera.m_vCam_Right = tgMH_Init_Vector_F32_04_1( g_sCamera.m_xFrustum_W2C.m_vC0 );
-    g_sCamera.m_vCam_Up = tgMH_Init_Vector_F32_04_1( g_sCamera.m_xFrustum_W2C.m_vC1 );
-
+    g_sCamera.m_sCamera_Shared.m_vCam_Forward = tgMH_Init_Vector_F32_04_1( g_sCamera.m_sCamera_Shared.m_avW2C.m_vC2 );
+    g_sCamera.m_sCamera_Shared.m_vCam_Right = tgMH_Init_Vector_F32_04_1( g_sCamera.m_sCamera_Shared.m_avW2C.m_vC0 );
+    g_sCamera.m_sCamera_Shared.m_vCam_Up = tgMH_Init_Vector_F32_04_1( g_sCamera.m_sCamera_Shared.m_avW2C.m_vC1 );
 
     if (1 == s_iCamera_Select)
     {
@@ -666,7 +650,7 @@ TgVOID tgUnit_Test__FX__Setup_Scene_Constant_Buffer( STg2_KN_GPU_Render_Buffer_C
         vAt = tgMH_Init_Point_ELEM_S_F32_04_1( 0.0F, 0.0f, 0.0F );
         vUp = tgMH_Init_Vector_ELEM_S_F32_04_1( 0.0f, 1.0f, 0.0f );
 
-        tgMH_LookLH_S_F32_04_4( &g_sSceneConstantBuffer.m_mW2C, vEye, vAt, vUp );
+        tgMH_LookLH_S_F32_04_4( &g_sSceneConstantBuffer.m_avW2C, vEye, vAt, vUp );
     }
 }
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */

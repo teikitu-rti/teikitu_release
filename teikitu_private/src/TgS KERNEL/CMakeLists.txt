@@ -6,6 +6,7 @@ CMAKE_PATH ( SET MK_BUILD_ROOT__MODULE_NAME "KERNEL" )
 CMAKE_PATH ( SET MK_BUILD_ROOT__INC_DIR NORMALIZE "${GIT_ROOT_PATH}/teikitu_sdk" )
 CMAKE_PATH ( SET MK_BUILD_MODULE__INC_DIR NORMALIZE "${GIT_ROOT_PATH}/teikitu_sdk/TgS ${MK_BUILD_ROOT__MODULE_NAME}" )
 CMAKE_PATH ( SET MK_BUILD_MODULE__SRC_DIR NORMALIZE "${GIT_ROOT_PATH}/teikitu_private/src/TgS ${MK_BUILD_ROOT__MODULE_NAME}" )
+CMAKE_PATH ( SET MK_BUILD_MODULE__INT_DIR NORMALIZE "${GIT_ROOT_PATH}/teikitu_private/int/TgS ${MK_BUILD_ROOT__MODULE_NAME}" )
 
 # Special case for "headless" graphics/rendering: NONE
 SET (MK_BUILD__GRAPHICS_GENEREIC "NO_IMPL")
@@ -48,10 +49,13 @@ TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public" "${M
 # library platform specific files
 
 FOREACH (MK_LIST_ITEM__OS_NAME IN LISTS MK_GENERATE_LIST__OS_NAMES)
-    TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Data.c" )
-    TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Module.c" )
+    TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel [GPU] - System [Select].c")
+    TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel [GPU] - Module.c")
+
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Configuration.c")
+    TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Data.c" )
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Link Test.c")
+    TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Module.c" )
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - System.c")
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Unit Test.c")
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel [PCH].c")
@@ -63,8 +67,9 @@ FOREACH (MK_LIST_ITEM__OS_NAME IN LISTS MK_GENERATE_LIST__OS_NAMES)
     TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Constants.h")
     TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel - Type.h")
     TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__OS_NAME}" ${MK_BUILD__OS_NAME} "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (${MK_LIST_ITEM__OS_NAME}) Kernel.h")
-
 ENDFOREACH ()
+
+TGS_SOURCE_APPEND_GNU_COMPILER_OPTION( "${MK_BUILD_MODULE__SRC_DIR}/TgS (WINDOWS) Kernel [GPU] - Module.c" "Wno-unused-parameter")
 
 
 
@@ -75,7 +80,7 @@ ENDFOREACH ()
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Constants.c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Data.c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Debug [Console].c")
-TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Debug [Geom-Text-UI].c")
+TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Debug [Render].c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Debug.c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Module.c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - System [Context].c")
@@ -84,6 +89,7 @@ TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAP
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - System [Context] [HOST].c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - System [Context] [SWAP].c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - System.c")
+TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Utils.c")
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Unit Test.c")
 
 TGS_ADD_SOURCE_FILE( lib_gpu_source_files lib_gpu_header_files "${MK_BUILD__GRAPHICS_GENEREIC}" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS Kernel [GPU] - Resource [Common].c")
@@ -114,7 +120,7 @@ TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Publ
 TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] - Resource [INC].h")
 TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] - Resource [HLSL] [Constants].h")
 TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] - Resource [HLSL] [Data].h")
-TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] - Resource [HLSL] [Vertex].h")
+TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] - Resource [HLSL] [Vertex] [INC].h")
 TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] - Type.h")
 TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public" "${MK_BUILD_MODULE__INC_DIR}/TgS Kernel [GPU] [EXT].h")
 TGS_ADD_HEADER_FILE( lib_gpu_source_files lib_sdk_gpu_header_files "-" "-" "Public" "${MK_BUILD_ROOT__INC_DIR}/TgS Kernel [GPU].h")
@@ -135,93 +141,82 @@ TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "-" "-" "
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
-# GPU Library - Specialization DX12
-
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Internal - Constants.h")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Internal - Data.h")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Internal - Debug.h")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Internal - Type.h")
-
-TGS_ADD_INCSRC_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Inline Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Internal.inl")
-
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Link Test.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Constants.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Debug [Geom-Text-UI].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Debug.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Data.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Module.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Context] [DEVC].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Context] [EXEC].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Context] [HOST].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Context] [SWAP].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Enumeration].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Select].c")
-
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Resource [Data Buffer].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Resource [Pipeline].c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - Resource [Texture].c")
-
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12-WINDOWS" "${MK_BUILD__GRAPHICS_NAME}-${MK_BUILD__OS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12-WINDOWS) Kernel [GPU] - Module.c")
-
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (DX12) Kernel [GPU] - Constants.h")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (DX12) Kernel [GPU] - Type.h")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "Public" "${MK_BUILD_MODULE__INC_DIR}/TgS (DX12) Kernel [GPU].h")
-
-TGS_SOURCE_APPEND_GNU_COMPILER_OPTION( "${MK_BUILD_MODULE__SRC_DIR}/TgS (DX12) Kernel [GPU] - System [Context] [HOST].c" "Wno-invalid-token-paste")
-
-
-# DX12 HLSL Files
-
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Particle_00_PS_FX.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Particle_01_PS_FX.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Geom_00_PS_P.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Geom_01_PS_PC.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Geom_02_PS_PNC.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Geom_02I_PS_PNC.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Geom_03_PS_PNC.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Line_PS_PC.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_UI_PS_UI.vs.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_UI_Text_PS_UIT.vs.hlsl")
-
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_FX.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_UI.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_UIG.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_UIT.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_P.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_PN.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_PC.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_PCG.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_PNC.ps.hlsl")
-TGS_ADD_HLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Test_PNC.ps.hlsl")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "DX12" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files" "${MK_BUILD_MODULE__SRC_DIR}/Standard_Debug_Common.hlsli")
-
-
-
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
 # GPU Library - Specialization Vulkan (VLKN)
 
+# Source Files
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Data.c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Debug.c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Debug [Render Context].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Debug [Render].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Module.c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System [Context] [DEVC].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System [Context] [EXEC].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System [Context] [HOST].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System [Context] [SWAP].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System [Enumeration].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System.c")
 
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Resource [Data Buffer].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Resource [Pipeline].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Resource [Texture].c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Resource" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Resource [Render Target].c")
+
+SET_SOURCE_FILES_PROPERTIES ("${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System.c" PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+TGS_SOURCE_APPEND_MSVC_COMPILER_OPTION( "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System.c" "Dno_volk")
+TGS_SOURCE_APPEND_GNU_COMPILER_OPTION("${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - System.c" "Dno_volk")
+
+
+# OS-specific GPU modules for VULKAN
 TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN-WINDOWS" "${MK_BUILD__GRAPHICS_NAME}-${MK_BUILD__OS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN-WINDOWS) Kernel [GPU] - Module.c")
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] [API].c")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Internal.h")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN-POSIX" "${MK_BUILD__GRAPHICS_NAME}-${MK_BUILD__OS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN-POSIX) Kernel [GPU] - Module.c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN-MAC" "${MK_BUILD__GRAPHICS_NAME}-${MK_BUILD__OS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN-MAC) Kernel [GPU] - Module.c")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN-MAC" "${MK_BUILD__GRAPHICS_NAME}-${MK_BUILD__OS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN-MAC) Kernel [GPU] - Surface.mm")
+TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN-IOS" "${MK_BUILD__GRAPHICS_NAME}-${MK_BUILD__OS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN-IOS) Kernel [GPU] - Module.c")
 
+SET_SOURCE_FILES_PROPERTIES ("${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN-MAC) Kernel [GPU] - Surface.mm" PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+
+# Internal Headers
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Internal.h")
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Internal - Data.h")
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Internal - Type.h")
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (VULKAN) Kernel [GPU] - Internal - Constants.h")
+
+# Public Headers
 TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (VULKAN) Kernel [GPU] - Constants.h")
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (VULKAN) Kernel [GPU] - Type.h")
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (VULKAN) Kernel [GPU].h")
 
+# GLSL Shader Files for Vulkan
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Particle_SC_VWC_00.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Particle_SC_VWC_01.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Test_SN_VWNC.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_S_VW.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_SC_VWC.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_SN_VWNC.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_SNC_VWNC.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_UI_SUC_UC.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_Text_SU_U.vert.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/VS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_SN_VWNC_I.vert.glsl")
 
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Particle_VWC.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Test_VWNC.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_Line.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_VW.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_VWC_00.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_VWC_01.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_VWNC.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_UC_00.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_UC_01.frag.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/PS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_Text_U.frag.glsl")
 
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/MS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_Line.mesh.glsl")
 
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
-# GPU Library - Specialization Vulkan (METAL)
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/TS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_DBG_Line.task.glsl")
 
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/CS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Colour_Correction.comp.glsl")
+TGS_ADD_GLSL_FILE_AND_COMPILE_TO_HEADER( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files/CS" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Luminance_Histogram.comp.glsl")
 
-TGS_ADD_SOURCE_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "METAL" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Source Files/Base" "${MK_BUILD_MODULE__SRC_DIR}/TgS (METAL) Kernel [GPU] [API].c")
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "METAL" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS (METAL) Kernel [GPU] - Internal.h")
-
-TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_sdk_api_gpu_header_files "METAL" "${MK_BUILD__GRAPHICS_NAME}" "Public/Header Files" "${MK_BUILD_MODULE__INC_DIR}/TgS (METAL) Kernel [GPU] - Constants.h")
-
-
+TGS_ADD_HEADER_FILE( lib_api_gpu_source_files lib_api_gpu_header_files "VULKAN" "${MK_BUILD__GRAPHICS_NAME}" "SDK/Content/Shader Files" "${MK_BUILD_MODULE__SRC_DIR}/Default_VLKN_Common.glsl")
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
@@ -253,11 +248,13 @@ ADD_LIBRARY (${MK_BUILD__GRAPHICS_IMPL_LIB} STATIC ${lib_api_gpu_source_files} $
 TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ("__GPU__${MK_BUILD__GRAPHICS_NAME}")
 SET (PCH_GPU_INCLUDE_DEFAULT "TgS (${MK_BUILD__GRAPHICS_NAME}) Kernel [GPU] - Internal.h")
 TGS_SET_STANDARD_LIBRARY_PROPERTIES (${MK_BUILD__GRAPHICS_IMPL_LIB} "${MK_BUILD_MODULE__SRC_DIR}" "TgS (API) Kernel [GPU] [PCH]" ${PCH_GPU_INCLUDE_DEFAULT} lib_api_gpu_source_files lib_api_gpu_header_files lib_sdk_api_gpu_header_files)
-IF (NOT EXISTS "${MK_BUILD_MODULE__SRC_DIR}/${MK_COMPILE__TYPE}")
-    FILE (MAKE_DIRECTORY "${MK_BUILD_MODULE__SRC_DIR}/${MK_COMPILE__TYPE}")
-    MESSAGE( STATUS "Created directory: ${MK_BUILD_MODULE__SRC_DIR}/${MK_COMPILE__TYPE}")
+
+IF (NOT EXISTS "${MK_BUILD_MODULE__INT_DIR}/${MK_COMPILE__TYPE}")
+    FILE (MAKE_DIRECTORY "${MK_BUILD_MODULE__INT_DIR}/${MK_COMPILE__TYPE}")
+    MESSAGE( STATUS "Created directory: ${MK_BUILD_MODULE__INT_DIR}/${MK_COMPILE__TYPE}")
 ENDIF ()
-TARGET_INCLUDE_DIRECTORIES (${MK_BUILD__GRAPHICS_IMPL_LIB} PRIVATE "${MK_BUILD_MODULE__SRC_DIR}/${MK_COMPILE__TYPE}")
+TARGET_INCLUDE_DIRECTORIES (${MK_BUILD__GRAPHICS_IMPL_LIB} PRIVATE "${MK_BUILD_MODULE__INT_DIR}/${MK_COMPILE__TYPE}")
+ADD_DEPENDENCIES(${MK_BUILD__GRAPHICS_IMPL_LIB} ${MK_BUILD_ROOT__MODULE_NAME}-Shaders)
 
 IF ("${MK_BUILD__GRAPHICS_NAME}" STREQUAL "DX12")
     # DirectX Headers
@@ -290,6 +287,24 @@ IF ("${MK_BUILD__GRAPHICS_NAME}" STREQUAL "DX12")
     SET_TARGET_PROPERTIES("WinPixEventRuntimeLIB" PROPERTIES FOLDER "External Dependencies")
 ENDIF ()
 
+IF ("${MK_BUILD__GRAPHICS_NAME}" STREQUAL "VULKAN")
+    # Link volk for dynamic Vulkan loading
+    TARGET_LINK_LIBRARIES (${MK_BUILD__GRAPHICS_IMPL_LIB} PRIVATE volk::volk_headers)
+    TARGET_INCLUDE_DIRECTORIES(${MK_BUILD__GRAPHICS_IMPL_LIB} PUBLIC ${Vulkan_INCLUDE_DIRS})
+    
+    # Add Vulkan validation layers for debug builds
+    IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        TARGET_COMPILE_DEFINITIONS (${MK_BUILD__GRAPHICS_IMPL_LIB} PUBLIC TgCOMPILE__VULKAN_VALIDATION_LAYERS)
+    ENDIF ()
+
+    IF (MK_BUILD_OS__POSIX AND NOT APPLE)
+        FIND_PACKAGE(PkgConfig REQUIRED)
+        PKG_CHECK_MODULES(XCB REQUIRED xcb)
+        TARGET_INCLUDE_DIRECTORIES(${MK_BUILD__GRAPHICS_IMPL_LIB} PUBLIC ${XCB_INCLUDE_DIRS})
+        TARGET_LINK_LIBRARIES(${MK_BUILD__GRAPHICS_IMPL_LIB} PUBLIC ${XCB_LIBRARIES})
+    ENDIF ()
+ENDIF ()
+
 
 # KERNEL GPU
 
@@ -299,7 +314,7 @@ TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ("__GPU")
 SET (PCH_GPU_INCLUDE_DEFAULT "TgS Kernel [GPU] - Internal.h")
 TGS_SET_STANDARD_LIBRARY_PROPERTIES (${MK_BUILD__MODULE_GPU_LIB} "${MK_BUILD_MODULE__SRC_DIR}" "TgS Kernel [GPU] [PCH]" ${PCH_GPU_INCLUDE_DEFAULT} lib_gpu_source_files lib_gpu_header_files lib_sdk_gpu_header_files)
 TARGET_INCLUDE_DIRECTORIES (${MK_BUILD__MODULE_GPU_LIB} PUBLIC "${TIFF_INCLUDE_DIRS}")
-
+ADD_DEPENDENCIES(${MK_BUILD__MODULE_GPU_LIB} ${MK_BUILD_ROOT__MODULE_NAME}-Shaders)
 
 # KERNEL OS SPECIALIZATION
 
@@ -309,6 +324,26 @@ SET (PCH_OS_INCLUDE_DEFAULT "TgS (${MK_BUILD__OS_NAME}) Kernel - Internal.h")
 TGS_SET_STANDARD_LIBRARY_PROPERTIES (_Ring_2___TgS_KERNEL__OS "${MK_BUILD_MODULE__SRC_DIR}" "TgS (${MK_BUILD__OS_NAME}) Kernel [PCH]" ${PCH_OS_INCLUDE_DEFAULT} lib_os_source_files lib_os_header_files lib_sdk_os_header_files)
 
 
+# LINUX DEPENDENCY g_pfnQuery_Monitor_Max_Resolution
+
+TARGET_LINK_LIBRARIES (
+    ${MK_BUILD__GRAPHICS_IMPL_LIB}
+    PUBLIC
+        ${TIFF_LIBRARIES}
+        _Ring_0___TgS_COMMON
+        _Ring_2___TgS_KERNEL__OS
+        ${MK_BUILD__MODULE_GPU_LIB}
+)
+
+TARGET_LINK_LIBRARIES (
+    ${MK_BUILD__MODULE_GPU_LIB}
+    PUBLIC
+        ${TIFF_LIBRARIES}
+        _Ring_0___TgS_COMMON
+        _Ring_2___TgS_KERNEL__OS
+        ${MK_BUILD__GRAPHICS_IMPL_LIB}
+)
+
 # KERNEL BASE
 
 ADD_LIBRARY (_Ring_2___TgS_KERNEL STATIC ${lib_source_files} ${lib_header_files} ${lib_sdk_header_files})
@@ -316,14 +351,15 @@ TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ()
 SET (PCH_INCLUDE_DEFAULT "TgS Kernel - Internal.h")
 TGS_SET_STANDARD_LIBRARY_PROPERTIES (_Ring_2___TgS_KERNEL "${MK_BUILD_MODULE__SRC_DIR}" "TgS Kernel [PCH]" ${PCH_INCLUDE_DEFAULT} lib_source_files lib_header_files lib_sdk_header_files)
 TARGET_INCLUDE_DIRECTORIES (_Ring_2___TgS_KERNEL PRIVATE ${TIFF_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES (_Ring_2___TgS_KERNEL PUBLIC
-    ${TIFF_LIBRARIES}
-    _Ring_0___TgS_COMMON
-    _Ring_2___TgS_KERNEL__OS
-    _Ring_2___TgS_KERNEL__GPU
-    _Ring_2___TgS_KERNEL__GPU__${MK_BUILD__GRAPHICS_NAME}
+TARGET_LINK_LIBRARIES (
+    _Ring_2___TgS_KERNEL
+    PUBLIC
+        ${TIFF_LIBRARIES}
+        _Ring_0___TgS_COMMON
+        _Ring_2___TgS_KERNEL__OS
+        ${MK_BUILD__MODULE_GPU_LIB}
+        ${MK_BUILD__GRAPHICS_IMPL_LIB}
 )
-
 
 
 #ADD_LIBRARY(_Ring_X___TgS_KERNEL__FILE_TEST__ STATIC ${lib_api_gpu_source_files} ${lib_api_gpu_header_files} ${lib_gpu_source_files} ${lib_gpu_header_files} ${lib_os_source_files} ${lib_os_header_files} ${lib_source_files} ${lib_header_files})

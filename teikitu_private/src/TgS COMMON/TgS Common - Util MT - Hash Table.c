@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -125,32 +125,36 @@ TgRESULT tgCM_UT_LF__HT_RW__Insert_Internal( STg2_UT_LF__HT_RW_PCU psHash_Table,
     if (nullptr == psHash_Table->m_psFree_Node_Head)
     {
         TgRSIZE                             nuiNode;
+        TgRSIZE                             uiOffset;
+        TgUN_PTR                            uMem_PageAligned;
 
         if (psHash_Table->m_nuiNode_Commit >= psHash_Table->m_nuiNode_Reserved)
         {
             return (KTgE_FAIL);
         };
 
-        uMem.psNode = psHash_Table->m_psNode_List;
-        uMem.puiE08 += psHash_Table->m_nuiNode_Commit * psHash_Table->m_nbyNode;
-        uMem.pVoid = TgCOMMIT_VIRTUAL( uMem.pVoid, 0, psHash_Table->m_nbyNode );
-        if (nullptr == uMem.pVoid)
+        uiOffset = psHash_Table->m_nuiTop_Level_Node * sizeof( STg2_UT_ST__HT_Node_P ) + psHash_Table->m_nuiNode_Commit * psHash_Table->m_nbyNode;
+        uMem_PageAligned.m_pVoid = TgCOMMIT_VIRTUAL( psHash_Table->m_pReserved, uiOffset, psHash_Table->m_nbyNode );
+        if (nullptr == uMem_PageAligned.m_pVoid)
         {
             return (KTgE_FAIL);
         };
 
+        uMem.pVoid = psHash_Table->m_pReserved;
+        uMem.uiPTR += uiOffset;
         psHash_Table->m_psFree_Node_Head = uMem.psNode;
         ++psHash_Table->m_nuiNode_Commit;
 
-        nuiNode = (tgMM_Page_Size() - (uMem.uiPTR % tgMM_Page_Size())) / psHash_Table->m_nbyNode;
-        for (uiIndex = 1; uiIndex < nuiNode && psHash_Table->m_nuiNode_Commit < psHash_Table->m_nuiNode_Reserved; ++uiIndex)
+        uMem_Next.uiPTR = uMem.uiPTR + psHash_Table->m_nbyNode;
+        nuiNode = (tgMM_Page_Size() - (uMem_Next.uiPTR % tgMM_Page_Size())) / psHash_Table->m_nbyNode;
+        for (uiIndex = 0; uiIndex < nuiNode && psHash_Table->m_nuiNode_Commit < psHash_Table->m_nuiNode_Reserved; ++uiIndex)
         {
-            uMem_Next.puiE08 = uMem.puiE08 + psHash_Table->m_nbyNode;
             uMem.psNode->m_psNext = uMem_Next.psNode;
             uMem.psNode = uMem_Next.psNode;
             ++psHash_Table->m_nuiNode_Commit;
+            uMem_Next.uiPTR = uMem.uiPTR + psHash_Table->m_nbyNode;
         };
-        uMem.psNode->m_psNext = 0;
+        uMem.psNode->m_psNext = nullptr;
     };
 
     uiIndex = uiHash % psHash_Table->m_nuiTop_Level_Node;

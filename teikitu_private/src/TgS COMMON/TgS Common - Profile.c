@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -17,30 +17,38 @@
 /*  File Local Types                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
-TgTYPE_STRUCT(STg2_PROFILE_TL_CALL_ID_RECORD,)
+TgTYPE_UNION(STg2_PROFILE_TL_CALL_ID_RECORD,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNext;
+    struct
     {
+        TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
         TgPROFILE_TL_CALL_ID_SINGLETON              m_xtiCall_Singleton;
-        STg2_UT_ST__ST_Node                         m_sNext;
+        TgPROFILE_TL_ID                             m_tiProf;
+        TgSINT_E64                                  m_iStartOrElapsed;
+    #if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad1[232 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-    TgPROFILE_TL_ID                             m_tiProf;
-    TgSINT_E64                                  m_iStartOrElapsed;
 
-    TgCXX_CONSTRUCTOR(STg2_PROFILE_TL_CALL_ID_RECORD(): m_xtiCall_Singleton() {};)
+    TgCXX_CONSTRUCTOR(STg2_PROFILE_TL_CALL_ID_RECORD(): m_xtiCall_Singleton() {})
 };
 
-TgTYPE_STRUCT(STg2_PROFILE_CALL_ID_RECORD,)
+TgTYPE_UNION(STg2_PROFILE_CALL_ID_RECORD,)
 {
-    union
+    STg2_UT_ST__ST_Node                         m_sNext;
+    struct
     {
+        TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
         TgPROFILE_CALL_ID_SINGLETON                 m_xtiCall_Singleton;
-        STg2_UT_ST__ST_Node                         m_sNext;
+        TgPROFILE_ID                                m_tiProf;
+        TgSINT_E64                                  m_iStartOrElapsed;
+    #if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad1[232 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
     };
-    TgPROFILE_ID                                m_tiProf;
-    TgSINT_E64                                  m_iStartOrElapsed;
 
-    TgCXX_CONSTRUCTOR(STg2_PROFILE_CALL_ID_RECORD(): m_xtiCall_Singleton() {};)
+    TgCXX_CONSTRUCTOR(STg2_PROFILE_CALL_ID_RECORD(): m_xtiCall_Singleton() {})
 };
 
 

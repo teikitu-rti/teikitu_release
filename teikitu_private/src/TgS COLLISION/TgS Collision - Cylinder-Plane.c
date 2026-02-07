@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -38,12 +38,14 @@ VEC_T(1) FCN_VO(tgCO_CY_Dist_PN)( VEC_OBJ_T(TgTUBE,CPC) psCY0, VEC_OBJ_T(TgPLANE
 
     VEC_T(1,C)                          vCY0_OG = FCN_VO(tgGM_TB_Query_Origin)( psCY0 );
     VEC_T(1,C)                          vDist = FCN_VO(tgCO_PN_Sign_Dist_PT)( psPN0, vCY0_OG );
+    VEC_T(1)                            vReturn;
 
     TgERROR( FCN_VO(tgGM_TB_Is_Valid)(psCY0) && FCN_VO(tgGM_PN_Is_Valid)(psPN0) );
 
     if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LT)( vDist, FCN_V(tgMH_SET1)( TYPE_K(0) ) ) ))
     {
-        return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+        vReturn = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+        return (vReturn);
     }
     else
     {
@@ -57,10 +59,12 @@ VEC_T(1) FCN_VO(tgCO_CY_Dist_PN)( VEC_OBJ_T(TgTUBE,CPC) psCY0, VEC_OBJ_T(TgPLANE
         if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LE)( vTest, FCN_V(tgMH_SET1)( TYPE_K(0) ) ) ))
         {
             /* The cylinder is penetration this plane, return back the error state. */
-            return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+            vReturn = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+            return (vReturn);
         };
 
-        return (vTest);
+        vReturn = vTest;
+        return (vReturn);
     };
 }
 
@@ -73,12 +77,14 @@ VEC_T(1) FCN_VO(tgCO_CY_Closest_PN)( VEC_T(1,PC) pvCY0, VEC_T(1,PC) pvPN0, VEC_O
 
     VEC_T(1,C)                          vCY0_OG = FCN_VO(tgGM_TB_Query_Origin)( psCY0 );
     VEC_T(1,C)                          vDist = FCN_VO(tgCO_PN_Sign_Dist_PT)(psPN0, vCY0_OG );
+    VEC_T(1)                            vReturn;
 
     TgERROR( FCN_VO(tgGM_TB_Is_Valid)(psCY0) && FCN_VO(tgGM_PN_Is_Valid)(psPN0) );
 
     if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LT)( vDist, FCN_V(tgMH_SET1)( TYPE_K(0) ) ) ))
     {
-        return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+        vReturn = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+        return (vReturn);
     }
     else
     {
@@ -92,7 +98,8 @@ VEC_T(1) FCN_VO(tgCO_CY_Closest_PN)( VEC_T(1,PC) pvCY0, VEC_T(1,PC) pvPN0, VEC_O
         if (FCN_V(tgMH_CMP_ALL_TO_BOOL)( FCN_V(tgMH_CMP_LE)( vTest, FCN_V(tgMH_SET1)( TYPE_K(0) ) ) ))
         {
             /* The cylinder is penetration this plane, return back the error state. */
-            return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+            vReturn = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+            return (vReturn);
         }
         else
         {
@@ -110,7 +117,8 @@ VEC_T(1) FCN_VO(tgCO_CY_Closest_PN)( VEC_T(1,PC) pvCY0, VEC_T(1,PC) pvPN0, VEC_O
             *pvCY0 = vPnt;
             *pvPN0 = FCN_V(tgMH_NMS)( vTest, psPN0->m_vNormal, vPnt );
 
-            return (vTest);
+            vReturn = vTest;
+            return (vReturn);
         };
     };
 }

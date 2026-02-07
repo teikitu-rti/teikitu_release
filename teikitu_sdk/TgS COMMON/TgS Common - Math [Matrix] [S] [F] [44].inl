@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -872,8 +872,8 @@ TgINLINE TgVOID FCN_M(tgMH_PProj_FoVLH_S)( MAT_S_T(PCU) pmOut, VAR_T(C) fFoV, VA
 
     FCN_M(tgMH_CLR_S)(pmOut);
 
-    pmOut->_11 = fFoVx;
-    pmOut->_22 = fFoVy;
+    pmOut->_11 = fAspect < TYPE_K(1) ? fFoVy / fAspect : fFoVx;
+    pmOut->_22 = fAspect < TYPE_K(1) ? fFoVx * fAspect : fFoVy;
     pmOut->_33 = fFoVz;
     pmOut->_34 = TYPE_K(1);
     pmOut->_43 = -fFoVz * fMinZ;
@@ -892,8 +892,8 @@ TgINLINE TgVOID FCN_M(tgMH_PProj_FoVRH_S)( MAT_S_T(PCU) pmOut, VAR_T(C) fFoV, VA
 
     FCN_M(tgMH_CLR_S)(pmOut);
 
-    pmOut->_11 = fFoVx;
-    pmOut->_22 = fFoVy;
+    pmOut->_11 = fAspect < TYPE_K(1) ? fFoVy / fAspect : fFoVx;
+    pmOut->_22 = fAspect < TYPE_K(1) ? fFoVx * fAspect : fFoVy;
     pmOut->_33 = fFoVz;
     pmOut->_34 = -TYPE_K(1);
     pmOut->_43 = fFoVz * fMinZ;

@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -14,13 +14,22 @@
 /*  Public Functions                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
-/* ---- tgKN_GPU_TX_IMG_Inst__Init_Colour ---------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG_Inst__Init_Colour ---------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Colour( UTg2_KN_GPU_CMD_C uCMD, TgCOLOUR32_C sCL0, TgCHAR_U8_CPCU uszName )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG_Inst__Init_Colour( STg2_KN_GPU_CMD_PC psCMD, TgCOLOUR32_C sCL0, TgCHAR_U8_CPCU uszName )
 {
+    TgUINT_E64_C                        uiResource_Descriptor = ETgKN_GPU_RESOURCE_DESCRIPTOR__TEXTURE_2D | ETgKN_GPU_RESOURCE_DESCRIPTOR__MEMORY_LOCAL;
+
     STg2_KN_GPU_TX_IMG_DESC             sTX_IMG_DESC;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
-    STg2_KN_GPU_TX_Surface              sSF0;
+    STg2_KN_GPU_TX_LOCK                 sSF0;
+    TgRSIZE                             uiWidth, uiHeight;
+    TgRSIZE                             uiY, uiX, uiMIP;
+    union
+    {
+        TgUINT_E08_P                        pui08;
+        TgUINT_E32_P                        pui32;
+    }                                   uMem;
 
     /* Create the texture as a 4x4.  Smaller textures do not work on the PS3 due to alignment restrictions. */
 
@@ -30,12 +39,12 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Colour( UTg2_KN_GPU_CMD_C uCM
     sTX_IMG_DESC.m_uiHeight = 4;
     sTX_IMG_DESC.m_uiWidth = 4;
     sTX_IMG_DESC.m_uszName = uszName;
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Create( uCMD, ETgKN_GPU_ALLOCATOR__VIDEO_MEMORY_WRITEONLY, &sTX_IMG_DESC );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Create( psCMD, uiResource_Descriptor, &sTX_IMG_DESC );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default colour texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
 #if TgS_DEBUG__KERNEL
@@ -46,98 +55,98 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Colour( UTg2_KN_GPU_CMD_C uCM
     /* Lock the texture so as to have a valid data pointer - and fill in the assigned colour into it. */
 
     tgMM_Set_U08_0x00( &sSF0, sizeof( sSF0 ) );
-    sSF0.m_uiMIP = 0;
-    tgKN_GPU_EXT_TX_IMG__Lock( &sSF0, uCMD, sTXI_IMG );
+
+    tgKN_GPU_EXT__CMD__TX_IMG__Lock( &sSF0, psCMD, sTXI_IMG );
     TgVERIFY(nullptr != sSF0.m_puiData);
 
-    {
-        TgUINT_E32                          uiY, uiX;
-        union
-        {
-            TgUINT_E08_P                        pui08;
-            TgUINT_E32_P                        pui32;
-        }                                   sMem;
+    uiWidth = sTX_IMG_DESC.m_uiWidth;
+    uiHeight = sTX_IMG_DESC.m_uiHeight;
+    uMem.pui08 = sSF0.m_puiData;
 
-        for (uiY = 0; uiY < sSF0.m_nuiRow; ++uiY)
+    for (uiMIP = 0; uiMIP < sSF0.m_nuiMip_Levels_Locked; ++uiMIP, uiWidth >>= 1, uiHeight >>= 1)
+    {
+        for (uiY = 0; uiY < uiHeight; ++uiY)
         {
-            sMem.pui08 = sSF0.m_puiData + sSF0.m_uiMemPitch*uiY;
-            for (uiX = 0; uiX < sSF0.m_uiRowPitch; uiX += 4)
+            for (uiX = 0; uiX < uiWidth; ++uiX, ++uMem.pui32)
             {
-                *sMem.pui32 = sCL0.m_ui32;
-                sMem.pui08 += 4;
+                *uMem.pui32 = sCL0.m_ui32;
             };
         };
     };
 
-    tgKN_GPU_EXT_TX_IMG__Unlock( uCMD, &sSF0, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Unlock( psCMD, &sSF0, sTXI_IMG );
 
     return (sTXI_IMG);
 }
 
 
-/* ---- tgKN_GPU_TX_IMG_Inst__Create --------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG_Inst__Create --------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Create( UTg2_KN_GPU_CMD_C uCMD, ETgKN_GPU_ALLOCATOR_C enAllocator, STg2_KN_GPU_TX_IMG_DESC_CPCU psTX_IMG_DESC )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG_Inst__Create( STg2_KN_GPU_CMD_PC psCMD, TgUINT_E64_C uiResource_Descriptor, STg2_KN_GPU_TX_IMG_DESC_CPCU psTX_IMG_DESC )
 {
     TgKN_GPU_TX_IMG_ID                  sTX_IMG;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
 
-    sTX_IMG = tgKN_GPU_TX_IMG__Load_From_Memory( psTX_IMG_DESC, enAllocator );
+    sTX_IMG = tgKN_GPU_TX_IMG__Load_From_Memory( psTX_IMG_DESC, uiResource_Descriptor );
 
     if (KTgKN_GPU_TX_IMG_ID__INVALID.m_uiKI == sTX_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+        return (sTXI_IMG);
     };
 
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Init( uCMD, sTX_IMG, psTX_IMG_DESC->m_uszName );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Init( psCMD, sTX_IMG, psTX_IMG_DESC->m_uszName );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgKN_GPU_TX_IMG__Release( sTX_IMG );
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create texture instance" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
     return (sTXI_IMG);
 }
 
 
-/* ---- tgKN_GPU_RT_IMG__Create -------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__RT_IMG__Create -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_RT_IMG__Create( UTg2_KN_GPU_CMD_C uCMD, ETgKN_GPU_ALLOCATOR_C enAllocator, STg2_KN_GPU_TX_IMG_DESC_CPCU psTX_IMG_DESC )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__RT_IMG__Create( STg2_KN_GPU_CMD_PC psCMD, TgUINT_E64_C uiResource_Descriptor, STg2_KN_GPU_TX_IMG_DESC_CPCU psTX_IMG_DESC )
 {
     TgKN_GPU_TX_IMG_ID                  sTX_IMG;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
 
     TgCOMPILER_ASSERT( sizeof( TgRSIZE ) == sizeof( STg2_KN_GPU_TX_IMG_DESC_P ), 0 );
 
-    sTX_IMG = tgKN_GPU_TX_IMG__Load_From_Memory( psTX_IMG_DESC, enAllocator );
+    sTX_IMG = tgKN_GPU_TX_IMG__Load_From_Memory( psTX_IMG_DESC, uiResource_Descriptor );
 
     if (KTgKN_GPU_TX_IMG_ID__INVALID.m_uiKI == sTX_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_5, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to render target texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+        return (sTXI_IMG);
     };
 
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Init( uCMD, sTX_IMG, psTX_IMG_DESC->m_uszName );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Init( psCMD, sTX_IMG, psTX_IMG_DESC->m_uszName );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgKN_GPU_TX_IMG__Release( sTX_IMG );
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_5, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to instance render target" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
     return (sTXI_IMG);
 }
 
 
-/* ---- tgKN_GPU_TX_IMG_Inst__Font_ROM ------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG_Inst__Font_ROM ------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, STg2_KN_GPU_FONT_PC psFont_ROM )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG_Inst__Font_ROM( STg2_KN_GPU_CMD_PC psCMD, STg2_KN_GPU_FONT_PC psFont_ROM )
 {
+    TgUINT_E64_C                        uiResource_Descriptor = ETgKN_GPU_RESOURCE_DESCRIPTOR__TEXTURE_2D | ETgKN_GPU_RESOURCE_DESCRIPTOR__MEMORY_LOCAL;
+
     TgRSIZE_C                           uiDest_Glyph_X = psFont_ROM->m_uiFntX + 1;
     TgRSIZE_C                           uiDest_Glyph_Y = psFont_ROM->m_uiFntY + 1;
     TgRSIZE_C                           uiSrc_Glyph_X = psFont_ROM->m_uiFntX;
@@ -145,10 +154,10 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
 
     STg2_KN_GPU_TX_IMG_DESC             sTX_IMG_DESC;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
-    STg2_KN_GPU_TX_Surface              sSF0;
+    STg2_KN_GPU_TX_LOCK                 sSF0;
 
     tgMM_Set_U08_0x00( &sTX_IMG_DESC, sizeof( sTX_IMG_DESC ) );
-    sTX_IMG_DESC.m_enFormat = ETgKN_GPU_EXT_FORMAT_A8_UNORM;
+    sTX_IMG_DESC.m_enFormat = ETgKN_GPU_EXT_FORMAT_R8_UNORM;
     sTX_IMG_DESC.m_nuiMIP = 1;
     sTX_IMG_DESC.m_uszName = psFont_ROM->m_uszName;
 
@@ -160,12 +169,12 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
         sTX_IMG_DESC.m_uiWidth *= 2;
     };
     sTX_IMG_DESC.m_uiHeight = sTX_IMG_DESC.m_uiWidth;
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Create( uCMD, ETgKN_GPU_ALLOCATOR__VIDEO_MEMORY_WRITEONLY, &sTX_IMG_DESC );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Create( psCMD, uiResource_Descriptor, &sTX_IMG_DESC );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default colour texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
 #if TgS_DEBUG__KERNEL
@@ -175,9 +184,7 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
 
     /* Lock the texture so as to have a valid data pointer. */
 
-    tgMM_Set_U08_0x00( &sSF0, sizeof( sSF0 ) );
-    sSF0.m_uiMIP = 0;
-    tgKN_GPU_EXT_TX_IMG__Lock( &sSF0, uCMD, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Lock( &sSF0, psCMD, sTXI_IMG );
     TgVERIFY(nullptr != sSF0.m_puiData);
 
     if (0 != sSF0.m_puiData)
@@ -189,14 +196,14 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
 
         // Lock the texture so as to have a valid data pointer.
 
-        tgMM_Set_U08_0x00( sSF0.m_puiData, sSF0.m_nuiTotal );
+        tgMM_Set_U08_0x00( sSF0.m_puiData, sSF0.m_nbyTotal );
 
         /* First row of the texture*/
         iGlyphMax = psFont_ROM->m_uiBufX * 8 / psFont_ROM->m_uiFntX / psFont_ROM->m_uiFntY;
         for (iGlpyh = 0; iGlpyh < iGlyphMax; ++iGlpyh)
         {
-            uiDestIndex = (iGlpyh % (sSF0.m_uiRowPitch / uiDest_Glyph_X))*uiDest_Glyph_X
-                        + (iGlpyh / (sSF0.m_uiRowPitch / uiDest_Glyph_X))*(sSF0.m_uiMemPitch * uiDest_Glyph_Y);
+            uiDestIndex = (iGlpyh % (sTX_IMG_DESC.m_uiWidth / uiDest_Glyph_X))*uiDest_Glyph_X
+                        + (iGlpyh / (sTX_IMG_DESC.m_uiWidth / uiDest_Glyph_X))*(sTX_IMG_DESC.m_uiWidth * uiDest_Glyph_Y);
 
             uiSrcIndex = iGlpyh * psFont_ROM->m_uiFntX * psFont_ROM->m_uiFntY / 8;
 
@@ -204,11 +211,11 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
             {
                 for (iX = 0; iX < uiSrc_Glyph_X; ++iX)
                 {
-                    (sSF0.m_puiData + uiDestIndex + iY*sSF0.m_uiMemPitch)[iX] = (psFont_ROM->m_puiData[uiSrcIndex + (iY*uiSrc_Glyph_X + iX)/8] & (1 << (7 - iX % 8))) ? 0xFFu : 0x00u;
+                    (sSF0.m_puiData + uiDestIndex + iY*sTX_IMG_DESC.m_uiWidth)[iX] = (psFont_ROM->m_puiData[uiSrcIndex + (iY*uiSrc_Glyph_X + iX)/8] & (1 << (7 - iX % 8))) ? 0xFFu : 0x00u;
                 };
                 for (; iX < uiDest_Glyph_X; ++iX)
                 {
-                    (sSF0.m_puiData + uiDestIndex + iY*sSF0.m_uiMemPitch)[iX] = 0x00u;
+                    (sSF0.m_puiData + uiDestIndex + iY*sTX_IMG_DESC.m_uiWidth)[iX] = 0x00u;
                 };
             };
 
@@ -216,13 +223,13 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
             {
                 for (iX = 0; iX < uiDest_Glyph_X; ++iX)
                 {
-                    (sSF0.m_puiData + uiDestIndex + iY*sSF0.m_uiMemPitch)[iX] = 0x00u;
+                    (sSF0.m_puiData + uiDestIndex + iY*sTX_IMG_DESC.m_uiWidth)[iX] = 0x00u;
                 };
             };
         };
     };
 
-    tgKN_GPU_EXT_TX_IMG__Unlock( uCMD, &sSF0, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Unlock( psCMD, &sSF0, sTXI_IMG );
 
     psFont_ROM->m_uiTX_X = (TgUINT_E32)sTX_IMG_DESC.m_uiWidth;
     psFont_ROM->m_uiTX_Y = (TgUINT_E32)sTX_IMG_DESC.m_uiHeight;
@@ -235,54 +242,67 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Font_ROM( UTg2_KN_GPU_CMD_C uCMD, 
 #endif
 
 
-/* ---- tgKN_GPU_TX_IMG_Inst__Init_MIP ------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG_Inst__Init_MIP ------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_MIP( UTg2_KN_GPU_CMD_C uCMD, TgUINT_E32 uiW, TgUINT_E32 uiH, TgCHAR_U8_CPCU uszName )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG_Inst__Init_MIP( STg2_KN_GPU_CMD_PC psCMD, TgUINT_E32 uiW, TgUINT_E32 uiH, TgCHAR_U8_CPCU uszName )
 {
+    TgUINT_E64_C                        uiResource_Descriptor = ETgKN_GPU_RESOURCE_DESCRIPTOR__TEXTURE_2D | ETgKN_GPU_RESOURCE_DESCRIPTOR__MEMORY_LOCAL;
+
+
     STg2_KN_GPU_TX_IMG_DESC             sTX_IMG_DESC;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
-    STg2_KN_GPU_TX_Surface              sSF0;
-    TgSINT_E08                          niMIP, iMIP;
-    TgUINT_E32                          uiMin;
+    STg2_KN_GPU_TX_LOCK                 sSF0;
+    TgRSIZE                             uiWidth, uiHeight;
+    TgRSIZE                             uiY, uiX, uiMIP;
+    union
+    {
+        TgUINT_E08_P                        pui08;
+        TgUINT_E32_P                        pui32;
+    }                                   uMem;
 
     uiW = tgCM_PRV_PW2_U32( uiW );
     uiH = tgCM_PRV_PW2_U32( uiH );
-    uiMin = tgCM_MIN_U32( uiW, uiH );
-    niMIP = tgPM_BSR_U32( uiMin );
 
     if (0 >= uiW || 0 >= uiH)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default MIP texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+        return (sTXI_IMG);
     };
 
     /* Create the texture. */
 
     tgMM_Set_U08_0x00( &sTX_IMG_DESC, sizeof( sTX_IMG_DESC ) );
     sTX_IMG_DESC.m_enFormat = ETgKN_GPU_EXT_FORMAT_R8G8B8A8_UNORM;
-    sTX_IMG_DESC.m_nuiMIP = (TgUINT_E32)niMIP;
+    sTX_IMG_DESC.m_nuiMIP = (TgUINT_E32)tgPM_BSR_U32( tgCM_MIN_U32( uiW, uiH ) );
     sTX_IMG_DESC.m_uiHeight = uiH;
     sTX_IMG_DESC.m_uiWidth = uiW;
     sTX_IMG_DESC.m_uszName = uszName;
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Create( uCMD, ETgKN_GPU_ALLOCATOR__VIDEO_MEMORY_WRITEONLY, &sTX_IMG_DESC );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Create( psCMD, uiResource_Descriptor, &sTX_IMG_DESC );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default colour texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
 #if TgS_DEBUG__KERNEL
-    tgCN_PrintF( KTgCN_CHANEL_INITIALIZE | KTgCN_SEVERITY_7, STD_MSG_PREFIX u8"[Init] %-57.57s | id(% 4d) | % -9d BY\n", STD_MSG_POST, uszName ? uszName : u8"", sTXI_IMG.m_uiIndex,
-                 g_uiKN_Size_GPU_TX_IMG[sTXI_IMG.m_uiIndex] );
+    tgCN_PrintF( KTgCN_CHANEL_INITIALIZE | KTgCN_SEVERITY_7, STD_MSG_PREFIX u8"[Init] %-57.57s | id(% 4d) | % -9d BY\n", STD_MSG_POST, uszName ? uszName : u8"",
+                 sTXI_IMG.m_uiIndex, g_uiKN_Size_GPU_TX_IMG[sTXI_IMG.m_uiIndex] );
 #endif
 
     /* Lock the texture so as to have a valid data pointer. */
+    tgKN_GPU_EXT__CMD__TX_IMG__Lock( &sSF0, psCMD, sTXI_IMG );
+    TgVERIFY(nullptr != sSF0.m_puiData);
 
-    for (iMIP = 0; iMIP < niMIP; ++iMIP)
+    uiWidth = sTX_IMG_DESC.m_uiWidth;
+    uiHeight = sTX_IMG_DESC.m_uiHeight;
+    uMem.pui08 = sSF0.m_puiData;
+
+    for (uiMIP = 0; uiMIP < sSF0.m_nuiMip_Levels_Locked; ++uiMIP, uiWidth >>= 1, uiHeight >>= 1)
     {
-        TgFLOAT32_C                         fHue = tgPM_FMOD_F32( ((TgFLOAT32)iMIP) * 0.3F, 1.0F );
+        TgFLOAT32_C                         fHue = tgPM_FMOD_F32( ((TgFLOAT32)uiMIP) * 0.3F, 1.0F );
         TgFLOAT32_C                         fSat = 1.0F;
         TgFLOAT32_C                         fLight = 1.0F;
         TgVEC_F32_04_1                      vK = tgMH_Init_ELEM_F32_04_1( 1.0F, 2.0F / 3.0F, 1.0F / 3.0F, 3.0F );
@@ -297,49 +317,34 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_MIP( UTg2_KN_GPU_CMD_C uCMD, 
         TgVEC_F32_04_1                      vC7 = tgMH_MUL_F32_04_1( tgMH_SET1_F32_04_1( fLight ), vC6 );
         TgCOLOUR32                          sCL = tgCM_CL_U32_Init_F32( vC7 );
 
-        tgMM_Set_U08_0x00( &sSF0, sizeof( sSF0 ) );
-        sSF0.m_uiMIP = (TgUINT_E32)niMIP - (TgUINT_E32)iMIP - 1u;
-        tgKN_GPU_EXT_TX_IMG__Lock( &sSF0, uCMD, sTXI_IMG );
-        TgVERIFY(nullptr != sSF0.m_puiData);
-
         sCL.m_uiAlpha = 0xFF;
 
+        for (uiY = 0; uiY < uiHeight; ++uiY)
         {
-            TgUINT_E32                          uiY, uiX;
-            union
+            for (uiX = 0; uiX < uiWidth; ++uiX, ++uMem.pui32)
             {
-                TgUINT_E08_P                        pui08;
-                TgUINT_E32_P                        pui32;
-            }                                   sMem;
-
-            for (uiY = 0; uiY < sSF0.m_nuiRow; ++uiY)
-            {
-                sMem.pui08 = sSF0.m_puiData + sSF0.m_uiMemPitch*uiY;
-                for (uiX = 0; uiX < sSF0.m_uiRowPitch; uiX += 4)
-                {
-                    *sMem.pui32 = sCL.m_ui32;
-                    sMem.pui08 += 4;
-                };
+                *uMem.pui32 = sCL.m_ui32;
             };
         };
-
-        tgKN_GPU_EXT_TX_IMG__Unlock( uCMD, &sSF0, sTXI_IMG );
     };
 
+    tgKN_GPU_EXT__CMD__TX_IMG__Unlock( psCMD, &sSF0, sTXI_IMG );
     return (sTXI_IMG);
 }
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
 
 
-/* ---- tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test ------------------------------------------------------------------------------------------------------------------------------------ */
+/* ---- tgKN_GPU__CMD__TX_IMG_Inst__Init_Gamma_Test ------------------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test( UTg2_KN_GPU_CMD_C uCMD, TgUINT_E32 uiW, TgUINT_E32 uiH, TgCHAR_U8_CPCU uszName )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG_Inst__Init_Gamma_Test( STg2_KN_GPU_CMD_PC psCMD, TgUINT_E32 uiW, TgUINT_E32 uiH, TgCHAR_U8_CPCU uszName )
 {
+    TgUINT_E64_C                        uiResource_Descriptor = ETgKN_GPU_RESOURCE_DESCRIPTOR__TEXTURE_2D | ETgKN_GPU_RESOURCE_DESCRIPTOR__MEMORY_LOCAL;
+
     STg2_KN_GPU_TX_IMG_DESC             sTX_IMG_DESC;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
-    STg2_KN_GPU_TX_Surface              sSF0;
+    STg2_KN_GPU_TX_LOCK                 sSF0;
 
     uiW = tgCM_PRV_PW2_U32( uiW );
     uiH = tgCM_PRV_PW2_U32( uiH );
@@ -347,7 +352,8 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test( UTg2_KN_GPU_CMD_C
     if (0 >= uiW || 0 >= uiH)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default MIP texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+        return (sTXI_IMG);
     };
 
     /* Create the texture. */
@@ -358,12 +364,12 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test( UTg2_KN_GPU_CMD_C
     sTX_IMG_DESC.m_uiHeight = uiH;
     sTX_IMG_DESC.m_uiWidth = uiW;
     sTX_IMG_DESC.m_uszName = uszName;
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Create( uCMD, ETgKN_GPU_ALLOCATOR__VIDEO_MEMORY_WRITEONLY, &sTX_IMG_DESC );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Create( psCMD, uiResource_Descriptor, &sTX_IMG_DESC );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default colour texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
 #if TgS_DEBUG__KERNEL
@@ -373,9 +379,7 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test( UTg2_KN_GPU_CMD_C
 
     /* Lock the texture so as to have a valid data pointer. */
 
-    tgMM_Set_U08_0x00( &sSF0, sizeof( sSF0 ) );
-    sSF0.m_uiMIP = 0;
-    tgKN_GPU_EXT_TX_IMG__Lock( &sSF0, uCMD, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Lock( &sSF0, psCMD, sTXI_IMG );
     TgVERIFY(nullptr != sSF0.m_puiData);
 
     if (nullptr != sSF0.m_puiData)
@@ -383,27 +387,27 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test( UTg2_KN_GPU_CMD_C
         TgUINT_E32                          uiY, uiX;
         TgUINT_E08_P                        pui08;
 
+        pui08 = sSF0.m_puiData;
+
         /* Create a gradient over top an interleaved pattern of white and black lines. */
-        for (uiY = 0; uiY < sSF0.m_nuiRow >> 1; ++uiY)
+        for (uiY = 0; uiY < sTX_IMG_DESC.m_uiHeight >> 1; ++uiY)
         {
-            pui08 = sSF0.m_puiData + sSF0.m_uiMemPitch*uiY;
-            for (uiX = 0; uiX < sSF0.m_uiRowPitch; ++uiX, ++pui08)
+            for (uiX = 0; uiX < sTX_IMG_DESC.m_uiWidth; ++uiX, ++pui08)
             {
                 *pui08 = (TgUINT_E08)(uiX & 0xFF);
             };
         };
 
-        for (; uiY < sSF0.m_nuiRow; ++uiY)
+        for (; uiY < sTX_IMG_DESC.m_uiHeight; ++uiY)
         {
-            pui08 = sSF0.m_puiData + sSF0.m_uiMemPitch*uiY;
-            for (uiX = 0; uiX < sSF0.m_uiRowPitch; ++uiX, ++pui08)
+            for (uiX = 0; uiX < sTX_IMG_DESC.m_uiWidth; ++uiX, ++pui08)
             {
                 *pui08 = (TgUINT_E08)((uiX % 2) * 0xFF);
             };
         };
     };
 
-    tgKN_GPU_EXT_TX_IMG__Unlock( uCMD, &sSF0, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Unlock( psCMD, &sSF0, sTXI_IMG );
 
     return (sTXI_IMG);
 }
@@ -411,15 +415,17 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Gamma_Test( UTg2_KN_GPU_CMD_C
 #endif
 
 
-/* ---- tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern ------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgKN_GPU__CMD__TX_IMG_Inst__Init_Checker_Pattern ------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
-TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern( UTg2_KN_GPU_CMD_C uCMD, TgUINT_E32 uiW, TgUINT_E32 uiH, TgCOLOUR32_C sCL0,  TgCOLOUR32_C sCL1,
-                                                                    TgCHAR_U8_CPCU uszName )
+TgKN_GPU_TX_IMG_INST_ID tgKN_GPU__CMD__TX_IMG_Inst__Init_Checker_Pattern( STg2_KN_GPU_CMD_PC psCMD, TgUINT_E32 uiW, TgUINT_E32 uiH, TgCOLOUR32_C sCL0,  TgCOLOUR32_C sCL1,
+                                                                          TgCHAR_U8_CPCU uszName )
 {
+    TgUINT_E64_C                        uiResource_Descriptor = ETgKN_GPU_RESOURCE_DESCRIPTOR__TEXTURE_2D | ETgKN_GPU_RESOURCE_DESCRIPTOR__MEMORY_LOCAL;
+
     STg2_KN_GPU_TX_IMG_DESC             sTX_IMG_DESC;
     TgKN_GPU_TX_IMG_INST_ID             sTXI_IMG;
-    STg2_KN_GPU_TX_Surface              sSF0;
+    STg2_KN_GPU_TX_LOCK                 sSF0;
 
     uiW = tgCM_MAX_U32( 64, tgCM_PRV_PW2_U32( uiW ) );
     uiH = tgCM_MAX_U32( 64, tgCM_PRV_PW2_U32( uiH ) );
@@ -427,7 +433,8 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern( UTg2_KN_GPU_
     if (0 >= uiW || 0 >= uiH)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default MIP texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        sTXI_IMG = KTgKN_GPU_TX_IMG_INST_ID__INVALID;
+        return (sTXI_IMG);
     };
 
     /* Create the texture. */
@@ -438,12 +445,12 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern( UTg2_KN_GPU_
     sTX_IMG_DESC.m_uiHeight = uiH;
     sTX_IMG_DESC.m_uiWidth = uiW;
     sTX_IMG_DESC.m_uszName = uszName;
-    sTXI_IMG = tgKN_GPU_TX_IMG_Inst__Create( uCMD, ETgKN_GPU_ALLOCATOR__VIDEO_MEMORY_WRITEONLY, &sTX_IMG_DESC );
+    sTXI_IMG = tgKN_GPU__CMD__TX_IMG_Inst__Create( psCMD, uiResource_Descriptor, &sTX_IMG_DESC );
 
     if (KTgKN_GPU_TX_IMG_INST_ID__INVALID.m_uiKI == sTXI_IMG.m_uiKI)
     {
         tgCN_PrintF( KTgCN_CHANEL_ERROR | KTgCN_SEVERITY_7, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Failed to create a default colour texture" );
-        return (KTgKN_GPU_TX_IMG_INST_ID__INVALID);
+        return (sTXI_IMG);
     };
 
 #if TgS_DEBUG__KERNEL
@@ -453,9 +460,7 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern( UTg2_KN_GPU_
 
     /* Lock the texture so as to have a valid data pointer. */
 
-    tgMM_Set_U08_0x00( &sSF0, sizeof( sSF0 ) );
-    sSF0.m_uiMIP = 0;
-    tgKN_GPU_EXT_TX_IMG__Lock( &sSF0, uCMD, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Lock( &sSF0, psCMD, sTXI_IMG );
     TgVERIFY(nullptr != sSF0.m_puiData);
 
     if (nullptr != sSF0.m_puiData)
@@ -465,28 +470,26 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern( UTg2_KN_GPU_
         {
             TgUINT_E08_P                        pui08;
             TgUINT_E32_P                        pui32;
-        }                                   sMem;
+        }                                   uMem = { .pui08 = sSF0.m_puiData };
 
         /* Create a gradient over top an interleaved pattern of white and black lines. */
-        for (uiY = 0; uiY < sSF0.m_nuiRow; ++uiY)
+        for (uiY = 0; uiY < sTX_IMG_DESC.m_uiHeight; ++uiY)
         {
-            sMem.pui08 = sSF0.m_puiData + sSF0.m_uiMemPitch*uiY;
-            for (uiX = 0; uiX < sSF0.m_uiRowPitch; uiX += 4, sMem.pui08 += 4)
+            for (uiX = 0; uiX < sTX_IMG_DESC.m_uiWidth; ++uiX, ++uMem.pui32)
             {
-                
                 if (0 == ((((uiX >> 2) >> 5) % 2) +  ((uiY >> 5) % 2)) % 2)
                 {
-                    *sMem.pui32 = sCL0.m_ui32;
+                    *uMem.pui32 = sCL0.m_ui32;
                 }
                 else
                 {
-                    *sMem.pui32 = sCL1.m_ui32;
+                    *uMem.pui32 = sCL1.m_ui32;
                 }
             };
         };
     };
 
-    tgKN_GPU_EXT_TX_IMG__Unlock( uCMD, &sSF0, sTXI_IMG );
+    tgKN_GPU_EXT__CMD__TX_IMG__Unlock( psCMD, &sSF0, sTXI_IMG );
 
     return (sTXI_IMG);
 }
@@ -502,19 +505,19 @@ TgKN_GPU_TX_IMG_INST_ID tgKN_GPU_TX_IMG_Inst__Init_Checker_Pattern( UTg2_KN_GPU_
 
 /* ---- tgKN_GPU_TX_IMG__Execute_Load -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgRESULT tgKN_GPU_TX_IMG__Execute_Load( TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, STg2_KN_GPU_TX_IMG_DESC_CPC psDESC, ETgKN_GPU_ALLOCATOR_C enAllocator,
+TgRESULT tgKN_GPU_TX_IMG__Execute_Load( TgKN_FILE_ID_C tiFile, TgRSIZE_C uiFile_Offset, STg2_KN_GPU_TX_IMG_DESC_CPC psDESC, TgUINT_E64_C uiResource_Descriptor,
                                         TgKN_GPU_TX_IMG_ID_C sID  )
 {
     g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_nuiMIP = psDESC ? psDESC->m_nuiMIP : KTgMAX_U32;
-    g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_enFormat = psDESC ? psDESC->m_enFormat : ETgKN_GPU_EXT_FORMAT_UNKNOWN;
-    g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_enAllocator = enAllocator;
+    g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_enFormat = psDESC ? psDESC->m_enFormat : ETgKN_GPU_EXT_FORMAT_UNDEFINED;
+    g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_uiResource_Descriptor = uiResource_Descriptor;
     g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_uiFlags = psDESC ? psDESC->m_uiFlags : 0;
-    g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_uiLastTouch = 0;
+    g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_uiLast_Touch = 0;
     g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_sTX.m_uiPriority = 0;
     g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_uiWidth = psDESC ? psDESC->m_uiWidth : KTgMAX_U32;
     g_asKN_Lib_TX_IMG_Data[sID.m_uiIndex].m_uiHeight = psDESC ? psDESC->m_uiHeight : KTgMAX_U32;
 
-    return (tgKN_GPU_EXT_TX_IMG__Execute_Load( tiFile, uiFile_Offset, psDESC, enAllocator, sID ));
+    return (tgKN_GPU_EXT_TX_IMG__Execute_Load( tiFile, uiFile_Offset, psDESC, uiResource_Descriptor, sID ));
 }
 
 

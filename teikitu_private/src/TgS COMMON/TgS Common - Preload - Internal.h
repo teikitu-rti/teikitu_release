@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -39,7 +39,7 @@
 // Not all build flavors will include console functions.
 #if !defined(tgCN_PrintF)
     #define TgBUILD_PRELOAD__HAS_CONSOLE
-    TgEXTN TgVOID (*g_pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP NONULL, ... );
+    TgEXTN TgVOID (*g_pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP TgANALYSIS_NO_NULL, ... );
     #define tgCN_PrintF(...) if (g_pfnCN_PrintF) { g_pfnCN_PrintF(__VA_ARGS__); }
 #endif
 

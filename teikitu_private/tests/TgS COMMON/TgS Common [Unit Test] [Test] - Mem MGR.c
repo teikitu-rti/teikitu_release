@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -203,6 +203,11 @@ TEST_METHOD( UNIT_TEST__TEST__MM_Size )
     {
         TgUN_PTR                            uMem;
 
+        if (!tgMM_Is_Allocator_Registered(enAllocator))
+        {
+            continue;
+        };
+
         Test__Expect_EQ(0, tgMM_Size( enAllocator, nullptr ));
 
         uMem.m_pVoid = tgMM_Malloc( enAllocator, 1, 16 );
@@ -239,6 +244,11 @@ TEST_METHOD( UNIT_TEST__TEST__MM_Malloc )
     {
         TgUN_PTR                            auMem[2048];
         TgUN_PTR                            uMem;
+
+        if (!tgMM_Is_Allocator_Registered(enAllocator))
+        {
+            continue;
+        };
 
         Test__Expect_EQ(0, tgMM_Size( enAllocator, nullptr ));
 
@@ -287,6 +297,11 @@ TEST_METHOD( UNIT_TEST__TEST__MM_Reserve )
     {
         TgUN_PTR                            uReserve;
 
+        if (!tgMM_Is_Allocator_Registered(enAllocator))
+        {
+            continue;
+        };
+
         uReserve.m_pVoid = tgMM_Reserve( enAllocator, 1 );
         if (nullptr == uReserve.m_pVoid)
         {
@@ -324,6 +339,11 @@ TEST_METHOD( UNIT_TEST__TEST__MM_Commit )
     for (ETgMM_ALLOCATOR enAllocator = ETgMM_ALLOCATOR_BEGIN; enAllocator < ETgMM_ALLOCATOR_USER_0; enAllocator = (ETgMM_ALLOCATOR)((TgSINT_E32)enAllocator + 1))
     {
         TgUN_PTR                            uCommit;
+
+        if (!tgMM_Is_Allocator_Registered(enAllocator))
+        {
+            continue;
+        };
 
         uCommit.m_pVoid = tgMM_Commit( enAllocator, nullptr, 0, 1 );
         if (nullptr == uCommit.m_pVoid)
@@ -387,6 +407,11 @@ TEST_METHOD( UNIT_TEST__TEST__MM_Realloc )
     for (enAllocator = ETgMM_ALLOCATOR_BEGIN; enAllocator < ETgMM_ALLOCATOR_USER_0; enAllocator = (ETgMM_ALLOCATOR)((TgSINT_E32)enAllocator + 1))
     {
         TgUN_PTR                            uMem_0, uMem_1;
+
+        if (!tgMM_Is_Allocator_Registered(enAllocator))
+        {
+            continue;
+        };
 
         Test__Expect_EQ(0, tgMM_Size( enAllocator, nullptr ));
 

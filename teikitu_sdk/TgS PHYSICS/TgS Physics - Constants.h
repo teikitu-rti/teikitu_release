@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_PHYSICS_CONSTANTS_H)
 #define TGS_PHYSICS_CONSTANTS_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Physics ==================================================================================================================================================================== */
@@ -201,16 +204,18 @@ TgTYPE_DECLARE( ETgPH_WORLD, ETgPH_WORLD );
 /*  Public Constants                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
-TgTYPE_ENUM(ETgPH_MATERIAL_DEFAULT, TgSINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgPH_MATERIAL__STEEL_1020,     ETgPH_MATERIAL__ALUMINUM_6061,  ETgPH_MATERIAL__WATER,          ETgPH_MATERIAL__OXYGEN,         ETgPH_MATERIAL__END,
 
     ETgPH_MATERIAL__MAX = ETgPH_MATERIAL__END,
     ETgPH_MATERIAL__BEGIN = ETgPH_MATERIAL__STEEL_1020,
-);
+} ETgPH_MATERIAL_DEFAULT;
+TgTYPE_MODIFIER_DEFAULT(ETgPH_MATERIAL_DEFAULT);
 
-TgTYPE_ENUM(ETgPH_CONSTRAINT, TgSINT_E32,
 
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgPH_CONSTRAINT__BEGIN,
 
     ETgPH_CONSTRAINT__UNKNOWN = ETgPH_CONSTRAINT__BEGIN,            ETgPH_CONSTRAINT__BALL_SOCKET,                                  ETgPH_CONSTRAINT__CHAIN,
@@ -221,7 +226,9 @@ TgTYPE_ENUM(ETgPH_CONSTRAINT, TgSINT_E32,
     ETgPH_CONSTRAINT__END,
     ETgPH_CONSTRAINT__MAX = ETgPH_CONSTRAINT__END,
     ETgPH_CONSTRAINT__COUNT = ETgPH_CONSTRAINT__END - ETgPH_CONSTRAINT__BEGIN,
-);
+} ETgPH_CONSTRAINT;
+TgTYPE_MODIFIER_DEFAULT(ETgPH_CONSTRAINT);
+
 
 
 /* =============================================================================================================================================================================== */

@@ -4,17 +4,47 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_TYPE_H)
 #define TGS_COMMON_BASE_TYPE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
 /* MARK: No Unit Test Required                                                                                                                                                     */
+
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+/*  Polyfill for Pre-C23                                                                                                                                                           */
+/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+// 1. Check if we are using Clang and if the feature detection macro exists
+#if defined(__clang__) && defined(__has_feature)
+    // Check if the 'c_char8_t' feature is enabled (via -fchar8_t or -std=c23)
+    #if __has_feature(c_char8_t)
+        #define _HAS_NATIVE_CHAR8_T
+    #endif
+#endif
+
+#if defined(__cpp_char8_t)
+    #define _HAS_NATIVE_CHAR8_T
+#endif
+
+// 2. If NOT natively supported, define it manually
+#ifndef _HAS_NATIVE_CHAR8_T
+    #if !defined(char8_t)
+        // In C, char8_t is fundamentally an unsigned char
+        typedef unsigned char char8_t;
+    #endif
+#endif
+
+
+
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 /*  Public Types                                                                                                                                                                   */
@@ -25,7 +55,7 @@
 TgTYPE_DECLARE( int8_t,                     TgSINT_E08 );
 TgTYPE_DECLARE( int16_t,                    TgSINT_E16 );
 TgTYPE_DECLARE( int32_t,                    TgSINT_E32 );
-TgTYPE_DECLARE( long long,                  TgSINT_E64 );
+TgTYPE_DECLARE( int64_t,                    TgSINT_E64 );
 TgTYPE_DECLARE( int_fast8_t,                TgSINT_F08 );
 TgTYPE_DECLARE( int_fast16_t,               TgSINT_F16 );
 TgTYPE_DECLARE( int_fast32_t,               TgSINT_F32 );
@@ -37,7 +67,7 @@ TgTYPE_DECLARE( ptrdiff_t,                  TgSINT_PTR_DIFF );
 TgTYPE_DECLARE( uint8_t,                    TgUINT_E08 );
 TgTYPE_DECLARE( uint16_t,                   TgUINT_E16 );
 TgTYPE_DECLARE( uint32_t,                   TgUINT_E32 );
-TgTYPE_DECLARE( unsigned long long,         TgUINT_E64 );
+TgTYPE_DECLARE( uint64_t,                   TgUINT_E64 );
 TgTYPE_DECLARE( uint_fast8_t,               TgUINT_F08 );
 TgTYPE_DECLARE( uint_fast16_t,              TgUINT_F16 );
 TgTYPE_DECLARE( uint_fast32_t,              TgUINT_F32 );
@@ -105,7 +135,7 @@ TgTYPE_MODIFIER_DEFAULT( TgPLATFORM_THREAD_FCN );
 /** @union that contains all native (natural) types for easy alias access*/
 TgTYPE_UNION(TgUN_SCALAR,)
 {
-    TgALIGN(8) TgUINT_E64                       m_uiMask;
+    TgUINT_E64                                  m_uiMask;
     TgUINT_F08                                  m_uiF08;
     TgUINT_F08                                  m_varUINT_F08;
     TgUINT_F16                                  m_uiF16;

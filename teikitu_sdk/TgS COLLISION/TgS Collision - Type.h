@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -140,7 +140,8 @@ TgTYPE_STRUCT( VEC_OBJ_T(STg2_CO_Result), )
 
 TgTYPE_STRUCT( VEC_OBJ_T(STg2_CO_Request), )
 {
-    VEC_OBJ_T(STg2_CO_Context) TgALIGN(TgCCL)   m_sContext; /**< Context of the current collision state. */
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    VEC_OBJ_T(STg2_CO_Context)                  m_sContext; /**< Context of the current collision state. */
 
     ETgPM_SHORT                                 m_enPM; /**< Active primitive for the structure. */
     ETgCO_TEST                                  m_enTest; /**< Test is intersection, penetration and/or sweep. */
@@ -185,8 +186,8 @@ TgTYPE_STRUCT( VEC_OBJ_T(STg2_CO_Request), )
 
     VEC_OBJ_T(UTg2_CO_Primitive)                m_uPM;
 
-#if 0 != STRUCT_PAD(48,56)
-    TgUINT_E08                                  m_iPad1[STRUCT_PAD(48,56)];
+#if 0 != ((STRUCT_PAD(240,120) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE))
+    TgUINT_E08                                  m_uiPad0[STRUCT_PAD(240,120) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
 #endif
 };
 

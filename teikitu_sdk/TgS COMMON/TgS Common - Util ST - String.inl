@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_UTIL_SP_STRING_INL)
-#define TGS_COMMON_UTIL_SP_STRING_INL
+#if !defined(TGS_COMMON_UTIL_ST_STRING_INL)
+#define TGS_COMMON_UTIL_ST_STRING_INL
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -21,15 +24,15 @@
 
 TgEXTN TgRESULT
 tgCM_UT_ST__ST__Change_Cast_Internal(
-    STg2_UT_ST__ST_PC NONULL, TgBOOL_C  );
+    STg2_UT_ST__ST_PC TgANALYSIS_NO_NULL, TgBOOL_C  );
 
 TgEXTN TgRESULT
 tgCM_UT_ST__ST__SO_SF_Find_String_Internal(
-    STg1_Text_Length_PC NONULL, STg2_UT_ST__ST_CPC NONULL, TgRSIZE_C, STg2_UT_ST__ST_CPC NONULL, TgRSIZE_C, TgRSIZE_C, TgBOOL );
+    STg1_Text_Length_PC TgANALYSIS_NO_NULL, STg2_UT_ST__ST_CPC TgANALYSIS_NO_NULL, TgRSIZE_C, STg2_UT_ST__ST_CPC TgANALYSIS_NO_NULL, TgRSIZE_C, TgRSIZE_C, TgBOOL );
 
 TgEXTN TgRESULT
 tgCM_UT_ST__ST__SO_SN_Find_Set_Internal(
-    STg1_Text_Length_PC NONULL, STg2_UT_ST__ST_CPC NONULL, TgRSIZE_C, TgCHAR_U8_CPC NONULL, TgRSIZE_C, TgBOOL_C, TgBOOL_C );
+    STg1_Text_Length_PC TgANALYSIS_NO_NULL, STg2_UT_ST__ST_CPC TgANALYSIS_NO_NULL, TgRSIZE_C, TgCHAR_U8_CPC TgANALYSIS_NO_NULL, TgRSIZE_C, TgBOOL_C, TgBOOL_C );
 
 
 

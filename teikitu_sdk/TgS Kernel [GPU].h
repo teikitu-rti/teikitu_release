@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.20 | »GUID« DE461472-5528-4A5B-A7F4-09CCAD73387B */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -67,52 +67,9 @@ tgKN_GPU_Stats(
 TgEXTN TgRESULT
 tgKN_GPU_Enumerate( TgVOID );
 
-/** @brief Get the array of strings of the accessible GPU devices.
-    @param [out] OUT0 Pointer of an array of adapter points that will contain the list of all enumerated GPU adapters.
-    @param [in] ARG1 Integer count of the number of strings that can be assigned into OUT0. 
-    @return Result Code. */
-TgEXTN TgRESULT
-tgKN_GPU_Query_Adapter_List(
-    STg2_KN_GPU_Adapter_CPP TgANALYSIS_NO_NULL OUT0, TgUINT_E32_C ARG1 );
-
-/** @brief Validate that a selected format is supported on an output and adapter.
-    @param [in] ARG0 Integer index selecting the adapter.
-    @param [in] ARG1 Enumeration selecting the format.
-    @return True when the format is supported on the selected output and adapter, false otherwise. */
-TgEXTN TgBOOL
-tgKN_GPU_Test_Output_ScanOut_Format_Support(
-    TgRSIZE_C ARG0, ETgKN_GPU_EXT_FORMAT_C ARG1 );
-
-/** @brief Return a list of modes that are supported by the adapter and output device.
-    @param [out] OUT0 Pointer of an array of strings that will contain the modes for the selected output device, adapter and target format.
-    @param [in] ARG1 Integer count of the number of mode strings that can be assigned into OUT0.
-    @param [in] ARG2 Integer index selecting the adapter.
-    @param [in] ARG3 Integer index selecting the output on the adapter.
-    @param [in] ARG4 Enumeration selecting the format.
-    @return Integer count of the number of modes assigned into the array. */
-TgEXTN TgUINT_E32
-tgKN_GPU_Query_Mode_List(
-    STg2_KN_GPU_Mode_P OKNULL OUT0, TgUINT_E32_C ARG1, TgUINT_E32_C ARG2, TgUINT_E32_C ARG3, ETgKN_GPU_EXT_FORMAT_C ARG4 );
-
-/** @brief Find the closest mode (rounded down) that was enumerated for the selected output device.
-    @param [out] OUT0 Pointer to the closest (rounded down) valid mode found to the requested mode.
-    @param [in] ARG1 Integer index of the adapter to query.
-    @param [in] ARG2 Integer index for the specific adapter of the output to query.
-    @param [in] ARG3 Pointer to the requested mode.
-    @return Result Code. */
-TgEXTN TgRESULT
-tgKN_GPU_Select_Min_Mode(
-    STg2_KN_GPU_Mode_PC TgANALYSIS_NO_NULL OUT0, TgUINT_E32_C ARG1, TgUINT_E32_C ARG2, STg2_KN_GPU_Mode_CPC TgANALYSIS_NO_NULL ARG3 );
-
-/** @brief Find the closest mode (rounded up) that was enumerated for the selected output device.
-    @param [out] OUT0 Pointer to the closest (rounded up) valid mode found to the requested mode.
-    @param [in] ARG1 Integer index of the adapter to query.
-    @param [in] ARG2 Integer index for the specific adapter of the output to query.
-    @param [in] ARG3 Pointer to the requested mode.
-    @return Result Code. */
-TgEXTN TgRESULT
-tgKN_GPU_Select_Max_Mode(
-    STg2_KN_GPU_Mode_PC TgANALYSIS_NO_NULL OUT0, TgUINT_E32_C ARG1, TgUINT_E32_C ARG2, STg2_KN_GPU_Mode_CPC TgANALYSIS_NO_NULL ARG3 );
+/** @brief Free all the resources that were allocated during enumeration. */
+TgEXTN TgVOID
+tgKN_GPU_Enumerate_Free_Resources( TgVOID );
 
 
 /* ---- GPU - Contexts ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -165,11 +122,13 @@ tgKN_GPU_Contexts__Init(
 TgEXTN TgVOID
 tgKN_GPU_Contexts__Free( TgVOID );
 
-/** @brief Get the current swap chain render buffer (i.e. the one that is next to be presented) and relevant descriptors. */
-TgEXTN TgVOID
-tgKN_GPU__SwapChain__Get_Target_Buffers(
-    STg2_KN_GPU_Render_Buffer_PC TgANALYSIS_NO_NULL OUT0, STg2_KN_GPU_Render_Buffer_PC TgANALYSIS_NO_NULL OUT1, TgKN_GPU_CXT_SWAP_ID_C ARG2
-);
+/** @brief Get the array of strings of the accessible GPU devices.
+    @param [out] OUT0 Pointer of an array of adapter points that will contain the list of all enumerated GPU adapters.
+    @param [in] ARG1 Integer count of the number of strings that can be assigned into OUT0. 
+    @return Result Code. */
+TgEXTN TgRESULT
+tgKN_GPU__Host__Query_Physical_Device_List(
+    STg2_KN_GPU_Physical_Device_CPP TgANALYSIS_NO_NULL OUT0, TgUINT_E32_C ARG1 );
 
 
 /* ---- GPU Resource ID ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -187,26 +146,48 @@ tgKN_GPU__SwapChain__Get_Target_Buffers(
 /* ---- GPU - Resource - Texture ------------------------------------------------------------------------------------------------------------------------------------------------- */
 
 /** @brief Load a TIFF (using LibTIFF) using a file name and path. Supported only in non-Final builds.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 UID for the mount location for HDD (OS) access.
     @param [in] ARG2 Pointer to a UTF8 string holding the path location (can be NULL).
     @param [in] ARG3 Pointer to a UTF8 string holding the file name (cannot be NULL).
     @param [in] ARG4 Enumeration for the type of allocator to use. */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_TX_IMG__Load_TIFF_From_OS_File_System(
-    UTg2_KN_GPU_CMD_C ARG0, TgKN_FS_MOUNT_ID_C ARG1, TgCHAR_U8_CPC OKNULL ARG2, TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG3, ETgKN_GPU_ALLOCATOR_C ARG4 );
+tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_OS_File_System(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgKN_FS_MOUNT_ID_C ARG1, TgCHAR_U8_CPC TgANALYSIS_OK_NULL ARG2, TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG3, TgUINT_E64_C ARG4 );
 
 /** @brief Load a TIFF (using LibTIFF) using a file UID.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 UID for the file.
     @param [in] ARG2 Integer offset into the file to begin the file operation.
     @param [in] ARG3 Enumeration for the type of allocator to use. */
 TgEXTN TgKN_GPU_TX_IMG_INST_ID
-tgKN_GPU_TX_IMG__Load_TIFF_From_KN_File_System(
-    UTg2_KN_GPU_CMD_C ARG0, TgKN_FILE_ID_C ARG1, TgRSIZE_C ARG2, ETgKN_GPU_ALLOCATOR_C ARG3 );
+tgKN_GPU__CMD__TX_IMG__Load_TIFF_From_KN_File_System(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgKN_FILE_ID_C ARG1, TgRSIZE_C ARG2, TgUINT_E64_C ARG3 );
 
 
-/* ---- GPU - Resource - Font ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- GPU - Utilities ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+/** @brief Initialize a camera based on a configuration structure.
+    @param [out] OUT0 Pointer to a camera to be initialized.
+    @param [in] ARG1 Pointer to a camera configuration structure.
+    @param [in] ARG2 Vector (F32) holding the world up direction. */
+TgEXTN TgVOID
+tgKN_GPU_Init_Camera(
+     STg2_KN_GPU_Camera_P OUT0, STg2_KN_GPU_Camera_Configuration_CP ARG1, TgVEC_F32_04_1_C ARG2 );
+
+/** @brief Based on the output descriptor, modify the input colour to the result output colour that can be used directly by the GPU without any additional colour correction.
+    @details Used specifically during testing to validate colour correctness of different frame buffers using only a clear command.
+    @param [in] ARG0 Vector (F32) holding a set of RGBA values.
+    @param [in] ARG1 Pointer to a descriptor of the output target.
+    @return Vector (F32) holding a set of corrected RGBA values. */
+TgEXTN TgVEC_S_F32_04_1
+tgKN_GPU_Colour_Grading_CPU(
+    TgVEC_S_F32_04_1 ARG0, STg2_KN_GPU_Output_DESC_CPC TgANALYSIS_NO_NULL ARG1 );
+
+
+/* ---- GPU - Debug -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+#if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
 
 /** @brief Retrieve the texture information for a DOS Font ROM.
     @param [out] OUT0 Pointer to a data structure to hold the results.
@@ -216,53 +197,72 @@ TgEXTN TgRESULT
 tgKN_GPU_Query_DOS_Font_ROM_TX(
     STg2_KN_GPU_FONT_TX_PC TgANALYSIS_NO_NULL OUT0, ETgKN_GPU_DOS_FONT_ROM_C ARG1 );
 
-
-/* ---- GPU - Transformations ---------------------------------------------------------------------------------------------------------------------------------------------------- */
-
-/** @brief Based on the output descriptor, modify the input colour to the result output colour that can be used directly by the GPU without any additional colour correction.
-    @details Used specifically during testing to validate colour correctness of different frame buffers using only a clear command.
-    @param [in] ARG0 Vector (F32) holding a set of RGBA values.
-    @param [in] ARG1 Pointer to a descriptor of the output target.
-    @return Vector (F32) holding a set of corrected RGBA values. */
-TgEXTN TgVEC_S_F32_04_1
-tgKN_GPU_Colour_Grading_CPU(
-    TgVEC_S_F32_04_1 ARG0, STg2_KN_GPU_HLSL_Output_DESC_CPC ARG1 );
-
-
-/* ---- GPU - Debug -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-
-#if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
+/** @brief Initialize the debug render descriptor. 
+    @param [out] OUT0 Pointer to a debug render descriptor to be initialized.
+    @param [in] ARG1 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG2 Pointer to a camera descriptor. */
+TgEXTN TgVOID
+tgKN_GPU__CMD__Init_DBG_Render_DESC(
+    STg2_KN_GPU_DBG_Render_DESC_P TgANALYSIS_NO_NULL OUT0, STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG1, STg2_KN_GPU_Camera_CPC TgANALYSIS_OK_NULL ARG2 );
 
 /** @brief Render text (using the default DOS fonts), in view space, just prior to present. This will keep the text within the limits of the provided rectangle.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Pointer to a debug string descriptor. */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Debug_Text_Box( 
-    UTg2_KN_GPU_CMD_C ARG0, STg2_KN_GPU_OUTPUT_DEBUG_STRING_CPC TgANALYSIS_NO_NULL ARG1 );
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, STg2_KN_GPU_DBG_Text_CI_CPC TgANALYSIS_NO_NULL ARG1 );
 
+/** @brief Render a debug line. This will buffer up the render calls until either a new render target is set (which will flush the buffer), or it is filled.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG1 Vector (F32) holding the start position of the line.
+    @param [in] ARG2 Vector (F32) holding the RGBA colour of the line at the start.
+    @param [in] ARG3 Vector (F32) holding the end position of the line.
+    @param [in] ARG4 Vector (F32) holding the RGBA colour of the line at the end. 
+    @param [in] ARG5 Vector (F32) holding the value for the line thickness. */
+TgEXTN TgRESULT
+tgKN_GPU__CMD__Add_Debug_Line(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgVEC_F32_04_1_C ARG1, TgVEC_F32_04_1_C ARG2, TgVEC_F32_04_1_C ARG3, TgVEC_F32_04_1_C ARG4, TgVEC_F32_04_1_C ARG5 );
+
+/** @brief Flush the debug line renderer.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command. */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Debug_Line(
-    UTg2_KN_GPU_CMD_C ARG0, TgVEC_F32_04_1 ARG1, TgVEC_F32_04_1 ARG2, TgVEC_F32_04_1 ARG3, TgVEC_F32_04_1 ARG4, STg2_KN_GPU_HLSL_CB_Debug_Line_CPC TgANALYSIS_NO_NULL ARG5 );
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0 );
 
-TgEXTN TgVOID
-tgKN_GPU__CMD__Render_Debug_Line_Flush(
-    UTg2_KN_GPU_CMD_C ARG0, STg2_KN_GPU_HLSL_CB_Debug_Line_CPC TgANALYSIS_NO_NULL ARG1 );
-
+/** @brief Render a debug set of axes. This will buffer up the render calls until either a new render target is set (which will flush the buffer), or it is filled.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG1 Vector (F32) holding the position of the axes.
+    @param [in] ARG2 Float value for the scale of the axes. */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Debug_Axes(
-    UTg2_KN_GPU_CMD_C ARG0, TgVEC_F32_04_3_CPCU TgANALYSIS_NO_NULL ARG1, TgVEC_F32_04_1 ARG2, STg2_KN_GPU_HLSL_CB_Debug_Line_CPC TgANALYSIS_NO_NULL ARG3 );
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgVEC_F32_04_3_CPCU TgANALYSIS_NO_NULL ARG1, TgVEC_F32_04_1 ARG2 );
 
+/** @brief Render a debug n-gon. This will buffer up the render calls until either a new render target is set (which will flush the buffer), or it is filled.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG1 Vector (F32) holding the RGBA colour of the n-gon.
+    @param [in] ARG2 Pointer to an array of Vector (F32) holding the position of each vertex of the n-gon.
+    @param [in] ARG3 Float value for the scale of the axes.
+    @param [in] ARG4 Integer count of the number of vertices in the n-gon (must be >= 3). */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Debug_nGon(
-    UTg2_KN_GPU_CMD_C ARG0, TgVEC_F32_04_1 ARG1, TgVEC_F32_04_3_CPCU TgANALYSIS_NO_NULL ARG2, TgFLOAT32_C ARG3, TgSINT_E32_C ARG4, STg2_KN_GPU_HLSL_CB_Debug_Line_CPC TgANALYSIS_NO_NULL ARG5 );
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgVEC_F32_04_1 ARG1, TgVEC_F32_04_3_CPCU TgANALYSIS_NO_NULL ARG2, TgFLOAT32_C ARG3, TgSINT_E32_C ARG4 );
 
+/** @brief Render a debug frustum. This will buffer up the render calls until either a new render target is set (which will flush the buffer), or it is filled.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG1 Vector (F32) holding the RGBA colour of the frustum.
+    @param [in] ARG2 Pointer to an array of eight Vector (F32) holding the position of each corner of the frustum.
+    @param [in] ARG3 Pointer to an array of six Vector (F32) holding the normal of each plane of the frustum. */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Debug_Frustum(
-    UTg2_KN_GPU_CMD_C ARG0, TgVEC_F32_04_1 ARG1, TgVEC_F32_04_4_CPCU TgANALYSIS_NO_NULL ARG2, TgVEC_F32_04_4_CPCU TgANALYSIS_NO_NULL ARG3, STg2_KN_GPU_HLSL_CB_Debug_Line_CPC TgANALYSIS_NO_NULL ARG4 );
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgVEC_F32_04_1 ARG1, TgVEC_F32_04_4_CPCU TgANALYSIS_NO_NULL ARG2, TgVEC_F32_04_4_CPCU TgANALYSIS_NO_NULL ARG3 );
 
+/** @brief Render a debug camera frustum. This will buffer up the render calls until either a new render target is set (which will flush the buffer), or it is filled.
+    @param [in] ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG1 Vector (F32) holding the RGBA colour of the frustum.
+    @param [in] ARG2 Pointer to a camera object. */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Debug_Camera_Frustum(
-    UTg2_KN_GPU_CMD_C ARG0, TgVEC_F32_04_1_C vCL0, STg2_KN_GPU_Camera_CPCU psCamera, STg2_KN_GPU_HLSL_CB_Debug_Line_CPC TgANALYSIS_NO_NULL ARG3 );
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgVEC_F32_04_1_C ARG1, STg2_KN_GPU_Camera_CPCU TgANALYSIS_NO_NULL ARG2 );
 
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) */
 #endif
@@ -270,13 +270,10 @@ tgKN_GPU__CMD__Render_Debug_Camera_Frustum(
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) && TgCOMPILE__CONSOLE
 
 /** @brief Render the debug console (defined in TgS COMMON, in interactive mode), just prior to present, using tgKN_GPU__CMD__Render_Debug_Text_Box.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
-    @param [in] ARG1 Pointer to a descriptor of the output target.
-    @param [in] ARG2 Structure describing the present render buffer.
-    @param [in] ARG3 Structure describing the present depth buffer. */
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command. */
 TgEXTN TgVOID
 tgKN_GPU__CMD__Render_Console_Text( 
-    UTg2_KN_GPU_CMD_C ARG0, STg2_KN_GPU_HLSL_Output_DESC_CPC TgANALYSIS_NO_NULL ARG1, STg2_KN_GPU_Render_Buffer ARG2, STg2_KN_GPU_Render_Buffer ARG3 );
+    STg2_KN_GPU_CMD_PC ARG0 );
 
 /*# defined(TgCOMPILE__RENDER_DEBUG_OUTPUT) && TgCOMPILE__CONSOLE */
 #endif
@@ -310,7 +307,7 @@ tgKN_GPU_UNIT_TEST__UTIL__Init_Select(
     @return UID for the loaded resource, or the INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_ID)
 T(tgKN_GPU_,__Load_From_OS_File_System)(
-    TgKN_FS_MOUNT_ID_C ARG0, TgCHAR_U8_CPC ARG1, TgCHAR_U8_CPC ARG2, ETgKN_GPU_ALLOCATOR_C ARG3 );
+    TgKN_FS_MOUNT_ID_C ARG0, TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG1, TgCHAR_U8_CPC TgANALYSIS_NO_NULL ARG2, TgUINT_E64_C ARG3 );
 /*# !defined(TGS_FINAL) */
 #endif
 
@@ -321,7 +318,7 @@ T(tgKN_GPU_,__Load_From_OS_File_System)(
     @return UID for the loaded resource, or the INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_ID)
 T(tgKN_GPU_,__Load_From_KN_File_System)(
-    TgKN_FILE_ID_C ARG0, TgRSIZE_C ARG1, ETgKN_GPU_ALLOCATOR_C ARG2 );
+    TgKN_FILE_ID_C ARG0, TgRSIZE_C ARG1, TgUINT_E64_C ARG2 );
 
 /** @brief Create a resource from a resource descriptor.
     @param [in] ARG0 Pointer to a descriptor for the resource type.
@@ -329,17 +326,17 @@ T(tgKN_GPU_,__Load_From_KN_File_System)(
     @return UID for the loaded resource, or the INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_ID)
 T(tgKN_GPU_,__Load_From_Memory)(
-    T(STg2_KN_GPU_,_DESC_CPC) ARG0, ETgKN_GPU_ALLOCATOR_C ARG1 );
+    T(STg2_KN_GPU_,_DESC_CPC) ARG0, TgUINT_E64_C ARG1 );
 
 #if defined(MACRO_BUILD_TEXTURE)
 /** @brief Initialize a resource instance from a given resource.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 UID for the resource to be instanced.
     @param [in] ARG2 Pointer to a string used for debugging purposes.
     @return UID for the initialized resource instance, or the INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_INST_ID)
-T(tgKN_GPU_,_Inst__Init)(
-    UTg2_KN_GPU_CMD_C ARG0, T(TgKN_GPU_,_ID_C) ARG1, TgCHAR_U8_CPCU ARG2 );
+T(tgKN_GPU__CMD__,_Inst__Init)(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, T(TgKN_GPU_,_ID_C) ARG1, TgCHAR_U8_CPCU TgANALYSIS_NO_NULL ARG2 );
 
 /** @brief Increment the reference count on a resource instance.
     @param [in] ARG0 UID for the resource instance.
@@ -349,11 +346,12 @@ T(tgKN_GPU_, _Inst__IncRef)(
     T(TgKN_GPU_,_INST_ID_C) tiRSI );
 
 /** @brief Decrements the reference count on a resource instance, and free all associated resources when it reaches zero.
-    @param [in] ARG0 UID for the resource instance.
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
+    @param [in] ARG1 UID for the resource instance.
     @return UID for the resource instance if it remains valid, or the INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_INST_ID)
-T(tgKN_GPU_, _Inst__Release)(
-    T(TgKN_GPU_,_INST_ID_C) tiRSI );
+T(tgKN_GPU__CMD__, _Inst__Release)(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, T(TgKN_GPU_,_INST_ID_C) ARG1 );
 /*# defined(MACRO_BUILD_TEXTURE) */
 #endif
 
@@ -361,22 +359,22 @@ T(tgKN_GPU_, _Inst__Release)(
 /* ---- GPU - Resource - Texture ------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(MACRO_BUILD_TEXTURE)
 /** @brief Create a resource instance of a texture filled with a constant colour.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 32bit colour value to be used.
     @param [in] ARG2 String containing the name to give the texture (used in debug builds).
     @return UID for the initialized resource instance, or the INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_INST_ID)
-T(tgKN_GPU_,_Inst__Init_Colour)(
-    UTg2_KN_GPU_CMD_C ARG0, TgCOLOUR32_C ARG1, TgCHAR_U8_CPCU ARG2 );
+T(tgKN_GPU__CMD__,_Inst__Init_Colour)(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgCOLOUR32_C ARG1, TgCHAR_U8_CPCU TgANALYSIS_NO_NULL ARG2 );
 
 /** @brief Create a resource instance of a texture with the provided format and dimensions.
-    @param [in] ARG0 Union of a pointer to the command list data structure returned by tgKN_GPU_EXT__Execute__Command_List_Acquire.
+    @param [in] ARG0 ARG0 Pointer to the command context returned by tgKN_GPU_EXT__WORK__Acquire_Command.
     @param [in] ARG1 Enumeration for the GPU allocator to be used.
     @param [in] ARG2 Pointer to a descriptor for the texture type to be created.
     @return UID for the created texture instance, or INVALID ID otherwise. */
 TgEXTN T(TgKN_GPU_,_INST_ID)
-T(tgKN_GPU_,_Inst__Create)(
-    UTg2_KN_GPU_CMD_C ARG0, ETgKN_GPU_ALLOCATOR_C ARG1, T(STg2_KN_GPU_,_DESC_CPCU) ARG2 );
+T(tgKN_GPU__CMD__,_Inst__Create)(
+    STg2_KN_GPU_CMD_PC TgANALYSIS_NO_NULL ARG0, TgUINT_E64_C ARG1, T(STg2_KN_GPU_,_DESC_CPCU) TgANALYSIS_NO_NULL ARG2 );
 
 
 /*# defined(MACRO_BUILD_TEXTURE) */

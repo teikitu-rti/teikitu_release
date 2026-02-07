@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Kernel - Resource LIB [GPU] [Common].c
+    »File«      TgS Kernel [GPU] - Resource LIB [Common].c
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -125,7 +125,7 @@ TgVOID T(tgKN_GPU_,_LIB__Free)( TgVOID )
 
 #if defined(MACRO_BUILD_TEXTURE)
 /* ---- T(tgKN_GPU_,_Inst_LIB__Init) --------------------------------------------------------------------------------------------------------------------------------------------- */
-TgCOMPILER_ASSERT( sizeof( T( g_asCXT_, )[0][0] ) >= sizeof( STg2_UT_ST__ST_Node ), 1 );
+TgCOMPILER_ASSERT( sizeof( T( g_asCXT_, )[0][0] ) >= sizeof( STg2_UT_ST__ST_Node_Unaligned ), 1 );
 TgCOMPILER_ASSERT( T(KTgKN_GPU_MAX_,) <= (1 << 16), 1 );
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgVOID T(tgKN_GPU_,_Inst_LIB__Init)( TgKN_GPU_CXT_EXEC_ID_C tiCXT_DATA )
@@ -138,7 +138,8 @@ TgVOID T(tgKN_GPU_,_Inst_LIB__Init)( TgKN_GPU_CXT_EXEC_ID_C tiCXT_DATA )
     tgMM_Set_U08_0x00( T(g_sCXT_,_Inst_Lock) + tiCXT_DATA.m_uiI, sizeof( T(g_sCXT_,_Inst_Lock)[tiCXT_DATA.m_uiI] ) );
 
     tgCM_UT_LF__SN__Init( &T(g_sCXT_,_Inst_Lock)[tiCXT_DATA.m_uiI].m_sLock );
-    tgCM_UT_LF__ST__Init_PreLoad( &T(g_sCXT_,_Inst)[tiCXT_DATA.m_uiI].m_sStack, (TgVOID_P)T(g_asCXT_,)[tiCXT_DATA.m_uiI], sizeof( T(g_asCXT_,)[tiCXT_DATA.m_uiI][0] ), T(KTgKN_GPU_MAX_,_INST) );
+    tgCM_UT_LF__ST_Unaligned__Init_PreLoad(
+        &T(g_sCXT_,_Inst)[tiCXT_DATA.m_uiI].m_sStack, (TgVOID_P)T(g_asCXT_,)[tiCXT_DATA.m_uiI], sizeof( T(g_asCXT_,)[tiCXT_DATA.m_uiI][0] ), T(KTgKN_GPU_MAX_,_INST) );
 
     g_asKN_GPU_CXT_EXEC[tiCXT_DATA.m_uiI].T(m_s,_Inst_LIB_DESC).m_pxsID_Inst_Ref_Singleton = T(g_axsCXT_,_Inst_Ref_Singleton)[tiCXT_DATA.m_uiI];
     g_asKN_GPU_CXT_EXEC[tiCXT_DATA.m_uiI].T(m_s,_Inst_LIB_DESC).m_psRS = T(g_asCXT_,)[tiCXT_DATA.m_uiI];
@@ -160,7 +161,7 @@ TgVOID T(tgKN_GPU_,_Inst_LIB__Init)( TgKN_GPU_CXT_EXEC_ID_C tiCXT_DATA )
 #if defined(MACRO_BUILD_TEXTURE)
 TgVOID T(tgKN_GPU_,_Inst_LIB__Free)( TgKN_GPU_CXT_EXEC_ID_C tiCXT_DATA )
 {
-    tgCM_UT_LF__ST__Free( &T(g_sCXT_,_Inst)[tiCXT_DATA.m_uiI].m_sStack );
+    tgCM_UT_LF__ST_Unaligned__Free( &T(g_sCXT_,_Inst)[tiCXT_DATA.m_uiI].m_sStack );
     tgCM_UT_LF__SN__Free_Unsafe( &T(g_sCXT_, _Inst_Lock)[tiCXT_DATA.m_uiI].m_sLock );
 
     g_asKN_GPU_CXT_EXEC[tiCXT_DATA.m_uiI].T(m_s,_Inst_LIB_DESC).m_pxsID_Inst_Ref_Singleton = nullptr;

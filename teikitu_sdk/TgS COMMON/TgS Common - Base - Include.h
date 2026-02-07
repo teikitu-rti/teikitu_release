@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_INCLUDE_H)
 #define TGS_COMMON_BASE_INCLUDE_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #include TgHEADER_HARDWARE(TgS COMMON/TgS,Common - Base - Include.h)
 
@@ -40,28 +43,44 @@ TgCLANG_WARN_DISABLE_PUSH(everything)
 
 
 #if defined(TgCOMPILE_FILE__CXX)
+
 #include <cstdint>                  /* intXX_t, int_leastXX_t, INT_C, MIN, MAX */
+#include <cinttypes>                /* PRIXX for printf due to differences in long between unix and windows */
 #include <cstddef>                  /* ptrdiff_t, size_t, rsize_t, wchar_t */
 #include <cstdarg>                  /* va_XXX - variable argument support */
 #include <cfloat>                   /* [FLT,DBL,LDBL] MIN, MAX, DIG, EPSILON - Floating point constants */
 #include <cuchar>
-#include <atomic>
 
-#define NULL 0
+#if defined(TgBUILD_OS__WINDOWS)
+#include "msvc_atomic"              /* alloca */
+#else
+#include <atomic>
+#endif
+
 #undef NAN                          /* corecrt_math.h */
 
+/*# defined(TgCOMPILE_FILE__CXX) */
 #else
+
 #include <stdint.h>                 /* intXX_t, int_leastXX_t, INT_C, MIN, MAX */
+#include <inttypes.h>               /* PRIXX for printf due to differences in long between unix and windows */
 #include <stddef.h>                 /* ptrdiff_t, size_t, rsize_t, wchar_t */
 #include <stdbool.h>                /* true, false */
 #include <stdarg.h>                 /* va_XXX - variable argument support */
 #include <float.h>                  /* [FLT,DBL,LDBL] MIN, MAX, DIG, EPSILON - Floating point constants */
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__)
 #include <stdatomic.h>              /* TgSTD_ATOMIC(XXX) - C11 atomic type and functions */
+#else
+#error Atomic types required but not supported by compiler
+#endif
 #undef NULL                         /* stddef.h */
+
+/*# defined(TgCOMPILE_FILE__CXX) */
 #endif
 
 #if defined(TgBUILD_OS__WINDOWS)
 #include <malloc.h>                 /* alloca */
+#undef NULL
 #endif
 
 #include <limits.h>
@@ -70,13 +89,9 @@ TgCLANG_WARN_DISABLE_POP(everything)
 TgMSVC_WARN_DISABLE_POP(4117)
 TgMSVC_PRAGMA(warning(pop))
 
-#if !defined(TgCOMPILE_FILE__CXX)
-    #define nullptr 0
+#if defined(NULL)
+   #error NULL is still defined
 #endif
-
-// #if defined(NULL)
-//    #error NULL is still defined
-// #endif
 
 #if defined(NAN)
     #undef NAN

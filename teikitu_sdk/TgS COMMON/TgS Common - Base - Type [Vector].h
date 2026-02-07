@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_TYPE_VECTOR_H)
 #define TGS_COMMON_BASE_TYPE_VECTOR_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #if defined(TgBUILD_UNIVERSAL) && !defined (TGS_COMMON_MATH_VECTOR_SPECIALIZATION)
     #include TgHEADER_UNIVERSAL(TgS COMMON/TgS,Common - Math [Vector].h)
@@ -35,38 +38,38 @@
 #define TEMPLATE__TEST_AND_UNLOAD_TEMPLATE_MACROS
 #define TEMPLATE__TYPE_SIZE 8
 #define TEMPLATE__VECTOR_DIM 16
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__TYPE_SIZE 16
 #define TEMPLATE__VECTOR_DIM 8
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__TYPE_SIZE 32
 #define TEMPLATE__VECTOR_DIM 4
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__TYPE_SIZE 8
 #define TEMPLATE__VECTOR_DIM 4
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__TYPE_SIZE 16
 #define TEMPLATE__VECTOR_DIM 2
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__TYPE_SIZE 64
 #define TEMPLATE__VECTOR_DIM 4
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #undef TEMPLATE__ENABLE_INTEGER
 
 #define TEMPLATE__VECTOR_DIM 2
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__VECTOR_DIM 3
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TEMPLATE__VECTOR_DIM 4
-#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector].h"
+#include "TgS COMMON/TgS Common - Base - Type [Template] [Vector] [INC].h"
 
 #define TGS_COMMON_BASE_TYPE_VECTOR_HINC
 

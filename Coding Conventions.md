@@ -15,7 +15,7 @@
 
 2. The choice of C was purposeful. Object oriented programming is a great invention that has aided the science and practive of software engineering. However, when placing an
    engineer into a C++ environment, there is a tendency to assume that object oriented programming is the required approach to a problem. Being a base platform (engine), this
-   code base biases towards functional programming and resolving as many platform specific overrides as compilation time over runtime. 
+   code base biases towards functional programming and resolving as many platform specific overrides at compilation time over runtime. 
 
    a) The last major refactor of the code base saw it transition to ANSI C. Since then we have moved it forward to use some of the functionality found in C11, C17. However,
       the intention is that the code base should adhere to ANSI C rules and compilation requirements as closely as possible to make it viable to port it back to ANSI C.

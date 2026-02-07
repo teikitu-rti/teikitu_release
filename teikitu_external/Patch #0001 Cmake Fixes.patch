@@ -1,6 +1,6 @@
-From 2879b4c244c4ee6a7ca2e21d3071cf28be7fa418 Mon Sep 17 00:00:00 2001
+From 9253338c2a93f407f01ec921716fdbff15425f74 Mon Sep 17 00:00:00 2001
 From: Andrew Aye <github.very069@passmail.net>
-Date: Fri, 29 Nov 2024 11:03:41 -0800
+Date: Sat, 30 Aug 2025 14:11:10 -0700
 Subject: [PATCH] Fixes for a C compilation.
 
 ---
@@ -8,18 +8,18 @@ Subject: [PATCH] Fixes for a C compilation.
  Source/cmGeneratorTarget.cxx               |  7 +++
  Source/cmGeneratorTarget.h                 |  3 +-
  Source/cmGlobalXCodeGenerator.cxx          | 31 ++++++-----
- Source/cmNinjaTargetGenerator.cxx          | 12 +++--
+ Source/cmNinjaTargetGenerator.cxx          | 14 ++---
  Source/cmStateTypes.h                      |  4 +-
- Source/cmVisualStudio10TargetGenerator.cxx | 13 +++--
+ Source/cmVisualStudio10TargetGenerator.cxx |  9 +++-
  Source/cmcmd.cxx                           | 60 ++++++++++++++++++++++
  Source/kwsys/SystemTools.cxx               | 20 ++++++++
- 9 files changed, 131 insertions(+), 27 deletions(-)
+ 9 files changed, 130 insertions(+), 26 deletions(-)
 
 diff --git a/Modules/Compiler/Clang-CXX.cmake b/Modules/Compiler/Clang-CXX.cmake
-index 46fc48d68..57ac69597 100644
+index 87a4cdd06..57801596c 100644
 --- a/Modules/Compiler/Clang-CXX.cmake
 +++ b/Modules/Compiler/Clang-CXX.cmake
-@@ -52,20 +52,20 @@ if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
+@@ -47,20 +47,20 @@ if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
        " <CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS>"
        " -x c++ <SOURCE> -c -o <OBJECT>"
        "${_clang_scan_deps_resource_dir}"
@@ -45,10 +45,10 @@ index 46fc48d68..57ac69597 100644
    endif()
  endif()
 diff --git a/Source/cmGeneratorTarget.cxx b/Source/cmGeneratorTarget.cxx
-index fb92771b0..ad7a645b5 100644
+index 60df703dc..51dc56105 100644
 --- a/Source/cmGeneratorTarget.cxx
 +++ b/Source/cmGeneratorTarget.cxx
-@@ -4224,6 +4224,10 @@ std::string cmGeneratorTarget::GetDirectory(
+@@ -4247,6 +4247,10 @@ std::string cmGeneratorTarget::GetDirectory(
          return info->OutDir;
        case cmStateEnums::ImportLibraryArtifact:
          return info->ImpDir;
@@ -59,7 +59,7 @@ index fb92771b0..ad7a645b5 100644
      }
    }
    return "";
-@@ -4278,6 +4282,9 @@ cmGeneratorTarget::OutputInfo const* cmGeneratorTarget::GetOutputInfo(
+@@ -4301,6 +4305,9 @@ cmGeneratorTarget::OutputInfo const* cmGeneratorTarget::GetOutputInfo(
      if (!this->ComputePDBOutputDir("PDB", config, info.PdbDir)) {
        info.PdbDir = info.OutDir;
      }
@@ -70,10 +70,10 @@ index fb92771b0..ad7a645b5 100644
      // Now update the previously-prepared map entry.
      i->second = info;
 diff --git a/Source/cmGeneratorTarget.h b/Source/cmGeneratorTarget.h
-index 8ae98e8ea..1a7a25205 100644
+index 45f7b1fca..1d9a5493b 100644
 --- a/Source/cmGeneratorTarget.h
 +++ b/Source/cmGeneratorTarget.h
-@@ -763,10 +763,11 @@ public:
+@@ -768,10 +768,11 @@ public:
      std::string OutDir;
      std::string ImpDir;
      std::string PdbDir;
@@ -87,10 +87,10 @@ index 8ae98e8ea..1a7a25205 100644
    };
  
 diff --git a/Source/cmGlobalXCodeGenerator.cxx b/Source/cmGlobalXCodeGenerator.cxx
-index 7fa21d037..f26a20b21 100644
+index 314349a28..96d861073 100644
 --- a/Source/cmGlobalXCodeGenerator.cxx
 +++ b/Source/cmGlobalXCodeGenerator.cxx
-@@ -1706,19 +1706,24 @@ void cmGlobalXCodeGenerator::ForceLinkerLanguage(cmGeneratorTarget* gtgt)
+@@ -1802,19 +1802,24 @@ void cmGlobalXCodeGenerator::ForceLinkerLanguage(cmGeneratorTarget* gtgt)
    // Add an empty source file to the target that compiles with the
    // linker language.  This should convince Xcode to choose the proper
    // language.
@@ -129,29 +129,32 @@ index 7fa21d037..f26a20b21 100644
  
  bool cmGlobalXCodeGenerator::IsHeaderFile(cmSourceFile* sf)
 diff --git a/Source/cmNinjaTargetGenerator.cxx b/Source/cmNinjaTargetGenerator.cxx
-index 720020dcd..f167061cc 100644
+index b22ee1fb9..04a0e9b9f 100644
 --- a/Source/cmNinjaTargetGenerator.cxx
 +++ b/Source/cmNinjaTargetGenerator.cxx
-@@ -592,10 +592,12 @@ std::string GetScanCommand(
+@@ -564,12 +564,14 @@ std::string GetScanCommand(
    cm::string_view srcFile, cm::string_view ddiFile,
    cm::optional<cm::string_view> srcOrigFile = cm::nullopt)
  {
 -  return cmStrCat(cmakeCmd, " -E cmake_ninja_depends --tdi=", tdi,
--                  " --lang=", lang, " --src=", srcFile, " --out=$out",
--                  " --dep=$DEP_FILE --obj=$OBJ_FILE --ddi=", ddiFile,
--                  srcOrigFile ? cmStrCat(" --src-orig=", *srcOrigFile) : "");
+-                  " --lang=", lang, " --src=", srcFile,
+-                  " --out=$out"
+-                  " --dep=$DEP_FILE --obj=$OBJ_FILE --ddi=",
 +  std::string ret = cmStrCat(cmakeCmd, " -E cmake_ninja_depends --tdi=", tdi,
-+                  " --lang=", lang, " --src= \"", srcFile, "\" --out=$out",
-+                  " --dep=\"$DEP_FILE\" --obj=\"$OBJ_FILE\" --ddi=\"", ddiFile,
++                  " --lang=", lang, " --src= \"", srcFile,
++                  "\" --out=$out"
++                  " --dep=\"$DEP_FILE\" --obj=\"$OBJ_FILE\" --ddi=\"",
+                   ddiFile,
+-                  srcOrigFile ? cmStrCat(" --src-orig=", *srcOrigFile) : "");
 +                  srcOrigFile ? cmStrCat("\" --src-orig=", *srcOrigFile) : "\"");
 +  printf("******************************************** %s\n",ret.c_str());
 +  return ret;
  }
  
  // Helper function to create dependency scanning rule that may or may
-@@ -623,7 +625,7 @@ cmNinjaRule GetScanRule(
-   scanVars.CMTargetName = vars.CMTargetName;
+@@ -598,7 +600,7 @@ cmNinjaRule GetScanRule(
    scanVars.CMTargetType = vars.CMTargetType;
+   scanVars.CMTargetLabels = vars.CMTargetLabels;
    scanVars.Language = vars.Language;
 -  scanVars.Object = "$OBJ_FILE";
 +  scanVars.Object = "\"$OBJ_FILE\"";
@@ -159,10 +162,10 @@ index 720020dcd..f167061cc 100644
    scanVars.DynDepFile = "$DYNDEP_INTERMEDIATE_FILE";
    scanVars.DependencyFile = rule.DepFile.c_str();
 diff --git a/Source/cmStateTypes.h b/Source/cmStateTypes.h
-index 24b809b57..46921285a 100644
+index b3fbc13d9..dba493624 100644
 --- a/Source/cmStateTypes.h
 +++ b/Source/cmStateTypes.h
-@@ -57,7 +57,9 @@ enum CacheEntryType
+@@ -75,7 +75,9 @@ enum CacheEntryType
  enum ArtifactType
  {
    RuntimeBinaryArtifact,
@@ -174,22 +177,20 @@ index 24b809b57..46921285a 100644
  }
  
 diff --git a/Source/cmVisualStudio10TargetGenerator.cxx b/Source/cmVisualStudio10TargetGenerator.cxx
-index 694976e58..a85efdda9 100644
+index 13d4b42b6..1c8c1e117 100644
 --- a/Source/cmVisualStudio10TargetGenerator.cxx
 +++ b/Source/cmVisualStudio10TargetGenerator.cxx
-@@ -3076,9 +3076,16 @@ void cmVisualStudio10TargetGenerator::WritePathAndIncrementalLinkOptions(
+@@ -3092,9 +3092,16 @@ void cmVisualStudio10TargetGenerator::WritePathAndIncrementalLinkOptions(
          }
        }
  
--      std::string intermediateDir = cmStrCat(
--        this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget), '/',
--        config, '/');
+-      std::string intermediateDir =
 +      std::string intermediateDir = this->GeneratorTarget->GetDirectory(
 +            config,cmStateEnums::RuntimeObjectArtifact);
 +      if (intermediateDir.empty()) {
-+        intermediateDir = cmStrCat(
-+              this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget), '/',
-+              config, '/');
++        intermediateDir =
+         this->LocalGenerator->MaybeRelativeToCurBinDir(cmStrCat(
+           this->GeneratorTarget->GetSupportDirectory(), '/', config, '/'));
 +      } else {
 +          intermediateDir +=  "/";
 +      }
@@ -198,10 +199,10 @@ index 694976e58..a85efdda9 100644
        std::string targetNameFull;
        if (ttype == cmStateEnums::OBJECT_LIBRARY) {
 diff --git a/Source/cmcmd.cxx b/Source/cmcmd.cxx
-index c82cb32da..51ae14242 100644
+index 66efbd3b7..0bb89605c 100644
 --- a/Source/cmcmd.cxx
 +++ b/Source/cmcmd.cxx
-@@ -725,6 +725,66 @@ int cmcmd::ExecuteCMakeCommand(std::vector<std::string> const& args,
+@@ -778,6 +778,66 @@ int cmcmd::ExecuteCMakeCommand(std::vector<std::string> const& args,
        return return_value;
      }
  
@@ -269,10 +270,10 @@ index c82cb32da..51ae14242 100644
      if ((args[1] == "copy_directory" ||
           args[1] == "copy_directory_if_different") &&
 diff --git a/Source/kwsys/SystemTools.cxx b/Source/kwsys/SystemTools.cxx
-index 6cc103df5..e239dd439 100644
+index 595bec07b..085a26595 100644
 --- a/Source/kwsys/SystemTools.cxx
 +++ b/Source/kwsys/SystemTools.cxx
-@@ -2427,8 +2427,18 @@ bool SystemTools::FilesDiffer(const std::string& source,
+@@ -2302,8 +2302,18 @@ bool SystemTools::FilesDiffer(std::string const& source,
  
  #if defined(_WIN32)
    kwsys::ifstream finSource(source.c_str(), (std::ios::binary | std::ios::in));
@@ -291,7 +292,7 @@ index 6cc103df5..e239dd439 100644
  #else
    kwsys::ifstream finSource(source.c_str());
    kwsys::ifstream finDestination(destination.c_str());
-@@ -2500,6 +2510,11 @@ SystemTools::CopyStatus SystemTools::CopyFileContentBlockwise(
+@@ -2375,6 +2385,11 @@ SystemTools::CopyStatus SystemTools::CopyFileContentBlockwise(
  {
    // Open files
    kwsys::ifstream fin(source.c_str(), std::ios::in | std::ios::binary);
@@ -303,7 +304,7 @@ index 6cc103df5..e239dd439 100644
    if (!fin) {
      return CopyStatus{ Status::POSIX_errno(), CopyStatus::SourcePath };
    }
-@@ -2512,6 +2527,11 @@ SystemTools::CopyStatus SystemTools::CopyFileContentBlockwise(
+@@ -2387,6 +2402,11 @@ SystemTools::CopyStatus SystemTools::CopyFileContentBlockwise(
  
    kwsys::ofstream fout(destination.c_str(),
                         std::ios::out | std::ios::trunc | std::ios::binary);
@@ -316,5 +317,5 @@ index 6cc103df5..e239dd439 100644
      return CopyStatus{ Status::POSIX_errno(), CopyStatus::DestPath };
    }
 -- 
-2.47.0.windows.2
+2.47.1.windows.1
 

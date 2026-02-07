@@ -27,7 +27,7 @@ TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Inlin
 
 TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Header Files/Base/Template" "${MK_BUILD_MODULE__INC_DIR}/TgS Common - Base - Defines [Template] [Math].h_inc" )
 TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Header Files/Base/Template" "${MK_BUILD_MODULE__INC_DIR}/TgS Common - Base - Defines [Template] [Text].h_inc" )
-TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Header Files/Base/Template" "${MK_BUILD_MODULE__INC_DIR}/TgS Common - Base - Type [Template] [Vector].h" )
+TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Header Files/Base/Template" "${MK_BUILD_MODULE__INC_DIR}/TgS Common - Base - Type [Template] [Vector] [INC].h" )
 
 TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Header Files/Base" "${MK_BUILD_MODULE__INC_DIR}/TgS Common - Base - API [Compiler].h" )
 TGS_ADD_HEADER_FILE( lib_source_files lib_sdk_header_files "-" "-" "Public/Header Files/Base" "${MK_BUILD_MODULE__INC_DIR}/TgS Common - Base - API [Math].h" )
@@ -272,7 +272,6 @@ TGS_ADD_SOURCE_FILE( lib_source_files lib_header_files "-" "-" "SDK/Source Files
 
 
 
-
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
 #library compiler specific files
 
@@ -308,7 +307,7 @@ FOREACH (MK_LIST_ITEM__THREAD_NAME IN LISTS MK_GENERATE_LIST__THREAD_NAMES)
     TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__THREAD_NAME}" "${MK_BUILD__THREAD_NAME}" "Public/Header Files/@Specialization/Thread Support" "${MK_BUILD_MODULE__INC_DIR}/TgS (${MK_LIST_ITEM__THREAD_NAME}) Common - Base - Defines [Thread].h" )
     TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__THREAD_NAME}" "${MK_BUILD__THREAD_NAME}" "Public/Header Files/@Specialization/Thread Support" "${MK_BUILD_MODULE__INC_DIR}/TgS (${MK_LIST_ITEM__THREAD_NAME}) Common - Base - Type [MT].h" )
 
-    TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__THREAD_NAME}" "${MK_BUILD__THREAD_NAME}" "SDK/Header Files/@Specialization/Thread Support" "${MK_BUILD_MODULE__INC_DIR}/TgS (${MK_LIST_ITEM__THREAD_NAME}) Common - Internal [Thread].h" )
+    TGS_ADD_HEADER_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__THREAD_NAME}" "${MK_BUILD__THREAD_NAME}" "SDK/Header Files/@Specialization/Thread Support" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__THREAD_NAME}) Common - Internal [Thread].h" )
 
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__THREAD_NAME}" "${MK_BUILD__THREAD_NAME}" "SDK/Source Files/@Specialization/Thread Support" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__THREAD_NAME}) Common - Base - API [Thread].c" )
     TGS_ADD_SOURCE_FILE( lib_os_source_files lib_sdk_os_header_files "${MK_LIST_ITEM__THREAD_NAME}" "${MK_BUILD__THREAD_NAME}" "SDK/Source Files/@Specialization/Thread Support" "${MK_BUILD_MODULE__SRC_DIR}/TgS (${MK_LIST_ITEM__THREAD_NAME}) Common - STg1_MT_MX.c" )
@@ -400,7 +399,7 @@ TGS_ADD_HEADER_FILE( lib_mimalloc_source_files lib_sdk_mimalloc_header_files "-"
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
-# malloc override shared library
+# memory functions and malloc override library (shared/static)
 
 TGS_ADD_HEADER_FILE( lib_preload_source_files lib_preload_header_files "-" "-" "SDK/Header Files" "${MK_BUILD_MODULE__SRC_DIR}/TgS Common - Preload - Internal.h" )
 TGS_ADD_SOURCE_FILE( lib_preload_source_files lib_preload_header_files "-" "-" "SDK/Source Files/Common" "${MK_BUILD_MODULE__SRC_DIR}/TgS Common - Mem MGR - Override.c" )
@@ -420,12 +419,11 @@ ENDFOREACH ()
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
-IF (NOT MIMALLOC_FOUND)
-    MESSAGE (FATAL_ERROR "mimalloc could not be found.")
-ENDIF ()
-
 # Library used to internalize (hide) all of the mimalloc functions
 IF (MK_BUILD__MIMALLOC_ALLOCATOR)
+    IF (NOT MIMALLOC_FOUND)
+        MESSAGE (FATAL_ERROR "mimalloc could not be found.")
+    ENDIF ()
     ADD_LIBRARY (_Ring_0___TgS_COMMON__MIMALLOC SHARED ${lib_mimalloc_source_files} ${lib_mimalloc_header_files} ${lib_sdk_mimalloc_header_files})
     TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ("__MIMALLOC")
     SET (PCH_MM_INCLUDE_DEFAULT "TgS Common - Mimalloc - Internal.h")
@@ -435,24 +433,26 @@ ENDIF ()
 
 # Preload library that uses the mimalloc redirector (microsoft internal) to override malloc
 IF (MK_BUILD__PRELOAD__MALLOC_OVERRIDE)
+    IF (NOT MK_BUILD__MIMALLOC_ALLOCATOR)
+        MESSAGE (FATAL_ERROR "malloc override must have mimalloc enabled, though it does not need to be the default allocator.")
+    ENDIF ()
     ADD_LIBRARY (_Ring_0___TgS_COMMON__OS_PRELOAD SHARED ${lib_preload_source_files} ${lib_preload_header_files} ${lib_sdk_preload_header_files})
-    TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON__OS_PRELOAD PRIVATE _Ring_0___TgS_COMMON__MIMALLOC)
+ELSE ()
+    ADD_LIBRARY (_Ring_0___TgS_COMMON__OS_PRELOAD STATIC ${lib_preload_source_files} ${lib_preload_header_files} ${lib_sdk_preload_header_files})
+ENDIF ()
+TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ("__OS_PRELOAD")
+SET (PCH_OS_PRELOAD_INCLUDE_DEFAULT "TgS Common - Preload - Internal.h")
+TGS_SET_STANDARD_LIBRARY_PROPERTIES (_Ring_0___TgS_COMMON__OS_PRELOAD "${MK_BUILD_MODULE__SRC_DIR}" "TgS (${MK_BUILD__OS_NAME}) Common - Preload [PCH]" ${PCH_OS_PRELOAD_INCLUDE_DEFAULT} lib_preload_source_files lib_preload_header_files lib_sdk_preload_header_files)
 
-    # Create an imported shared library (lib/dll) for the redirector. This is stored with mimalloc to allow for easy comparison against the base files.
+# Create an imported shared library (lib/dll) for the redirector. This is stored with mimalloc to allow for easy comparison against the base files.
+IF (MK_BUILD__PRELOAD__MALLOC_OVERRIDE)
     IF (MK_BUILD_OS__WINDOWS)
         ADD_LIBRARY (_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect SHARED IMPORTED GLOBAL)
         SET_PROPERTY (TARGET _Ring_0___TgS_COMMON__OS_PRELOAD-Redirect PROPERTY IMPORTED_IMPLIB "${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}/lib/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.lib")
         SET_PROPERTY (TARGET _Ring_0___TgS_COMMON__OS_PRELOAD-Redirect PROPERTY IMPORTED_LOCATION "${MK_BUILD__EXTERNAL_INSTALL_DIRECTORY}/lib/_Ring_0___TgS_COMMON__OS_PRELOAD-Redirect.dll")
         TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON__OS_PRELOAD PRIVATE _Ring_0___TgS_COMMON__OS_PRELOAD-Redirect)
     ENDIF ()
-ELSE ()
-    ADD_LIBRARY (_Ring_0___TgS_COMMON__OS_PRELOAD STATIC ${lib_preload_source_files} ${lib_preload_header_files} ${lib_sdk_preload_header_files})
-    TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON__OS_PRELOAD PUBLIC _Ring_0___TgS_COMMON__MIMALLOC)
 ENDIF ()
-
-TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ("__OS_PRELOAD")
-SET (PCH_OS_PRELOAD_INCLUDE_DEFAULT "TgS Common - Preload - Internal.h")
-TGS_SET_STANDARD_LIBRARY_PROPERTIES (_Ring_0___TgS_COMMON__OS_PRELOAD "${MK_BUILD_MODULE__SRC_DIR}" "TgS (${MK_BUILD__OS_NAME}) Common - Preload [PCH]" ${PCH_OS_PRELOAD_INCLUDE_DEFAULT} lib_preload_source_files lib_preload_header_files lib_sdk_preload_header_files)
 
 # Operating specific implementation of TgS COMMON API
 ADD_LIBRARY (_Ring_0___TgS_COMMON__OS STATIC ${lib_os_source_files} ${lib_os_header_files} ${lib_sdk_os_header_files})
@@ -465,8 +465,16 @@ ADD_LIBRARY (_Ring_0___TgS_COMMON STATIC ${lib_source_files} ${lib_header_files}
 TGS_GET_MODULE_OBJECT_OUTPUT_DIRECTORY ()
 SET (PCH_INCLUDE_DEFAULT "TgS Common - Internal.h")
 TGS_SET_STANDARD_LIBRARY_PROPERTIES (_Ring_0___TgS_COMMON "${MK_BUILD_MODULE__SRC_DIR}" "TgS Common [PCH]" ${PCH_INCLUDE_DEFAULT} lib_source_files lib_header_files lib_sdk_header_files)
+
 TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON PUBLIC _Ring_0___TgS_COMMON__OS)
 IF (NOT MK_BUILD__PRELOAD__MALLOC_OVERRIDE)
     TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON PUBLIC _Ring_0___TgS_COMMON__OS_PRELOAD)
+    IF (MK_BUILD__MIMALLOC_ALLOCATOR)
+        TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON PUBLIC _Ring_0___TgS_COMMON__MIMALLOC)
+    ENDIF ()
+ELSE ()
+    TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON__OS_PRELOAD PRIVATE _Ring_0___TgS_COMMON__MIMALLOC)
 ENDIF ()
 #ADD_LIBRARY(_Ring_X___TgS_COMMON__FILE_TEST__ STATIC ${lib_os_source_files} ${lib_os_header_files} ${lib_source_files} ${lib_header_files} ${lib_mem_source_files} ${lib_mem_header_files})
+
+TARGET_LINK_LIBRARIES (_Ring_0___TgS_COMMON__OS_PRELOAD PUBLIC _Ring_0___TgS_COMMON__OS)

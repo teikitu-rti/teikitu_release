@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Kernel - Module [GPU].c
+    »File«      TgS Kernel [GPU] - Module.c
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -31,14 +31,14 @@ TgRESULT tgKN_GPU_Module_Init( TgVOID )
     TgERROR( ETgMODULE_STATE__FREED == s_enKernel_GPU_State );
     s_enKernel_GPU_State = ETgMODULE_STATE__INITIALIZING;
 
-    g_tiCVAR_KN_GPU_Adapter = KTgCN_VAR_ID__INVALID;
+    g_tiCVAR_KN_GPU_Physical_Device = KTgCN_VAR_ID__INVALID;
     g_tiCVAR_KN_GPU_Output = KTgCN_VAR_ID__INVALID;
     g_tiCVAR_KN_GPU_Width = KTgCN_VAR_ID__INVALID;
     g_tiCVAR_KN_GPU_Height = KTgCN_VAR_ID__INVALID;
     g_tiCVAR_KN_GPU_Refresh_Rate = KTgCN_VAR_ID__INVALID;
     g_tiCVAR_KN_GPU_ScanOut_HDR = KTgCN_VAR_ID__INVALID;
 
-    g_szKN_GPU_Adapter[0] = 0;
+    g_szKN_GPU_Physical_Device[0] = 0;
     g_szKN_GPU_Output[0] = 0;
     g_uiKN_GPU_Width = 0;
     g_uiKN_GPU_Height = 0;
@@ -49,7 +49,7 @@ TgRESULT tgKN_GPU_Module_Init( TgVOID )
     tgCM_UT_LF__ST__Init_PreLoad( &g_sKN_GPU_CXT_EXEC_Free_Stack.m_sStack, g_asKN_GPU_CXT_EXEC, sizeof( STg2_KN_GPU_CXT_EXEC ), KTgKN_GPU_MAX_EXEC_CONTEXT );
     tgCM_UT_LF__ST__Init_PreLoad( &g_sKN_GPU_CXT_SWAP_Free_Stack.m_sStack, g_asKN_GPU_CXT_SWAP, sizeof( STg2_KN_GPU_CXT_SWAP ), KTgKN_GPU_MAX_SWAP_CONTEXT );
 
-    tgKN_GPU_CXT_HOST_EXTN_ID_Invalidate( &g_sKN_GPU_CXT_HOST_EXT.m_tiCXT_HOST_EXT_S );
+    tgKN_GPU_CXT_HOST_EXTN_ID_Invalidate( &g_sKN_GPU_CXT_HOST_EXTN.m_tiCXT_HOST_EXT_S );
     tgKN_GPU_CXT_HOST_ID_Invalidate( &g_sKN_GPU_CXT_HOST.m_tiCXT_HOST_S );
 
     /* Init Stats and Performance Markers */
@@ -68,12 +68,14 @@ TgRESULT tgKN_GPU_Module_Init( TgVOID )
         return (KTgE_FAIL);
     };
 
-    tgKN_GPU_CS_LIB__Init();
-    tgKN_GPU_HS_LIB__Init();
-    tgKN_GPU_DS_LIB__Init();
     tgKN_GPU_VS_LIB__Init();
+    tgKN_GPU_TCS_LIB__Init();
+    tgKN_GPU_TES_LIB__Init();
     tgKN_GPU_GS_LIB__Init();
-    tgKN_GPU_PS_LIB__Init();
+    tgKN_GPU_TS_LIB__Init();
+    tgKN_GPU_MS_LIB__Init();
+    tgKN_GPU_FS_LIB__Init();
+    tgKN_GPU_CS_LIB__Init();
 
     tgKN_GPU_TX_IMG_LIB__Init();
     tgKN_GPU_TX_CBE_LIB__Init();
@@ -97,13 +99,13 @@ TgRESULT tgKN_GPU_Module_Boot( TgVOID )
     TgERROR( ETgMODULE_STATE__INITIALIZED == s_enKernel_GPU_State );
     s_enKernel_GPU_State = ETgMODULE_STATE__BOOTING;
 
-    g_szKN_GPU_Adapter[0] = 0;
-    g_tiCVAR_KN_GPU_Adapter = tgCN_Var_Init_String( u8"KN_GPU_Adapter", KTgMAX_RSIZE, u8"", KTgMAX_RSIZE, KTgCN_VAR_INIT, u8"0", KTgMAX_RSIZE,
-                                                       g_szKN_GPU_Adapter, TgARRAY_COUNT(g_szKN_GPU_Adapter) );
+    g_szKN_GPU_Physical_Device[0] = 0;
+    g_tiCVAR_KN_GPU_Physical_Device = tgCN_Var_Init_String( u8"KN_GPU_Physical_Device", KTgMAX_RSIZE, u8"", KTgMAX_RSIZE, KTgCN_VAR_INIT, u8"0", KTgMAX_RSIZE,
+                                                            g_szKN_GPU_Physical_Device, TgARRAY_COUNT(g_szKN_GPU_Physical_Device) );
 
     g_szKN_GPU_Output[0] = 0;
-    g_tiCVAR_KN_GPU_Adapter = tgCN_Var_Init_String( u8"KN_GPU_Output", KTgMAX_RSIZE, u8"", KTgMAX_RSIZE, KTgCN_VAR_INIT, u8"0", KTgMAX_RSIZE,
-                                                       g_szKN_GPU_Output, TgARRAY_COUNT(g_szKN_GPU_Output) );
+    g_tiCVAR_KN_GPU_Physical_Device = tgCN_Var_Init_String( u8"KN_GPU_Output", KTgMAX_RSIZE, u8"", KTgMAX_RSIZE, KTgCN_VAR_INIT, u8"0", KTgMAX_RSIZE,
+                                                            g_szKN_GPU_Output, TgARRAY_COUNT(g_szKN_GPU_Output) );
 
     g_tiCVAR_KN_GPU_Width = tgCN_Var_Init_U32( u8"KN_GPU_Width", KTgMAX_RSIZE, u8"", KTgMAX_RSIZE, KTgCN_VAR_INIT,  320, 320, 99999 );
     g_tiCVAR_KN_GPU_Height = tgCN_Var_Init_U32( u8"KN_GPU_Height", KTgMAX_RSIZE, u8"", KTgMAX_RSIZE, KTgCN_VAR_INIT, 200, 200, 99999 );
@@ -151,11 +153,13 @@ TgRESULT tgKN_GPU_Module_Stop( TgVOID )
     tgKN_GPU_TX_VOL_LIB__Stop();
 
     tgKN_GPU_CS_LIB__Stop();
-    tgKN_GPU_HS_LIB__Stop();
-    tgKN_GPU_DS_LIB__Stop();
-    tgKN_GPU_VS_LIB__Stop();
+    tgKN_GPU_FS_LIB__Stop();
+    tgKN_GPU_MS_LIB__Stop();
+    tgKN_GPU_TS_LIB__Stop();
     tgKN_GPU_GS_LIB__Stop();
-    tgKN_GPU_PS_LIB__Stop();
+    tgKN_GPU_TES_LIB__Stop();
+    tgKN_GPU_TCS_LIB__Stop();
+    tgKN_GPU_VS_LIB__Stop();
 
     tgKN_GPU_EXT_Module_Stop();
 
@@ -187,15 +191,17 @@ TgRESULT tgKN_GPU_Module_Free( TgVOID )
     tgKN_GPU_TX_IMG_LIB__Free();
 
     tgKN_GPU_CS_LIB__Free();
-    tgKN_GPU_HS_LIB__Free();
-    tgKN_GPU_DS_LIB__Free();
-    tgKN_GPU_VS_LIB__Free();
+    tgKN_GPU_FS_LIB__Free();
+    tgKN_GPU_MS_LIB__Free();
+    tgKN_GPU_TS_LIB__Free();
     tgKN_GPU_GS_LIB__Free();
-    tgKN_GPU_PS_LIB__Free();
+    tgKN_GPU_TES_LIB__Free();
+    tgKN_GPU_TCS_LIB__Free();
+    tgKN_GPU_VS_LIB__Free();
 
     tgKN_GPU_EXT_Module_Free();
 
-    TgERROR(!tgKN_GPU_CXT_HOST_EXTN_ID_Fetch_And_Is_Valid( nullptr, &g_sKN_GPU_CXT_HOST_EXT.m_tiCXT_HOST_EXT_S ));
+    TgERROR(!tgKN_GPU_CXT_HOST_EXTN_ID_Fetch_And_Is_Valid( nullptr, &g_sKN_GPU_CXT_HOST_EXTN.m_tiCXT_HOST_EXT_S ));
     TgERROR(!tgKN_GPU_CXT_HOST_ID_Fetch_And_Is_Valid( nullptr, &g_sKN_GPU_CXT_HOST.m_tiCXT_HOST_S ));
 
     s_enKernel_GPU_State = ETgMODULE_STATE__FREED;

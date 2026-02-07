@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Common [Unit Test] [Test] - Math [Matrix] [S] [F] [44].c_inc
+    »File«      TgS Common [Unit Test] [Test] - Math [Matrix] [S] [F].c
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -439,6 +439,7 @@ TEST_METHOD_DEFINE( FCN_M_UT(tgMH_Init_ROT_S) )
 {
     VEC_S_T(TEMPLATE__VECTOR_COL)       mM0, mMX;
 
+    tgMM_Set_U08_0xFF( &mM0, sizeof(mM0) );
     FCN_M(tgMH_Init_ROT_S)( &mMX, &mM0 );
 
     TEST_END_METHOD( KTgS_OK );
@@ -1075,6 +1076,7 @@ TEST_METHOD_DEFINE( FCN_M_UT(tgMH_Matrix_To_Euler_S_S) )
     VEC_S_T(TEMPLATE__VECTOR_COL)       mM1;
     VEC_S_T(1)                          vV0_V4;
 
+    tgMM_Set_U08_0xFF( &mM1, sizeof(mM1) );
     FCN_M(tgMH_Matrix_To_Euler_ELEM_S)( &vV0_V4.x, &vV0_V4.y, &vV0_V4.z, &mM1 );
 
     TEST_END_METHOD( KTgS_OK );
@@ -1088,6 +1090,7 @@ TEST_METHOD_DEFINE( FCN_M_UT(tgMH_Matrix_To_Euler_S) )
     VEC_S_T(TEMPLATE__VECTOR_COL)       mM1;
     VEC_S_T(1)                          vV0_V4;
 
+    tgMM_Set_U08_0xFF( &mM1, sizeof(mM1) );
     FCN_M(tgMH_Matrix_To_Euler_S)( &vV0_V4, &mM1 );
 
     TEST_END_METHOD( KTgS_OK );
@@ -1101,6 +1104,7 @@ TEST_METHOD_DEFINE( FCN_M_UT(tgMH_Matrix_To_Quat_S) )
     VEC_S_T(TEMPLATE__VECTOR_COL)       mM1;
     VEC_S_T(1)                          vV0_V4;
 
+    tgMM_Set_U08_0xFF( &mM1, sizeof(mM1) );
     FCN_M(tgMH_Matrix_To_Quat_S)( &vV0_V4, &mM1 );
 
     TEST_END_METHOD( KTgS_OK );

@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -344,7 +344,7 @@ static T_NAME(STg2_PH_,_P) T_NAME(tgPH_,_Grow_Reserve_List)( TgPH_WORLD_ID_C tiW
     /* Add all but one of the newly available objects to the free stack. */
     for (; nuiCommit_Start + 1 < nuiTotal_Commit; ++nuiCommit_Start)
     {
-        tgCM_UT_LF__ST__Push( &T_NAME_VAR(sPH_,_Free_Stack).m_sStack, &(T_NAME_VAR(asPH_,)[nuiCommit_Start].m_sStack_Node) );
+        tgCM_UT_LF__ST__Push( &T_NAME_VAR(sPH_,_Free_Stack).m_sStack, &(T_NAME_VAR(asPH_,)[nuiCommit_Start].m_sNode_Stack) );
     };
 
     /* Return the last available object (which was not added to the free stack). */
@@ -411,7 +411,7 @@ T_NAME(STg2_PH_,_P) T_NAME(tgPH_,_Grow_Commit_List)( TgPH_WORLD_ID_C tiWorld )
 
             for (; nuiCommit_Start + 1 < nuiTotal_Commit; ++nuiCommit_Start)
             {
-                tgCM_UT_LF__ST__Push( &T_NAME_VAR(sPH_,_Free_Stack).m_sStack, &(T_NAME_VAR(asPH_,)[nuiCommit_Start].m_sStack_Node) );
+                tgCM_UT_LF__ST__Push( &T_NAME_VAR(sPH_,_Free_Stack).m_sStack, &(T_NAME_VAR(asPH_,)[nuiCommit_Start].m_sNode_Stack) );
             };
 
             tgCM_UT_LF__SN__Signal( &T_NAME_VAR(sPH_,_Commit_Lock).m_sLock );

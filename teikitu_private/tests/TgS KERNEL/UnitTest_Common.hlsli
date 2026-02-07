@@ -2,8 +2,8 @@
 /* Input Vertex Formats */
 
 #define RENDER_INPUT_LAYOUT_START(A,B) struct STg2_KN_GPU_##A {
-#define RENDER_INPUT_LAYOUT_PER_VERTEX(A, B, C, D, E, F, G, ...) G __VA_ARGS__ : A;
-#define RENDER_INPUT_LAYOUT_PER_VERTEX_APPEND(A, B, C, D, F, G, ...) G __VA_ARGS__ : A;
+#define RENDER_INPUT_LAYOUT_PER_VERTEX(A, B, C, D, E, F, G, ...) G F : C##D;
+#define RENDER_INPUT_LAYOUT_PER_VERTEX_APPEND(A, B, C, D, E, F, G, ...) G F : C##D;
 #define RENDER_INPUT_LAYOUT_END(A) };
 #define RENDER_INPUT_ALIGNMENT_CHECK(A,B)
 
@@ -19,9 +19,9 @@
 #define TgFLOAT32 float
 #define TgUINT_E32 uint
 #define TgUINT_E16 uint
-#define ETgKN_GPU_HLSL_COLOR_SPACE int
+#define ETgKN_GPU_HLSL_COLOUR_SPACE int
 
-#include "TgS Kernel [GPU] - Resource [HLSL] [Vertex].h"
+#include "TgS Kernel [GPU] - Resource [HLSL] [Vertex] [INC].h"
 
 #undef RENDER_INPUT_ALIGNMENT_CHECK
 #undef RENDER_INPUT_LAYOUT_END
@@ -30,12 +30,12 @@
 #undef RENDER_INPUT_LAYOUT_START
 
 #define RENDER_INPUT_LAYOUT_START(A,B) struct STg2_KN_GPU_Instance_##A {
-#define RENDER_INPUT_LAYOUT_PER_VERTEX(A, B, C, D, E, F, G, ...) G __VA_ARGS__ : A;
-#define RENDER_INPUT_LAYOUT_PER_VERTEX_APPEND(A, B, C, D, F, G, ...) G __VA_ARGS__ : A;
+#define RENDER_INPUT_LAYOUT_PER_VERTEX(A, B, C, D, E, F, G, ...) G F : C##D;
+#define RENDER_INPUT_LAYOUT_PER_VERTEX_APPEND(A, B, C, D, E, F, G, ...) G F :C##D;
 #define RENDER_INPUT_LAYOUT_END(A) uint InstanceId : SV_InstanceId; };
 #define RENDER_INPUT_ALIGNMENT_CHECK(A,B)
 
-#include "TgS Kernel [GPU] - Resource [HLSL] [Vertex].h"
+#include "TgS Kernel [GPU] - Resource [HLSL] [Vertex] [INC].h"
 
 #undef RENDER_INPUT_ALIGNMENT_CHECK
 #undef RENDER_INPUT_LAYOUT_END
@@ -43,7 +43,7 @@
 #undef RENDER_INPUT_LAYOUT_PER_VERTEX
 #undef RENDER_INPUT_LAYOUT_START
 
-#undef ETgKN_GPU_HLSL_COLOR_SPACE
+#undef ETgKN_GPU_HLSL_COLOUR_SPACE
 #undef TgUINT_E16
 #undef TgUINT_E32
 #undef TgFLOAT32

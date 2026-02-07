@@ -1,10 +1,10 @@
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 /*  »Project«   Teikitu Gaming System (TgS) (∂)
-    »File«      TgS Kernel - System [GPU] [Context].c
+    »File«      TgS Kernel [GPU] - System [Context].c
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -48,18 +48,22 @@ TgRESULT tgKN_GPU_Select_Context__Validate( STg2_KN_GPU_Select_CPCU psSelect )
 {
     TgRSIZE                             uiIndex;
 
-    for (uiIndex = 0; uiIndex < psSelect->m_nuiAdapter; ++uiIndex)
+    tgCM_UT_LF__RW__Enter_Read_Spin_Block( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
+    for (uiIndex = 0; uiIndex < psSelect->m_nuiPhysical_Device; ++uiIndex)
     {
-        if (g_sKN_GPU_CXT_HOST.m_nuiAdapter <= psSelect->m_uiEnumeration_Adapter_Index[uiIndex])
+        if (g_sKN_GPU_CXT_HOST.m_nuiPhysical_Device <= psSelect->m_uiEnumeration_Physical_Device_Index[uiIndex])
         {
+            tgCM_UT_LF__RW__Exit_Read( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
             return (KTgE_FAIL);
         };
     }
 
-    //if (psSelect->m_uiOutput_Index >= g_sKN_GPU_CXT_HOST.m_asKN_GPU_Adapter[psSelect->m_uiAdapter_Index].m_nuiOutput)
+    //if (psSelect->m_uiOutput_Index >= g_sKN_GPU_CXT_HOST.m_asKN_GPU_Physical_Device[psSelect->m_idxCXT_HOST_Physical_Device].m_nuiOutput)
     //{
     //    return (KTgE_FAIL);
     //};
+
+    tgCM_UT_LF__RW__Exit_Read( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
 
     return (KTgS_OK);
 }
@@ -78,8 +82,11 @@ TgRESULT tgKN_GPU_Contexts__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_
         return (KTgE_FAIL);
     };
 
+    tgCM_UT_LF__RW__Enter_Write_Spin_Block(&g_sKN_GPU_CXT_HOST.m_sLock.m_sLock);
+
     if (!tgKN_GPU__Host__Is_Valid_For_Contexts_Init())
     {
+        tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
         return (KTgE_FAIL);
     };
 
@@ -89,6 +96,7 @@ TgRESULT tgKN_GPU_Contexts__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_
     {
         if (g_sKN_GPU_CXT_HOST.m_atiCXT_DEVC[uiIndex].m_uiKI != KTgKN_GPU_CXT_DEVC_ID__INVALID.m_uiKI)
         {
+            tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
             return (KTgE_FAIL);
         };
     };
@@ -97,6 +105,7 @@ TgRESULT tgKN_GPU_Contexts__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_
     {
         if (g_sKN_GPU_CXT_HOST.m_atiCXT_EXEC[uiIndex].m_uiKI != KTgKN_GPU_CXT_EXEC_ID__INVALID.m_uiKI)
         {
+            tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
             return (KTgE_FAIL);
         };
     };
@@ -105,21 +114,24 @@ TgRESULT tgKN_GPU_Contexts__Init( STg2_KN_GPU_Init_Result_PCU psResult, STg2_KN_
     {
         if (g_sKN_GPU_CXT_HOST.m_atiCXT_SWAP[uiIndex].m_uiKI != KTgKN_GPU_CXT_SWAP_ID__INVALID.m_uiKI)
         {
+            tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
             return (KTgE_FAIL);
         };
     };
 
     /* Create the contexts */
 
-    for (uiIndex = 0; uiIndex < psSelect->m_nuiAdapter; ++uiIndex)
+    for (uiIndex = 0; uiIndex < psSelect->m_nuiPhysical_Device; ++uiIndex)
     {
         if (TgFAILED(tgKN_GPU__Device__Init( psResult, psSelect, uiIndex )))
         {
+            tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
             tgKN_GPU_Contexts__Free();
             return (KTgE_FAIL);
         };
     };
 
+    tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
     return (KTgS_OK);
 }
 
@@ -131,6 +143,8 @@ TgVOID tgKN_GPU_Contexts__Free( TgVOID )
     TgRSIZE                             uiIndex;
 
     /* Delete the contexts */
+
+    tgCM_UT_LF__RW__Enter_Write_Spin_Block( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
 
     for (uiIndex = 0; uiIndex < KTgKN_GPU_MAX_SWAP_CONTEXT; ++uiIndex)
     {
@@ -155,6 +169,8 @@ TgVOID tgKN_GPU_Contexts__Free( TgVOID )
             tgKN_GPU__Device__Free( g_sKN_GPU_CXT_HOST.m_atiCXT_DEVC[uiIndex] );
         };
     };
+
+    tgCM_UT_LF__RW__Exit_Write( &g_sKN_GPU_CXT_HOST.m_sLock.m_sLock );
 }
 
 
@@ -173,7 +189,7 @@ static TgBOOL tgKN_GPU__Host__Is_Valid_For_Contexts_Init( TgVOID )
         return (false);
     };
 
-    if (!tgKN_GPU_CXT_HOST_EXTN_ID_Fetch_And_Is_Valid( nullptr, &g_sKN_GPU_CXT_HOST_EXT.m_tiCXT_HOST_EXT_S ))
+    if (!tgKN_GPU_CXT_HOST_EXTN_ID_Fetch_And_Is_Valid( nullptr, &g_sKN_GPU_CXT_HOST_EXTN.m_tiCXT_HOST_EXT_S ))
     {
         return (false);
     };

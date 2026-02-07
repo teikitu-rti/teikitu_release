@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -37,28 +37,34 @@
 
 /* -- Material ----------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-TgTYPE_STRUCT( STg2_PH_Material, )
+TgTYPE_UNION( STg2_PH_Material, )
 {
-    STg2_UT_ST__ST_Node                         m_sStack_Node;
-    TgPH_MATERIAL_ID                            m_tiMaterial;
-    TgFLOAT32                                   m_fDensity;
-    TgFLOAT32                                   m_fHardness_Brinell;
-    TgFLOAT32                                   m_fTensile_Strength_Ultimate;
-    TgFLOAT32                                   m_fTensile_Strength_Yield;
-    TgFLOAT32                                   m_fElongation_At_Break;
-    TgFLOAT32                                   m_fModulus_Elasticity;
-    TgFLOAT32                                   m_fPoisson_Ratio;
-    TgFLOAT32                                   m_fShear_Modulus;
-    TgFLOAT32                                   m_fThermal_Conductivity;
-    TgFLOAT32                                   m_fThermal_Expansion;
-    TgFLOAT32                                   m_fMelting_Temperature;
-    TgFLOAT32                                   m_fBoiling_Temperature;
-    TgFLOAT32                                   m_fVapour_Pressure;
-    TgFLOAT32                                   m_fSurface_Tension;
-    TgFLOAT32                                   m_fDynamic_Viscosity;
-    TgFLOAT32                                   m_fKinematic_Viscosity;
-    TgFLOAT32                                   m_fSpeed_of_Sound;
-    TgUINT_E08                                  m_uiPad[4];
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
+    {
+        TgPH_MATERIAL_ID                            m_tiMaterial;
+        TgFLOAT32                                   m_fDensity;
+        TgFLOAT32                                   m_fHardness_Brinell;
+        TgFLOAT32                                   m_fTensile_Strength_Ultimate;
+        TgFLOAT32                                   m_fTensile_Strength_Yield;
+        TgFLOAT32                                   m_fElongation_At_Break;
+        TgFLOAT32                                   m_fModulus_Elasticity;
+        TgFLOAT32                                   m_fPoisson_Ratio;
+        TgFLOAT32                                   m_fShear_Modulus;
+        TgFLOAT32                                   m_fThermal_Conductivity;
+        TgFLOAT32                                   m_fThermal_Expansion;
+        TgFLOAT32                                   m_fMelting_Temperature;
+        TgFLOAT32                                   m_fBoiling_Temperature;
+        TgFLOAT32                                   m_fVapour_Pressure;
+        TgFLOAT32                                   m_fSurface_Tension;
+        TgFLOAT32                                   m_fDynamic_Viscosity;
+        TgFLOAT32                                   m_fKinematic_Viscosity;
+        TgFLOAT32                                   m_fSpeed_of_Sound;
+        TgFLOAT32                                   m_fPad;
+    #if 0 != (176 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad[176 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif  
+    };
 };
 
 
@@ -113,7 +119,7 @@ TgTYPE_MODIFIER_DEFAULT(TgPH_FCN_UPDATE_COLLISION_SCENE);
 
 TgTYPE_UNION(T_ID(TgPH_,_ID),)
 {
-    TgALIGN(8) TgUINT_E64                       m_uiKI;
+    TgUINT_E64                                  m_uiKI;
     struct {
         TgUINT_E64                                  m_uiScene : KTgPH_OBJ_BIT__SCENE; /**< Scene Index. */
         TgUINT_E64                                  m_uiI : KTgPH_OBJ_BIT__MAX_INDEX; /**< Index identification of object within storage array. */

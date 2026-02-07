@@ -1,10 +1,10 @@
 ﻿# PARAMETER LIST FOR SCRIPT
 Param(
-    [Parameter(HelpMessage = "Clean the intermediate and target directories")]
-    [switch]$CLEAN,
-
     [Parameter(HelpMessage = "Run cmake with --fresh")]
     [switch]$FRESH,
+
+    [Parameter(HelpMessage = "Clean the intermediate and target directories")]
+    [switch]$CLEAN,
 
     [Parameter(HelpMessage = "CICD Builds - Github Workflows or CircleCI")]
     [switch]$CICD_BUILD,
@@ -88,7 +88,7 @@ $START_PROCESS_ARGUMENT_COMMON += "-CPU:C17_X64"
 
 
 
-@('VULKAN','DX12','REF','NONE') | ForEach-Object {
+@('VULKAN','REF','NONE') | ForEach-Object {
     $GPU = $_
     @('TOOLS_RELEASE','TOOLS_DEBUG','FINAL','RELEASE','DEBUG') | ForEach-Object {
         $BUILD_TYPE = $_

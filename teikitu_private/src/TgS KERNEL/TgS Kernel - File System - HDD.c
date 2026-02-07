@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -16,24 +16,24 @@
 
 TgTYPE_STRUCT(STg2_KN_FS_HDD__Mount_File_Table,)
 {
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
     STg2_UT_LF__HT_RW                           m_asFile;
     TgSTRING_DICT_ID                            m_tiPathName;
-#if TgCCL > 8
-    TgUINT_E08                                  m_uiPad[TgCCL - 8];
+#if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
 #endif
 };
 
 TgTYPE_STRUCT(STg2_KN_FS_HDD__Mount,)
 {
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
     TgKN_FS_MOUNT_ID                            m_tiFS_Mount;
     TgCHAR_U8                                   m_szMount_Root[KTgMAX_FILE_PATH];
     TgSINT_E32                                  m_iPad;
     TgUINT_E32                                  m_nuiFS_File_Table;
     STg2_KN_FS_HDD__Mount_File_Table_P          m_asFS_File_Table;
-#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID)
-    TgUINT_E08                                  m_uiPad[56];
-#elif defined(TgBUILD_OS__WINDOWS)
-    TgUINT_E08                                  m_uiPad[TgCCL - 24];
+#if 0 != (TgSELECT_OS_WINDOW(232,248) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[TgSELECT_OS_WINDOW(232,248) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
 #endif
     STg2_UT_LF__HT_RW                           m_sFS_Path_Table;
 };

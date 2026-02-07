@@ -1,42 +1,17 @@
-From d8750b47d19bbfea896cfc534bbb5704a3441686 Mon Sep 17 00:00:00 2001
+From c187c23028df93345fa283d7cf98a698c423bd15 Mon Sep 17 00:00:00 2001
 From: Andrew Aye <github.very069@passmail.net>
-Date: Thu, 21 Nov 2024 13:59:02 -0800
-Subject: [PATCH] i
+Date: Sat, 30 Aug 2025 00:01:56 -0700
+Subject: [PATCH 5/5] Implement deferred DLL function loading.
 
 ---
- src/prim/windows/prim.c | 35 ++++++++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 7 deletions(-)
+ src/prim/windows/prim.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/src/prim/windows/prim.c b/src/prim/windows/prim.c
-index edc2b226..808e938a 100644
+index 1531183e..4f4845d4 100644
 --- a/src/prim/windows/prim.c
 +++ b/src/prim/windows/prim.c
-@@ -57,10 +57,24 @@ typedef VOID (__stdcall *PGetCurrentProcessorNumberEx)(MI_PROCESSOR_NUMBER* Proc
- typedef BOOL (__stdcall *PGetNumaProcessorNodeEx)(MI_PROCESSOR_NUMBER* Processor, PUSHORT NodeNumber);
- typedef BOOL (__stdcall* PGetNumaNodeProcessorMaskEx)(USHORT Node, PGROUP_AFFINITY ProcessorMask);
- typedef BOOL (__stdcall *PGetNumaProcessorNode)(UCHAR Processor, PUCHAR NodeNumber);
-+typedef BOOL (__stdcall *PCloseHandle)( HANDLE ); // Kernel32
-+typedef DWORD (__stdcall *PGetLastError)( VOID ); // Kernel32
-+typedef HANDLE (__stdcall *PGetCurrentProcess)( VOID );
-+typedef BOOL (__stdcall *POpenProcessToken)(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
-+typedef BOOL (__stdcall *PLookupPrivilegeValueA)(LPCSTR lpSystemName, LPCSTR lpName, PLUID  lpLuid);
-+typedef BOOL (__stdcall *PAdjustTokenPrivileges)(HANDLE TokenHandle, BOOL DisableAllPrivileges, PTOKEN_PRIVILEGES NewState, DWORD BufferLength, PTOKEN_PRIVILEGES PreviousState, PDWORD ReturnLength);
-+typedef SIZE_T (__stdcall *PGetLargePageMinimum)( VOID );
- static PGetCurrentProcessorNumberEx pGetCurrentProcessorNumberEx = NULL;
- static PGetNumaProcessorNodeEx      pGetNumaProcessorNodeEx = NULL;
- static PGetNumaNodeProcessorMaskEx  pGetNumaNodeProcessorMaskEx = NULL;
- static PGetNumaProcessorNode        pGetNumaProcessorNode = NULL;
-+static PCloseHandle                 pCloseHandle = NULL;
-+static PGetLastError                pGetLastError = NULL;
-+static PGetCurrentProcess           pGetCurrentProcess = NULL;
-+static POpenProcessToken            pOpenProcessToken = NULL;
-+static PLookupPrivilegeValueA       pLookupPrivilegeValueA = NULL;
-+static PAdjustTokenPrivileges       pAdjustTokenPrivileges = NULL;
-+static PGetLargePageMinimum         pGetLargePageMinimum = NULL;
- 
- //---------------------------------------------
- // Enable large page support dynamically (if possible)
-@@ -78,26 +92,26 @@ static bool win_enable_large_os_pages(size_t* large_page_size)
+@@ -106,26 +106,26 @@ static bool win_enable_large_os_pages(size_t* large_page_size)
    // <https://devblogs.microsoft.com/oldnewthing/20110128-00/?p=11643>
    unsigned long err = 0;
    HANDLE token = NULL;
@@ -55,9 +30,8 @@ index edc2b226..808e938a 100644
 -        err = GetLastError();
 +        err = pGetLastError();
          ok = (err == ERROR_SUCCESS);
-         if (ok && large_page_size != NULL) {
--          *large_page_size = GetLargePageMinimum();
-+          *large_page_size = pGetLargePageMinimum();
+         if (ok && large_page_size != NULL && pGetLargePageMinimum != NULL) {
+           *large_page_size = (*pGetLargePageMinimum)();
          }
        }
      }
@@ -70,10 +44,10 @@ index edc2b226..808e938a 100644
      _mi_warning_message("cannot enable large OS page support, error %lu\n", err);
    }
    return (ok!=0);
-@@ -140,6 +154,13 @@ void _mi_prim_mem_init( mi_os_mem_config_t* config )
-     pGetNumaProcessorNodeEx = (PGetNumaProcessorNodeEx)(void (*)(void))GetProcAddress(hDll, "GetNumaProcessorNodeEx");
-     pGetNumaNodeProcessorMaskEx = (PGetNumaNodeProcessorMaskEx)(void (*)(void))GetProcAddress(hDll, "GetNumaNodeProcessorMaskEx");
-     pGetNumaProcessorNode = (PGetNumaProcessorNode)(void (*)(void))GetProcAddress(hDll, "GetNumaProcessorNode");
+@@ -187,6 +187,13 @@ void _mi_prim_mem_init( mi_os_mem_config_t* config )
+         }
+       }
+     }
 +    pCloseHandle = (PCloseHandle)(void (*)(void))GetProcAddress(hDll, "CloseHandle");
 +    pGetLastError = (PGetLastError)(void (*)(void))GetProcAddress(hDll, "GetLastError");
 +    pGetCurrentProcess = (PGetCurrentProcess)(void (*)(void))GetProcAddress(hDll, "GetCurrentProcess");
@@ -83,7 +57,7 @@ index edc2b226..808e938a 100644
 +    pGetLargePageMinimum = (PGetLargePageMinimum)(void (*)(void))GetProcAddress(hDll, "GetLargePageMinimum");
      FreeLibrary(hDll);
    }
-   if (mi_option_is_enabled(mi_option_allow_large_os_pages) || mi_option_is_enabled(mi_option_reserve_huge_os_pages)) {
+   // Enable large/huge OS page support?
 -- 
-2.46.2.windows.1
+2.47.1.windows.1
 

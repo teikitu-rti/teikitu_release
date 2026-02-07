@@ -46,18 +46,18 @@ Param(
     [string]$THREAD,
 
     [Parameter(Mandatory=$true)]
-    [ValidateSet("WINDOWS", "POSIX", "ANDROID")]
+    [ValidateSet("WINDOWS", "POSIX", "ANDROID", "MAC", "IOS")]
     [string]$OS,
 
     [Parameter(Mandatory=$true, HelpMessage = "Select target device: DESKTOP_X86")]
     [ValidateSet("DESKTOP")]
     [string]$DEVICE,
 
-    [Parameter(HelpMessage = "Select target gpu: REF, DX12")]
-    [ValidateSet("NONE", "REF", "DX12", "VULKAN", "METAL")]
+    [Parameter(HelpMessage = "Select target gpu: REF, VULKAN")]
+    [ValidateSet("NONE", "REF", "VULKAN")]
     [string]$GPU="NONE",
 
-    [Parameter(HelpMessage = "Select target gpu: REF, DX12")]
+    [Parameter(HelpMessage = "Select target audio: REF, XAUDIO")]
     [ValidateSet("NONE", "REF", "XAUDIO")]
     [string]$AUDIO="NONE",
 
@@ -269,7 +269,9 @@ else
         {
             if ($PSVersionTable.Platform -eq "Unix")
             {
-                if (Test-Path -Path "/usr/lib/llvm-19/bin/clang") {
+                if (Test-Path -Path "/usr/lib/llvm-21/bin/clang") {
+                    $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_C_COMPILER:PATH="/usr/lib/llvm-21/bin/clang"'
+                } elseif (Test-Path -Path "/usr/lib/llvm-19/bin/clang") {
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_C_COMPILER:PATH="/usr/lib/llvm-19/bin/clang"'
                 } elseif (Test-Path -Path "/opt/homebrew/opt/llvm/bin/clang") {
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_C_COMPILER:PATH="/opt/homebrew/opt/llvm/bin/clang"'
@@ -277,7 +279,9 @@ else
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_C_COMPILER:PATH="/usr/bin/clang"'
                 }
     
-                if (Test-Path -Path "/usr/lib/llvm-19/bin/clang++") {
+                if (Test-Path -Path "/usr/lib/llvm-21/bin/clang++") {
+                    $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER:PATH="/usr/lib/llvm-21/bin/clang++"'
+                } elseif (Test-Path -Path "/usr/lib/llvm-19/bin/clang++") {
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER:PATH="/usr/lib/llvm-19/bin/clang++"'
                 } elseif (Test-Path -Path "/opt/homebrew/opt/llvm/bin/clang++") {
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER:PATH="/opt/homebrew/opt/llvm/bin/clang++"'
@@ -285,7 +289,9 @@ else
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER:PATH="/usr/bin/clang++"'
                 }
     
-                if (Test-Path -Path "/usr/lib/llvm-19/bin/clang-scan-deps") {
+                if (Test-Path -Path "/usr/lib/llvm-21/bin/clang-scan-deps") {
+                    $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:PATH="/usr/lib/llvm-21/bin/clang-scan-deps"'
+                } elseif (Test-Path -Path "/usr/lib/llvm-19/bin/clang-scan-deps") {
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:PATH="/usr/lib/llvm-19/bin/clang-scan-deps"'
                 } elseif (Test-Path -Path "/opt/homebrew/opt/llvm/bin/clang-scan-deps") {
                     $CMAKE_BUILD_COMMON_CMD += '-DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:PATH="/opt/homebrew/opt/llvm/bin/clang-scan-deps"'
@@ -386,6 +392,11 @@ if ($IDE -match "MSVC17")
     {
         $CMAKE_BUILD_COMMAND_LINE += " /bl"
     }    
+}
+elseif ($IDE -match "NINJA")
+{
+    $CMAKE_BUILD_COMMAND_LINE += " --"
+    $CMAKE_BUILD_COMMAND_LINE += " -k 0"
 }
 if ($PSBoundParameters.debug -or $PSBoundParameters.verbose) { Write-Host -fore cyan "$CMAKE_BUILD_COMMAND_LINE" }
 Invoke-Expression $CMAKE_BUILD_COMMAND_LINE

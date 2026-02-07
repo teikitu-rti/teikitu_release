@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
@@ -41,11 +41,11 @@ tgUnit_Test__FX__Setup_Scene_Constant_Buffer(
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
 #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
-static STg2_KN_GPU_HLSL_CB_Debug_UI s_sUIConstantBuffer;
+static STg2_KN_GPU_DBG_Quad s_sUIConstantBuffer;
 #endif
 
-static STg2_KN_GPU_HLSL_CB_Debug_Model s_sModelConstantBuffer;
-static const UINT c_alignedModelConstantBufferSize = (sizeof( STg2_KN_GPU_HLSL_CB_Debug_Model ) + 255) & ~255ULL;
+static STg2_KN_GPU_DBG_Geom s_sModelConstantBuffer;
+static const UINT c_alignedModelConstantBufferSize = (sizeof( STg2_KN_GPU_DBG_Geom ) + 255) & ~255ULL;
 
 TgTYPE_STRUCT(STg2_UT_KN_GPU_Exec_Resources,)
 {
@@ -231,9 +231,9 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
 {
     TgBOOL                              bEndFrame = false;
 
-    UTg2_KN_GPU_CMD                     uCMD;
+    STg2_KN_GPU_CMD                     uCMD;
     STg2_KN_GPU_Render_Buffer           sRTBuffer, sDSBuffer;
-    STg2_KN_GPU_HLSL_Output_DESC        sOutput_DESC;
+    STg2_KN_GPU_Output_DESC             sOutput_DESC;
     D3D12_CPU_DESCRIPTOR_HANDLE         shHeap_RTV;
     D3D12_CPU_DESCRIPTOR_HANDLE         shHeap_DSV;
     TgRSIZE                             nuiFX_Header, uiFX_Header;
@@ -243,16 +243,16 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
         tiCXT_WORK = tgKN_GPU_EXT__Execute__Frame_Start( tiCXT_EXEC );
         bEndFrame = true;
     }
-    uCMD = tgKN_GPU_EXT__Execute__Command_List_Acquire( tiCXT_WORK, (ETgKN_GPU_EXT_COMMAND)D3D12_COMMAND_LIST_TYPE_DIRECT );
-    tgKN_GPU_EXT__CMD__Set_Graphics_Root_Signature_From_Default( uCMD, ETgKN_GPU_DEFAULT_ROOT_SIGNATURE_DEBUG );
+    uCMD = tgKN_GPU_EXT__WORK__Acquire_Command( tiCXT_WORK, (ETgKN_GPU_EXT_COMMAND)D3D12_COMMAND_LIST_TYPE_DIRECT );
+    tgKN_GPU_EXT__CMD__Set_Graphics_Root_Signature_From_Default( psCMD, ETgKN_GPU_DEFAULT_PIPELINE_LAYOUT_DEBUG );
 
-    if (TgFAILED(tgKN_GPU_EXT__SwapChain__Get_Back_Buffer( &shHeap_RTV, &shHeap_DSV, &sOutput_DESC, tiCXT_SWAP )))
+    if (TgFAILED(tgKN_GPU_EXT__SwapChain__Acquire_Present_Buffer( &shHeap_RTV, &shHeap_DSV, &sOutput_DESC, tiCXT_SWAP )))
     {
         return (KTgE_FAIL);
     };
     tgKN_GPU__SwapChain__Get_Target_Buffers( &sRTBuffer, &sDSBuffer, tiCXT_SWAP );
     ID3D12GraphicsCommandList8_OMSetRenderTargets( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 1, &shHeap_RTV, FALSE, &shHeap_DSV );
-    tgKN_GPU_EXT__SwapChain__Set_Viewport_and_Scissor( tiCXT_SWAP, uCMD );
+    tgKN_GPU_EXT__CMD__Set_Viewport_and_Scissor( psCMD, tiCXT_SWAP );
     ID3D12GraphicsCommandList8_ClearDepthStencilView( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, shHeap_DSV, D3D12_CLEAR_FLAG_DEPTH, 1.0F, 0, 0, nullptr );
 
     tgUnit_Test__FX__Setup_Scene_Constant_Buffer( &sRTBuffer );
@@ -261,7 +261,7 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
     #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
     {
         PIXBeginEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 0, "UNIT TEST: Draw UI - Clear Viewport" );
-        tgKN_GPU_EXT__CMD__Set_State_From_Default( uCMD, ETgKN_GPU_DEFAULT_PSO_DEBUG_UI, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
+        tgKN_GPU_EXT__CMD__Set_State_From_Default( psCMD, ETgKN_GPU_DBG_GRAPHICS_PIPELINE_UI, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
         s_sUIConstantBuffer.m_sDESC = sOutput_DESC;
         s_sUIConstantBuffer.m_vRect_UI.x = -1.0F;
         s_sUIConstantBuffer.m_vRect_UI.y =  1.0F;
@@ -272,7 +272,7 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
         s_sUIConstantBuffer.m_vUI_Colour.b = 1.0F;
         s_sUIConstantBuffer.m_vUI_Colour.a = 1.0F;
         s_sUIConstantBuffer.m_uiSelect_Default_Texture_Index = 0;
-        tgKN_GPU_EXT__CMD__Render_Debug_UI( uCMD, &s_sUIConstantBuffer );
+        tgKN_GPU_EXT__CMD__Render_Debug_Quad( psCMD, &s_sUIConstantBuffer );
         PIXEndEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List );
     }
     #endif
@@ -280,22 +280,22 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
     #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
     {
         PIXBeginEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 0, "UNIT TEST: Draw Debug Geometry" );
-        tgKN_GPU_EXT__CMD__Set_State_From_Default( uCMD, ETgKN_GPU_DEFAULT_PSO_DEBUG_GEOM_02, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
-        tgMH_CLI_S_F32_04_4( &s_sModelConstantBuffer.m_vModel_Transform );
-        s_sModelConstantBuffer.m_vModel_Transform._11 = 0.25F;
-        s_sModelConstantBuffer.m_vModel_Transform._22 = 0.25F;
-        s_sModelConstantBuffer.m_vModel_Transform._33 = 0.25F;
-        s_sModelConstantBuffer.m_vModel_Transform._41 = g_sCamera.m_sCamera.m_uCam_Position.m_vS_F32_04_1.x;
-        s_sModelConstantBuffer.m_vModel_Transform._42 = g_sCamera.m_sCamera.m_uCam_Position.m_vS_F32_04_1.y;
-        s_sModelConstantBuffer.m_vModel_Transform._43 = g_sCamera.m_sCamera.m_uCam_Position.m_vS_F32_04_1.z;
+        tgKN_GPU_EXT__CMD__Set_State_From_Default( psCMD, ETgKN_GPU_DBG_GRAPHICS_PIPELINE_GEOM_02, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
+        tgMH_CLI_S_F32_04_4( &s_sModelConstantBuffer.m_avModel_Transform );
+        s_sModelConstantBuffer.m_avModel_Transform._11 = 0.25F;
+        s_sModelConstantBuffer.m_avModel_Transform._22 = 0.25F;
+        s_sModelConstantBuffer.m_avModel_Transform._33 = 0.25F;
+        s_sModelConstantBuffer.m_avModel_Transform._41 = g_sCamera.m_sConfiguration.m_uCam_Position.m_vS_F32_04_1.x;
+        s_sModelConstantBuffer.m_avModel_Transform._42 = g_sCamera.m_sConfiguration.m_uCam_Position.m_vS_F32_04_1.y;
+        s_sModelConstantBuffer.m_avModel_Transform._43 = g_sCamera.m_sConfiguration.m_uCam_Position.m_vS_F32_04_1.z;
         s_sModelConstantBuffer.m_sDESC = sOutput_DESC;
-        tgMM_Copy( &s_sModelConstantBuffer.m_mW2C, sizeof(s_sModelConstantBuffer.m_mW2C), &g_sSceneConstantBuffer.m_mW2C, sizeof(g_sSceneConstantBuffer.m_mW2C) );
-        tgMM_Copy( &s_sModelConstantBuffer.m_mC2S, sizeof(s_sModelConstantBuffer.m_mC2S), &g_sSceneConstantBuffer.m_mC2S, sizeof(g_sSceneConstantBuffer.m_mC2S) );
-        s_sModelConstantBuffer.m_uModel_Colour.m_vS_F32_04_1 = tgMH_Init_ELEM_S_F32_04_1( 1.0F, 1.0F, 1.0F, 1.0F );
+        tgMM_Copy( &s_sModelConstantBuffer.m_avW2C, sizeof(s_sModelConstantBuffer.m_avW2C), &g_sSceneConstantBuffer.m_avW2C, sizeof(g_sSceneConstantBuffer.m_avW2C) );
+        tgMM_Copy( &s_sModelConstantBuffer.m_avC2S, sizeof(s_sModelConstantBuffer.m_avC2S), &g_sSceneConstantBuffer.m_avC2S, sizeof(g_sSceneConstantBuffer.m_avC2S) );
+        s_sModelConstantBuffer.m_vModel_Colour.m_vS_F32_04_1 = tgMH_Init_ELEM_S_F32_04_1( 1.0F, 1.0F, 1.0F, 1.0F );
         s_sModelConstantBuffer.m_vLight_Ambient = tgMH_Init_ELEM_S_F32_04_1( 0.1F, 0.1F, 0.1F, 1.0F );
         s_sModelConstantBuffer.m_vLight_Direction = tgMH_Init_ELEM_S_F32_04_1( -1.0F/1.73205081F, 1.0F/1.73205081F, -1.0F/1.73205081F, 0.0F );
         s_sModelConstantBuffer.m_vLight_Direction_Colour = tgMH_Init_ELEM_S_F32_04_1( 0.4F, 0.6F, 0.6F, 1.0F );
-        tgKN_GPU_EXT__CMD__Render_Debug_Geom( uCMD, ETgKN_GPU_DEBUG_PM_3D_SPHERE, &s_sModelConstantBuffer );
+        tgKN_GPU_EXT__CMD__Render_Debug_Geom( psCMD, ETgKN_GPU_DEBUG_PM_3D_SPHERE, &s_sModelConstantBuffer );
         PIXEndEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List );
     }
     #endif
@@ -303,15 +303,15 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
     #if defined(TgCOMPILE__RENDER_DEBUG_OUTPUT)
     {
         PIXBeginEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 0, "UNIT TEST: Draw Debug Geometry" );
-        tgKN_GPU_EXT__CMD__Set_State_From_Default( uCMD, ETgKN_GPU_DEFAULT_PSO_DEBUG_GEOM_02, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
-        tgMH_CLI_S_F32_04_4( &s_sModelConstantBuffer.m_vModel_Transform );
-        tgKN_GPU_EXT__CMD__Render_Debug_Geom( uCMD, ETgKN_GPU_DEBUG_PM_3D_BOX, &s_sModelConstantBuffer );
-        s_sModelConstantBuffer.m_vModel_Transform._11 = 0.5F;
-        s_sModelConstantBuffer.m_vModel_Transform._22 = 0.5F;
-        s_sModelConstantBuffer.m_vModel_Transform._33 = 0.5F;
-        s_sModelConstantBuffer.m_vModel_Transform._42 = 10.0F;
-        tgKN_GPU_EXT__CMD__Render_Debug_Geom( uCMD, ETgKN_GPU_DEBUG_PM_3D_SPHERE, &s_sModelConstantBuffer );
-        tgMH_CLI_S_F32_04_4( &s_sModelConstantBuffer.m_vModel_Transform );
+        tgKN_GPU_EXT__CMD__Set_State_From_Default( psCMD, ETgKN_GPU_DBG_GRAPHICS_PIPELINE_GEOM_02, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
+        tgMH_CLI_S_F32_04_4( &s_sModelConstantBuffer.m_avModel_Transform );
+        tgKN_GPU_EXT__CMD__Render_Debug_Geom( psCMD, ETgKN_GPU_DEBUG_PM_3D_BOX, &s_sModelConstantBuffer );
+        s_sModelConstantBuffer.m_avModel_Transform._11 = 0.5F;
+        s_sModelConstantBuffer.m_avModel_Transform._22 = 0.5F;
+        s_sModelConstantBuffer.m_avModel_Transform._33 = 0.5F;
+        s_sModelConstantBuffer.m_avModel_Transform._42 = 10.0F;
+        tgKN_GPU_EXT__CMD__Render_Debug_Geom( psCMD, ETgKN_GPU_DEBUG_PM_3D_SPHERE, &s_sModelConstantBuffer );
+        tgMH_CLI_S_F32_04_4( &s_sModelConstantBuffer.m_avModel_Transform );
         PIXEndEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List );
     }
     #endif
@@ -370,7 +370,7 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
 
 
         PIXBeginEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 0, "UNIT TEST: Draw FX" );
-        tgKN_GPU_EXT__CMD__Set_State_From_Default( uCMD, ETgKN_GPU_DEFAULT_PSO_PARTICLE_00, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
+        tgKN_GPU_EXT__CMD__Set_State_From_Default( psCMD, ETgKN_GPU_GRAPHICS_PIPELINE_PARTICLE_00, sRTBuffer.m_enFormat, sDSBuffer.m_enFormat );
         ID3D12GraphicsCommandList8_IASetVertexBuffers( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 0, 1, &sVertex_Buffer_View );
         ID3D12GraphicsCommandList8_IASetIndexBuffer( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, nullptr );
         ID3D12GraphicsCommandList8_IASetPrimitiveTopology( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -395,26 +395,23 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
         TgCHAR_U8                           uszBuffer[512];
         STg2_Profile_Entry                  sProfile_Entry;
         TgSINT_E64                          iCall_Avg;
-        STg2_KN_GPU_OUTPUT_DEBUG_STRING     sOutput_Debug_String_0;
+        STg2_KN_GPU_DBG_Text_CI             sText_CI;
 
         PIXBeginEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List, 0, "FX Performance Stats" );
-        tgMM_Set_U08_0x00( &sOutput_Debug_String_0, sizeof( sOutput_Debug_String_0 ) );
+        tgMM_Set_U08_0x00( &sText_CI, sizeof( sText_CI ) );
 
-        sOutput_Debug_String_0.m_sOutput_DESC = sOutput_DESC;
-        sOutput_Debug_String_0.m_sRTBuffer = sRTBuffer;
-        sOutput_Debug_String_0.m_sDSBuffer = sDSBuffer;
-        sOutput_Debug_String_0.m_enFont = ETgKN_GPU_DOS_FONT_ROM_MARCIO;
-        sOutput_Debug_String_0.m_auszText[0] = uszBuffer;
-        sOutput_Debug_String_0.m_nuiText = 1;
-        sOutput_Debug_String_0.m_vText_Box_V.x = -1.0F + (10.0F / (float)sRTBuffer.m_uiWidth);
-        sOutput_Debug_String_0.m_vText_Box_V.y = 0.5F - (10.0F / (float)sRTBuffer.m_uiHeight);
-        sOutput_Debug_String_0.m_vText_Box_V.z = 1.0F - (10.0F / (float)sRTBuffer.m_uiWidth);
-        sOutput_Debug_String_0.m_vText_Box_V.w =-1.0F + (10.0F / (float)sRTBuffer.m_uiHeight);
-        sOutput_Debug_String_0.m_vText_Colour.r = 0.0F;
-        sOutput_Debug_String_0.m_vText_Colour.g = 1.0F;
-        sOutput_Debug_String_0.m_vText_Colour.b = 0.0F;
-        sOutput_Debug_String_0.m_vText_Colour.a = 1.0F;
-        sOutput_Debug_String_0.m_bRight_Aligned = false;
+        sText_CI.m_enFont = ETgKN_GPU_DOS_FONT_ROM_MARCIO;
+        sText_CI.m_auszText = &uszBuffer;
+        sText_CI.m_nuiText = 1;
+        sText_CI.m_vText_Box_V.x = -1.0F + (10.0F / (float)sRTBuffer.m_uiWidth);
+        sText_CI.m_vText_Box_V.y = 0.5F - (10.0F / (float)sRTBuffer.m_uiHeight);
+        sText_CI.m_vText_Box_V.z = 1.0F - (10.0F / (float)sRTBuffer.m_uiWidth);
+        sText_CI.m_vText_Box_V.w =-1.0F + (10.0F / (float)sRTBuffer.m_uiHeight);
+        sText_CI.m_vText_Colour.r = 0.0F;
+        sText_CI.m_vText_Colour.g = 1.0F;
+        sText_CI.m_vText_Colour.b = 0.0F;
+        sText_CI.m_vText_Colour.a = 1.0F;
+        sText_CI.m_bRight_Aligned = false;
 
         tgUSZ_PrintF( uszBuffer, 256, u8"Update" );
         tgPF_Query_Profile_Entry_Unsafe( &sProfile_Entry, sPF_TAG_FX_BEAM_UPDATE__UPDATE[0] );
@@ -452,18 +449,18 @@ static TgRESULT tgUnit_Test__FX__Render_0( TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, Tg
         tgUSZ_AppendF( uszBuffer, TgARRAY_COUNT(uszBuffer), u8"\n Trail:     %8.2f | %8.2f | %8.2f", (double)tgTM_Counter_Tick_To_MilliSeconds( iCall_Avg ),
                         (double)tgTM_Counter_Tick_To_MilliSeconds( sProfile_Entry.m_iCall_Time_Min ), (double)tgTM_Counter_Tick_To_MilliSeconds( sProfile_Entry.m_iCall_Time_Max ) );
 
-        tgKN_GPU__CMD__Render_Debug_Text_Box( uCMD, &sOutput_Debug_String_0 );
+        tgKN_GPU__CMD__Render_Debug_Text_Box( psCMD, &sText_CI );
         PIXEndEvent_ThatWorksInC_ID3D12GraphicsCommandList( uCMD.psEXT->m_psDX12_Graphics_Cmd_List );
     }
     #endif
 
 
-    tgKN_GPU_EXT__CMD__Command_List_Close( uCMD );
+    tgKN_GPU_EXT__CMD__Command_Buffer_Close( uCMD );
     uCMD.ps = nullptr;
-    tgKN_GPU_EXT__SwapChain__Present( tiCXT_WORK, tiCXT_SWAP );
+    tgKN_GPU_EXT__WORK__Present( tiCXT_WORK, tiCXT_SWAP );
     if (bEndFrame)
     {
-        tgKN_GPU_EXT__Execute__Frame_End( tiCXT_WORK );
+        tgKN_GPU_EXT__WORK__Frame_End( tiCXT_WORK );
     }
     return (KTgS_OK);
 }

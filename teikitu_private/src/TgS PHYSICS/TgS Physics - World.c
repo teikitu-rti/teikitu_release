@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, 
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -155,9 +155,9 @@ TgRESULT tgPH_World_Init_Internal( STg2_PH_World_P psWorld )
     /* Serialization */
     psWorld->m_psScene = nullptr;
 
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
     tgPH_World_Set_User_FCN__Constraint_Contact_Init_Complete( nullptr, psWorld->m_tiWorld, tgPH_Constraint_Contact__CNPrintF_IMM );
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif
 
     return KTgS_OK;
@@ -318,9 +318,9 @@ TgRESULT tgPH_Update_World( TgPH_WORLD_ID_C tiWorld )
             TgVERIFY(0 == TgSTD_ATOMIC(load_explicit)( g_axuiPH_FENCE__UPDATE_WORLD__COLLISION + tiWorld.m_uiI, TgSTD_MEMORY_ORDER(relaxed) ));
             TgSTD_ATOMIC(store)( g_axuiPH_FENCE__UPDATE_WORLD__COLLISION + tiWorld.m_uiI, 1 );
 
-        #if defined(TgBUILD_DEBUG__PHYSICS)
+        #if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
             g_nuiPH_Debug__Contact = 0;
-        /*# defined(TgBUILD_DEBUG__PHYSICS) */
+        /*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
         #endif
 
             /* Create all of the jobs necessary to batch the collide calls for all forms. */
@@ -653,13 +653,13 @@ static TgRESULT tgPH_Update_World__Job__Finish( STg2_Job_CPC psJob )
     uCT.psNode = tgCM_UT_LF__ST__Pop( &g_asPH_Update__Constraint_IMM[tiWorld.m_uiI].m_sStack );
     while (uCT.psNode)
     {
-    #if defined(TgBUILD_DEBUG__PHYSICS)
+    #if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
         if (g_nuiPH_Debug__Contact < KTgPH_DEBUG_MAX_CONTACT)
         {
             g_auPH_Debug__Contact[g_nuiPH_Debug__Contact].m_vF32_04_1 = uCT.psCT->m_sContact.m_sContact.m_vS0;
             ++g_nuiPH_Debug__Contact;
         };
-    /*# defined(TgBUILD_DEBUG__PHYSICS) */
+    /*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
     #endif
         tgMM_Set_U08_0x00( uCT.psCT, sizeof(STg2_PH_Constraint) );
         tgCM_UT_LF__ST__Push( &g_asPH_Constraint_Free_Stack[tiWorld.m_uiI].m_sStack, uCT.psNode );
@@ -706,7 +706,7 @@ static TgRESULT tgPH_Update_World__Job__Finish( STg2_Job_CPC psJob )
 
 /* ---- tgPH_World_Validate ------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-#if defined(TgBUILD_DEBUG__PHYSICS)
+#if defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS
 TgVOID tgPH_World_Validate( STg2_Output_PC psOUT, TgPH_WORLD_ID_C tiWorld )
 {
 //# TODO: tgPH_World_Validate
@@ -714,5 +714,5 @@ TgVOID tgPH_World_Validate( STg2_Output_PC psOUT, TgPH_WORLD_ID_C tiWorld )
     (void)tiWorld;
 
 }
-/*# defined(TgBUILD_DEBUG__PHYSICS) */
+/*# defined(TgS_DEBUG__PHYSICS) && TgS_DEBUG__PHYSICS */
 #endif

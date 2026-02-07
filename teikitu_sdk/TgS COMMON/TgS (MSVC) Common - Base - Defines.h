@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_MSVC_COMMON_BASE_DEFINES_H)
 #define TGS_MSVC_COMMON_BASE_DEFINES_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #if !defined(TgBUILD_COMPILER__MSVC)
     #error Build arguments do not indicate this compiler
@@ -80,6 +83,9 @@ __pragma(warning(disable : 28251)) /* Inconsistent annotation for '': this insta
 
 #define __has_extension(...) 0
 
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* Compiler Warning Settings */
+
 #define TgDISABLE_ALL_WARNNGS_PUSH __pragma(warning(push,0)) \
                                    __pragma(warning(disable: 4820))
 #define TgDISABLE_ALL_WARNNGS_POP __pragma(warning(pop))
@@ -105,6 +111,9 @@ __pragma(warning(disable : 28251)) /* Inconsistent annotation for '': this insta
 #define TgWARN_DISABLE_PUSH(msvc_unused,clang_option) TgMSVC_WARN_DISABLE_PUSH(msvc_unused)
 #define TgWARN_DISABLE_POP(clang_option) TgMSVC_WARN_DISABLE_POP()
 
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* Compiler Hints */
+
 #define TgANALYSIS_ASSUME(...) __analysis_assume(__VA_ARGS__)
 
 #if defined(TgCOMPILE_FILE__CXX) && ((defined(_MSVC_LANG) && _MSVC_LANG >= 201103L) || (defined(__cplusplus) && (__cplusplus >= 201103L)))
@@ -123,24 +132,80 @@ __pragma(warning(disable : 28251)) /* Inconsistent annotation for '': this insta
 
 #if defined(TgCOMPILE_FILE__CXX) && ((defined(_MSVC_LANG) && _MSVC_LANG >= 201103L) || (defined(__cplusplus) && (__cplusplus >= 201103L)))
     #define TgATTRIBUTE_NO_DISCARD [[nodiscard]]
-#elif defined(_MSC_VER >= 1700)
+#elif defined(_MSC_VER) && (_MSC_VER >= 1700)
     #define TgATTRIBUTE_NO_DISCARD _Check_return_
 #else
     #define TgATTRIBUTE_NO_DISCARD
 #endif
 
-#define TgATTRIBUTE_NO_INLINE __declspec(noinline)
-
 #if (_MSC_VER >= 1900) && !defined(__EDG__)
-    #define TgATTRIBUTE_RESTRICT __declspec(allocator) __declspec(restrict)
+    #define TgATTRIBUTE_RESTRICT                __declspec(allocator) __declspec(restrict)
 #else
-    #define TgATTRIBUTE_RESTRICT __declspec(restrict)
+    #define TgATTRIBUTE_RESTRICT                __declspec(restrict)
 #endif
 #define TgATTRIBUTE_MALLOC
 
 #define TgATTRIBUTE_ALLOC_SIZE1(s)
 #define TgATTRIBUTE_ALLOC_SIZE2(s1,s2)
 #define TgATTRIBUTE_ALLOC_ALIGN(p)
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* Compiler Optimization Hints */
+
+/* Optimization Level Control */
+#define TgMSVC_OPT_ENABLE_BASIC             __pragma(optimize("g", on))
+#define TgMSVC_OPT_ENABLE_AGGRESSIVE        __pragma(optimize("gt", on))
+#define TgMSVC_OPT_ENABLE_MAXIMUM           __pragma(optimize("gt", on)) \
+                                            __pragma(auto_inline(on)) \
+                                            __pragma(intrinsic(sqrt, sin, cos))
+#define TgMSVC_OPT_ENABLE_SIZE              __pragma(optimize("gs", on))
+
+/* Optimization Disable/Restore */
+#define TgMSVC_OPT_DISABLE_ALL              __pragma(optimize("", off))
+#define TgMSVC_OPT_RESTORE_DEFAULT          __pragma(optimize("", on))
+
+/* Specific Feature Control */
+#define TgPRAGMA_OPT_ENABLE_UNROLL          __pragma(loop(hint_parallel(0)))
+#define TgPRAGMA_OPT_DISABLE_UNROLL         __pragma(loop(no_vector))
+#define TgPRAGMA_OPT_ENABLE_VECTOR          __pragma(loop(ivdep))
+#define TgPRAGMA_OPT_DISABLE_VECTOR         __pragma(loop(no_vector))
+
+/* Function Attributes */
+#define TgATTRIBUTE_FORCE_OPTIMIZE
+#define TgATTRIBUTE_FORCE_NO_OPTIMIZE
+#define TgATTRIBUTE_NO_INLINE               __declspec(noinline)
+#if defined(TgCOMPILE__NO_INLINE)
+#define TgFORCEINLINE                       TgATTRIBUTE_NO_INLINE static
+#define TgINLINE                            TgATTRIBUTE_NO_INLINE static
+#else
+#define TgFORCEINLINE                       static __forceinline
+#define TgINLINE                            static __inline
+#endif
+
+/* Path Annotations */
+#define HOT_PATH                            /* Not supported */
+#define COLD_PATH                           /* Not supported */
+
+/* Branch Prediction */
+#define TgEXPECT(A,...)                     (__VA_ARGS__)
+#define TgEXPECT_TRUE(...)                  TgEXPECT( 1, (__VA_ARGS__) )
+#define TgEXPECT_FALSE(...)                 TgEXPECT( 0, (__VA_ARGS__) )
+
+/* Clang-Specific Additional Options */
+#define TgCLANG_VECTORIZE_WIDTH(n)
+#define TgCLANG_UNROLL_COUNT(n)
+#define TgCLANG_DISTRIBUTE_ENABLE
+#define TgCLANG_DISTRIBUTE_DISABLE
+#define TgCLANG_PIPELINE_ENABLE
+#define TgCLANG_PIPELINE_DISABLE
+#define TgCLANG_ASSUME_ALIGNED(ptr, n)      ptr
+#define TgCLANG_UNREACHABLE
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* Static Analyzer Hints */
+
+#define TgANALYSIS_NO_NULL
+#define TgANALYSIS_OK_NULL
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
@@ -166,17 +231,8 @@ __pragma(warning(disable : 28251)) /* Inconsistent annotation for '': this insta
 #define CDECL                               __cdecl                     /* Standard C function */
 #define TgCDECL                             __cdecl                     /* Standard C function */
 #define STDCALL                             __stdcall                   /* Standard calling convention */
-#if defined(TgCOMPILE__NO_INLINE)
-#define TgFORCEINLINE                       static                      /* Force code to be TgINLINE */
-#define TgINLINE                            static
-#else
-#define TgFORCEINLINE                       static __forceinline        /* Force code to be TgINLINE */
-#define TgINLINE                            static __inline
-#endif
-#define TgALIGN(A)                          __declspec(align(A))
+#define TgALIGN(A)                          alignas(A)
 #define TgTLS                               __declspec(thread)
-#define TgEXPECT_TRUE(...)                  (__VA_ARGS__)
-#define TgEXPECT_FALSE(...)                 (__VA_ARGS__)
 #define TgPASSINREG                         
 #define TgALIAS                             
 
@@ -187,12 +243,6 @@ __pragma(warning(disable : 28251)) /* Inconsistent annotation for '': this insta
 #endif
 
 #define TgBREAK_INLINE                      __debugbreak()
-
-#define NONULL
-#define OKNULL
-
-#define TgANALYSIS_NO_NULL
-
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */

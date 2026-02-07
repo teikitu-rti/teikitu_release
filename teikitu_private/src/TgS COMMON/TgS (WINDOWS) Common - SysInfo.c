@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -863,8 +863,9 @@ static TgRSIZE INIT_Get_System_User_Strings( TgCHAR_U8_P pBuffer_U8, TgRSIZE_C u
 
 /* ---- InitTimer ---------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgMSVC_PRAGMA(optimize("",off))
+TgMSVC_OPT_DISABLE_ALL
 
+TgATTRIBUTE_FORCE_NO_OPTIMIZE
 static TgRESULT Init_Timer( TgVOID )
 {
     LARGE_INTEGER                       liFreq, liCycles1, liCycles2;
@@ -916,7 +917,7 @@ static TgRESULT Init_Timer( TgVOID )
 
     return (KTgS_OK);
 }
-TgMSVC_PRAGMA(optimize("",on))
+TgMSVC_OPT_RESTORE_DEFAULT
 
 
 TgCLANG_WARN_DISABLE_PUSH(unused-function)

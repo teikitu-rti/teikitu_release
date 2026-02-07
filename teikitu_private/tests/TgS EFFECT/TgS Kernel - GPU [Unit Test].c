@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -208,14 +208,14 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Enumeration )
 {
 #if defined(TgBUILD_FEATURE__GRAPHICS)
 
-    STg2_KN_GPU_Adapter_CP              apAdapter[KTgKN_GPU_MAX_ADAPTER];
+    STg2_KN_GPU_Physical_Device_CP      apPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE];
 
     /* Enumerate all the device and device instantiations (including software (WARP on DX12) adapters). */
     Test__Expect_EQ(KTgS_OK, tgKN_GPU_Enumerate());
 
     /* Unit Test validation that we pulled back at least one adapter, and the output list is legal (though potential empty). */
-    Test__Expect_EQ(KTgS_OK, tgKN_GPU_Query_Adapter_List( apAdapter, KTgKN_GPU_MAX_ADAPTER ));
-    Test__Expect_NE(nullptr, apAdapter[0]);
+    Test__Expect_EQ(KTgS_OK, tgKN_GPU__Host__Query_Physical_Device_List( apPhysical_Device, KTgKN_GPU_MAX_PHYSICAL_DEVICE ));
+    Test__Expect_NE(nullptr, apPhysical_Device[0]);
 
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
@@ -282,15 +282,15 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select )
 {
 #if defined(TgBUILD_FEATURE__GRAPHICS)
 
-    STg2_KN_GPU_Adapter_CP              apAdapter[KTgKN_GPU_MAX_ADAPTER];
-    TgSINT_E32_C                        iSelect_Adapter = 2;
+    STg2_KN_GPU_Physical_Device_CP      apPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE];
+    TgSINT_E32_C                        iSelect_Physical_Device = 2;
     STg2_KN_OS_Window_Configuration     sWin_Config;
     ETgKN_GPU_EXT_FORMAT                enFormat;
     TgRSIZE                             iIndex;
 
     /* Unit Test validation that we pulled back at least one adapter, and the output list is legal (though potential empty). */
-    Test__Expect_EQ(KTgS_OK, tgKN_GPU_Query_Adapter_List( apAdapter, KTgKN_GPU_MAX_ADAPTER ));
-    Test__Expect_NE(nullptr, apAdapter[0]);
+    Test__Expect_EQ(KTgS_OK, tgKN_GPU__Host__Query_Physical_Device_List( apPhysical_Device, KTgKN_GPU_MAX_PHYSICAL_DEVICE ));
+    Test__Expect_NE(nullptr, apPhysical_Device[0]);
 
     /* Test the initialization of the select from Kernel configuration.*/
     tgMM_Set_U08_0x00( &s_sSelect, sizeof( s_sSelect ) );
@@ -298,15 +298,15 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select )
     tgMM_Set_U08_0x00( &s_sSelect, sizeof( s_sSelect ) );
 
     /* Initialize the selection limits. For non-windows platforms, we will assume that we are doing a 1:1:1. */
-    s_sSelect.m_nuiAdapter = 1;
+    s_sSelect.m_nuiPhysical_Device = 1;
     s_sSelect.m_nuiNode = 2;
     s_sSelect.m_nuiOutput = 1;
 
     /* Create GPU 0 w/ Node 0 */
-    s_sSelect.m_uiEnumeration_Adapter_Index[0] = iSelect_Adapter;
+    s_sSelect.m_uiEnumeration_Physical_Device_Index[0] = iSelect_Physical_Device;
 
-    s_sSelect.m_sNode[0].m_uiAdapter_Index = 0;
-    s_sSelect.m_sNode[0].m_uiAdapter_Node_Mask = 1;
+    s_sSelect.m_sNode[0].m_idxCXT_HOST_Physical_Device = 0;
+    s_sSelect.m_sNode[0].m_uiPhysical_Device_Node_Mask = 1;
     s_sSelect.m_sNode[0].m_nuiRender_Target_Max = 16;
     s_sSelect.m_sNode[0].m_nuiDepth_Stencil_Max = 16;
     s_sSelect.m_sNode[0].m_nuiData_Buffers_Max = 32;
@@ -328,26 +328,26 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select )
 
     /* Determine the allowable render target format and mode for the swap chain (scan out in full-screen). */
 
-    enFormat = ETgKN_GPU_EXT_FORMAT__MAX;
+    enFormat = ETgKN_GPU_EXT_FORMAT_UNKNOWN;
 
     for (iIndex = 0; iIndex < TgARRAY_COUNT(s_aenTarget); ++iIndex)
     {
-        if (!tgKN_GPU_Test_Output_ScanOut_Format_Support( iSelect_Adapter, s_aenTarget[iIndex] ))
+        if (!tgKN_OS_GPU_Test_Output_ScanOut_Format_Support( iSelect_Physical_Device, s_aenTarget[iIndex] ))
         {
-            s_aenTarget[iIndex] = ETgKN_GPU_EXT_FORMAT__MAX;
+            s_aenTarget[iIndex] = ETgKN_GPU_EXT_FORMAT_UNKNOWN;
         }
     }
 
-    if (ETgKN_GPU_EXT_FORMAT__MAX != s_aenTarget[1]) {
+    if (ETgKN_GPU_EXT_FORMAT_UNKNOWN != s_aenTarget[1]) {
         enFormat = s_aenTarget[1];
     }
-    else if (ETgKN_GPU_EXT_FORMAT__MAX != s_aenTarget[0]) {
+    else if (ETgKN_GPU_EXT_FORMAT_UNKNOWN != s_aenTarget[0]) {
         enFormat = s_aenTarget[0];
     }
     else {
         enFormat = s_aenTarget[2];
     }
-    Test__Expect_NE( ETgKN_GPU_EXT_FORMAT__MAX, enFormat );
+    Test__Expect_NE( ETgKN_GPU_EXT_FORMAT_UNKNOWN, enFormat );
 
     tgKN_OS_Query_Window_Configuration( &sWin_Config, 0 );
 
@@ -370,40 +370,40 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select_Windows )
 {
 #if defined(TgBUILD_FEATURE__GRAPHICS) && defined(TgBUILD_OS__WINDOWS)
 
-    STg2_KN_GPU_Adapter_CP              apAdapter[KTgKN_GPU_MAX_ADAPTER];
-    TgRSIZE                             uiAdapter;
+    STg2_KN_GPU_Physical_Device_CP      apPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE];
+    TgRSIZE                             uiPhysical_Device;
     TgRSIZE                             uiNode,uiNodeIndex;
     TgRSIZE                             uiOutput;
 
     /* Unit Test validation that we pulled back at least one adapter, and the output list is legal (though potential empty). */
-    Test__Expect_EQ(KTgS_OK, tgKN_GPU_Query_Adapter_List( apAdapter, KTgKN_GPU_MAX_ADAPTER ));
-    Test__Expect_NE(nullptr, apAdapter[0]);
+    Test__Expect_EQ(KTgS_OK, tgKN_GPU__Host__Query_Physical_Device_List( apPhysical_Device, KTgKN_GPU_MAX_PHYSICAL_DEVICE ));
+    Test__Expect_NE(nullptr, apPhysical_Device[0]);
 
     /* Count up all of the GPU nodes that were enumerated. */
-    for (s_sSelect.m_nuiAdapter = 0, s_sSelect.m_nuiNode = 0; 0 != apAdapter[s_sSelect.m_nuiAdapter]; ++s_sSelect.m_nuiAdapter)
+    for (s_sSelect.m_nuiPhysical_Device = 0, s_sSelect.m_nuiNode = 0; 0 != apPhysical_Device[s_sSelect.m_nuiPhysical_Device]; ++s_sSelect.m_nuiPhysical_Device)
     {
-        if (s_sSelect.m_nuiAdapter >= KTgKN_GPU_MAX_DEVC_CONTEXT)
+        if (s_sSelect.m_nuiPhysical_Device >= KTgKN_GPU_MAX_DEVC_CONTEXT)
             break;
         if (s_sSelect.m_nuiNode >= KTgKN_GPU_MAX_EXEC_CONTEXT)
             break;
-        if (s_sSelect.m_nuiNode + apAdapter[s_sSelect.m_nuiAdapter]->m_nuiNode > KTgKN_GPU_MAX_EXEC_CONTEXT)
+        if (s_sSelect.m_nuiNode + apPhysical_Device[s_sSelect.m_nuiPhysical_Device]->m_nuiNode > KTgKN_GPU_MAX_EXEC_CONTEXT)
         {
             s_sSelect.m_nuiNode = KTgKN_GPU_MAX_EXEC_CONTEXT;
         }
         else
         {
-            s_sSelect.m_nuiNode += apAdapter[s_sSelect.m_nuiAdapter]->m_nuiNode;
+            s_sSelect.m_nuiNode += apPhysical_Device[s_sSelect.m_nuiPhysical_Device]->m_nuiNode;
         }
     }
 
     /* Initialize all of the nodes that were enumerated. */
-    for (uiAdapter = 0, uiNode = 0; uiAdapter < s_sSelect.m_nuiAdapter; ++uiAdapter)
+    for (uiPhysical_Device = 0, uiNode = 0; uiPhysical_Device < s_sSelect.m_nuiPhysical_Device; ++uiPhysical_Device)
     {
-        s_sSelect.m_uiEnumeration_Adapter_Index[uiAdapter] = uiAdapter;
-        for (uiNodeIndex = 0; uiNodeIndex < apAdapter[uiAdapter]->m_nuiNode; ++uiNodeIndex, ++uiNode)
+        s_sSelect.m_uiEnumeration_Physical_Device_Index[uiPhysical_Device] = uiPhysical_Device;
+        for (uiNodeIndex = 0; uiNodeIndex < apPhysical_Device[uiPhysical_Device]->m_nuiNode; ++uiNodeIndex, ++uiNode)
         {
-            s_sSelect.m_sNode[uiNode].m_uiAdapter_Index = uiAdapter;
-            s_sSelect.m_sNode[uiNode].m_uiAdapter_Node_Mask = 1u << uiNodeIndex;
+            s_sSelect.m_sNode[uiNode].m_idxCXT_HOST_Physical_Device = uiPhysical_Device;
+            s_sSelect.m_sNode[uiNode].m_uiPhysical_Device_Node_Mask = 1u << uiNodeIndex;
             s_sSelect.m_sNode[uiNode].m_nuiRender_Target_Max = 16;
             s_sSelect.m_sNode[uiNode].m_nuiDepth_Stencil_Max = 16;
             s_sSelect.m_sNode[uiNode].m_nuiData_Buffers_Max = 32;
@@ -416,7 +416,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select_Windows )
     {
         ETgKN_GPU_EXT_FORMAT_C              enFormat = *(s_aenTarget + tgCM_MIN_UMAX( uiOutput % 3, TgARRAY_COUNT( s_aenTarget ) ));
 
-        if (ETgKN_GPU_EXT_FORMAT__MAX == enFormat || 4 == uiOutput)
+        if (ETgKN_GPU_EXT_FORMAT_UNKNOWN == enFormat || 4 == uiOutput)
             continue;
 
         tgMM_Copy( s_sSelect.m_sOutput + s_sSelect.m_nuiOutput, sizeof(s_sSelect.m_sOutput[0]), s_sSelect.m_sOutput, sizeof(s_sSelect.m_sOutput[0]) );
@@ -516,7 +516,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
 
         asJob[uiSwap].m_pfnExecute = UNIT_TEST__TEST__KN_GPU_Render_Simple_Job;
 
-        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT__MAX, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
+        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT_UNKNOWN, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
         tgUnit_Test__KN_GPU__Create_Resources( uJob_Data[uiSwap].ps->m_tiCXT_EXEC, uJob_Data[uiSwap].ps->m_tiCXT_SWAP, uJob_Data[uiSwap].ps->m_uiNodeMask );
     };
 
@@ -615,7 +615,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
         {
             if (atiCXT_WORK[uiSwap].m_uiKI != 0)
             {
-                tgKN_GPU_EXT__Execute__Frame_End( atiCXT_WORK[uiSwap] );
+                tgKN_GPU_EXT__WORK__Frame_End( atiCXT_WORK[uiSwap] );
                 atiCXT_WORK[uiSwap].m_uiKI = 0;
             }
         }

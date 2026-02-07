@@ -4,10 +4,12 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+#if defined (MK_BUILD__SHARED_LIBRARY)
+
 /* == Common ===================================================================================================================================================================== */
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
@@ -73,7 +75,7 @@ static TgBOOL                               s_bOS_MM_Process_Initialized = false
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
 // Communicate with the redirection module on Windows
-#if defined(TgBUILD_FEATURE__MALLOC_OVERRIDE) && defined (MK_BUILD__SHARED_LIBRARY)
+#if defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
 TgCLANG_WARN_DISABLE_PUSH(reserved-identifier)
 
 TgEXTN TgDLL_EXPORT TgBOOL _mi_is_redirected(void);
@@ -103,6 +105,7 @@ TgCLANG_WARN_DISABLE_POP()
 TgEXTN TgDLL_IMPORT TgBOOL CDECL mi_allocator_init(const char** message);
 TgEXTN TgDLL_IMPORT TgVOID CDECL mi_allocator_done(void);
 
+/*# defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR) */
 #endif
 
 
@@ -115,8 +118,6 @@ TgEXTN TgDLL_IMPORT TgVOID CDECL mi_allocator_done(void);
 /* ---- DLL Main / Preload Init -------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* Based on: https://github.com/microsoft/mimalloc/blob/master/src/init.c */
-
-#if defined(MK_BUILD__SHARED_LIBRARY)
 
 TgEXTN TgDLL_EXPORT int __stdcall DllMain( TgATTRIBUTE_UNUSED void* hinstDLL, unsigned long fdwReason, void* lpvReserved );
 int __stdcall DllMain(
@@ -158,12 +159,6 @@ int __stdcall DllMain(
     }
     return true;  // Successful DLL_PROCESS_ATTACH.
 }
-
-#else
-
-#pragma message("define a way to call tgMM_OS__Preload_Process_Load on your platform")
-
-#endif
 
 
 /* ---- tgMM_OS__Preload_Process_Init -------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -319,6 +314,7 @@ TgVOID tgMM_OS__Preload_Process_Init( TgVOID ) TgATTRIBUTE_NO_EXCEPT
 
 #if defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
     tgMM_MI__Internal__Process_Init();
+/*# defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR) */
 #endif
 
     tgMM_Init_MGR();
@@ -347,6 +343,7 @@ TgVOID tgMM_OS__Preload_Process_Init( TgVOID ) TgATTRIBUTE_NO_EXCEPT
 
 #if defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
     tgMM_MI__Internal__Process_Done();
+/*# defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR) */
 #endif
 
     //_mi_verbose_message("process done: 0x%zx\n", _mi_heap_main.thread_id);
@@ -367,18 +364,14 @@ static TgRESULT tgMM_OS__Preload_Process_Load( TgVOID )
 {
     s_bOS_MM_Preloading = false;
 
-    #if !defined(MK_BUILD__SHARED_LIBRARY)  // use Dll process detach (see below) instead of atexit (issue #521)
-    atexit(&tgMM_OS__Preload_Process_Done);
-    #endif
-
     tgMM_OS__Preload_Process_Init();
 
-    /* Force the redirector dll into the import module list for the DLL / EXE. */
-    const char* msg = NULL;
-    mi_allocator_init(&msg);
-
 #if defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
+    /* Force the redirector dll into the import module list for the DLL / EXE. */
+    const char* msg = nullptr;
+    mi_allocator_init(&msg);
     tgMM_MI__Internal__Process_Load();
+/*# defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR) */
 #endif
 
     return KTgS_OK;
@@ -429,3 +422,7 @@ TgVOID tgPM_MT_SM_Signal( STg1_MT_SM_PCU psSM, TgUINT_E32_C nuiSignal )
 {
     g_pfnReleaseSemaphore( psSM->m_hSemaphore, (LONG)nuiSignal, nullptr );
 }
+
+
+/*# defined (MK_BUILD__SHARED_LIBRARY) */
+#endif

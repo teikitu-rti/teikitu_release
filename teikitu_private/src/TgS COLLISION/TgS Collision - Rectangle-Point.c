@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -36,6 +36,8 @@ VEC_T(1) FCN_VO(tgCO_RT_ClosestSq_PM_PT)( VEC_T(1,PC) pvRT0, VEC_T(1,PC) pvRT1, 
     VEC_T(1,C)                          vDS_DS = FCN_V(tgMH_LSQ)( vDS );
     VEC_T(1,C)                          vZero = FCN_V(tgMH_SET1)( TYPE_K(0) );
 
+    VEC_T(1)                            vRet;
+
     TgERROR( FCN_VO(tgGM_RT_Is_Valid)(psRT0) && FCN_V(tgMH_Is_Valid_Point)(vS0) );
 
     if (FCN_V(tgMH_Is_NR0)( vDS_DS ))
@@ -43,7 +45,8 @@ VEC_T(1) FCN_VO(tgCO_RT_ClosestSq_PM_PT)( VEC_T(1,PC) pvRT0, VEC_T(1,PC) pvRT1, 
         /* Quick Out - the point is within tolerance of rectangle origin. */
         *pvRT0 = vZero;
         *pvRT1 = vZero;
-        return (vZero);
+        vRet = vZero;
+        return (vRet);
     }
     else
     {
@@ -53,7 +56,8 @@ VEC_T(1) FCN_VO(tgCO_RT_ClosestSq_PM_PT)( VEC_T(1,PC) pvRT0, VEC_T(1,PC) pvRT1, 
         if (FCN_V(tgMH_Is_NR0)( vE0_E0 ) || FCN_V(tgMH_Is_NR0)( vE1_E1 ))
         {
             /* Degenerate rectangle - One or both of the edges has a near-zero length */
-            return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+            vRet = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+            return (vRet);
         }
         else
         {
@@ -71,7 +75,8 @@ VEC_T(1) FCN_VO(tgCO_RT_ClosestSq_PM_PT)( VEC_T(1,PC) pvRT0, VEC_T(1,PC) pvRT1, 
             *pvRT0 = vRT0;
             *pvRT1 = vRT1;
 
-            return (FCN_V(tgMH_LSQ)( vK4 ));
+            vRet = FCN_V(tgMH_LSQ)( vK4 );
+            return (vRet);
         };
     };
 }

@@ -4,12 +4,13 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+#if defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR)
 
-/* Using mimalloc and the mimalloc redirector for our own purposes takes a few steps. Unfortunately, the redirector is only realsed in binary format and so there is no way to 
+/* Using mimalloc and the mimalloc redirector for our own purposes takes a few steps. Unfortunately, the redirector is only released in binary format and so there is no way to 
    create our own without reverse-engineering and hoping that all the needed function offsets were found. Instead, we take the existing mimalloc redirector, and hex-edit the
    binary to include the name of our own dll. You can use a tool similar to mimalloc minject as well. Once the redirector has been modified to load your own memory manager DLL,
    rename the redirector DLL to one of your choice. Use dumpbin to list all exports and then import that with lib to create a new matching library. It will then be necssary
@@ -24,7 +25,7 @@
 /*  Public Data                                                                                                                                                                    */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 #if defined(TgBUILD_MIMALLOC__HAS_CONSOLE)
-TgVOID                                      (*g_pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP NONULL, ... ) = nullptr;
+TgVOID                                      (*g_pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP TgANALYSIS_NO_NULL, ... ) = nullptr;
 #endif
 
 
@@ -200,7 +201,7 @@ TgVOID CDECL tgMM_MI__Internal__Process_Done( TgVOID )
 
 /* ---- tgMM_MI_Set_CN_PrintF ---------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-TgVOID tgMM_MI_Set_CN_PrintF( TgATTRIBUTE_UNUSED TgVOID (*pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP NONULL, ... ) )
+TgVOID tgMM_MI_Set_CN_PrintF( TgATTRIBUTE_UNUSED TgVOID (*pfnCN_PrintF)( TgUINT_E32_C, TgCHAR_U8_CP TgANALYSIS_NO_NULL, ... ) )
 {
 #if defined(TgBUILD_PRELOAD__HAS_CONSOLE)
     g_pfnCN_PrintF = pfnCN_PrintF;
@@ -243,4 +244,8 @@ static TgVOID CDECL tgMM_MI_Output( const char *msg, TgVOID_P pOut )
     (void)(*uOUT.ps->m_pfnWrite)(uOUT.ps, KTgMAX_RSIZE, (TgUINT_E08_CP)msg, KTgMAX_RSIZE);
 }
 /*# TgS_STAT__COMMON */
+#endif
+
+/* =============================================================================================================================================================================== */
+/* defined(TgBUILD_FEATURE__MIMALLOC_ALLOCATOR) */
 #endif

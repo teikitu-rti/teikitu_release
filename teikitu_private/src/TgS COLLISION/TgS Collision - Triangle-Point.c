@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.17 | »GUID« 3ED3C595-046B-47FB-8785-5C167178CD24 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -32,8 +32,9 @@
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 VEC_T(1) FCN_VO(tgCO_ET_ClosestSq_PM_PT)( VEC_T(1,P) pvET0, VEC_T(1,P) pvET1, VEC_OBJ_T(TgETRI,CPC) psET0, VEC_T(1,C) vS0 )
 {
-    VEC_T(1,C)      vX0 = FCN_V(tgMH_SUB)( vS0, psET0->m_sPT.m_avPoint[0] );
-    VEC_T(1,C)      vX0_X0 = FCN_V(tgMH_LSQ)( vX0 );
+    VEC_T(1,C)                          vX0 = FCN_V(tgMH_SUB)( vS0, psET0->m_sPT.m_avPoint[0] );
+    VEC_T(1,C)                          vX0_X0 = FCN_V(tgMH_LSQ)( vX0 );
+    VEC_T(1)                            vRet;
 
     TgERROR( FCN_VO(tgGM_ET_Is_Valid)(psET0) && FCN_V(tgMH_Is_Valid_Point)( vS0 ) );
 
@@ -43,8 +44,9 @@ VEC_T(1) FCN_VO(tgCO_ET_ClosestSq_PM_PT)( VEC_T(1,P) pvET0, VEC_T(1,P) pvET1, VE
 
         *pvET0 = FCN_V(tgMH_SET1)( TYPE_K(0) );
         *pvET1 = FCN_V(tgMH_SET1)( TYPE_K(0) );
+        vRet = vX0_X0;
 
-        return (vX0_X0);
+        return (vRet);
     }
     else
     {
@@ -59,12 +61,14 @@ VEC_T(1) FCN_VO(tgCO_ET_ClosestSq_PM_PT)( VEC_T(1,P) pvET0, VEC_T(1,P) pvET1, VE
 
         if (FCN_V(tgMH_Is_NR0)( vE0_E0 ) || FCN_V(tgMH_Is_NR0)( vE2_E2 ))
         {   /* Degenerate triangle - One or both of the edges has a near-zero length */
-            return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+            vRet = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+            return (vRet);
         };
 
         if (FCN_V(tgMH_Is_NR0)( vDet ))
         {   /* Degenerate triangle - Edges are co-linear (zero-area triangle) */
-            return (FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) ));
+            vRet = FCN_V(tgMH_SET1)( -VAR_K(KTgMAX) );
+            return (vRet);
         }
         else
         {
@@ -150,7 +154,8 @@ VEC_T(1) FCN_VO(tgCO_ET_ClosestSq_PM_PT)( VEC_T(1,P) pvET0, VEC_T(1,P) pvET1, VE
                 VEC_T(1,C)                          vG3 = FCN_V(tgMH_SUB)( vG2, vG1 );
                 VEC_T(1,C)                          vG4 = FCN_V(tgMH_SUB)( vS0, vG3 );
 
-                return (FCN_V(tgMH_LSQ)( vG4 ));
+                vRet = FCN_V(tgMH_LSQ)( vG4 );
+                return (vRet);
             }
         };
     };

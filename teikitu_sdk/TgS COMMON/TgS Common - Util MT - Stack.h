@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-#if !defined(TGS_COMMON_UTIL_MP_ST_H)
-#define TGS_COMMON_UTIL_MP_ST_H
+#if !defined(TGS_COMMON_UTIL_MT_STACK_H)
+#define TGS_COMMON_UTIL_MT_STACK_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -40,11 +43,52 @@
 /*  Public Types                                                                                                                                                                   */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 
+/* ---- STg2_UT_LF__ST_Unaligned ------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+TgTYPE_STRUCT(STg2_UT_ST__ST_Node_Unaligned,)
+{
+    TgVOID_P                                    m_pNext_Node;
+};
+
+typedef struct
+{
+    TgALIGN(16) STg2_UT_ST__ST_Node_Unaligned_P m_pHead;
+    TgRSIZE                                     m_uiTicket; /**< OP Count to avoid ABA issues */
+} tagSTg2_UT_ST_Unaligned__PTR_TKT;
+TgTYPE_DECLARE( tagSTg2_UT_ST_Unaligned__PTR_TKT, STg2_UT_ST__PTR_TKT_Unaligned );
+
+TgMSVC_WARN_DISABLE_PUSH(4820)
+
+TgTYPE_STRUCT(STg2_UT_LF__ST_Unaligned, )
+{
+    STg2_UT_ST__PTR_TKT_Unaligned_A             m_sTop;
+    TgCXX_CONSTRUCTOR(STg2_UT_LF__ST_Unaligned(): m_sTop() {})
+};
+
+TgTYPE_STRUCT(STg2_UT_LF_ISO__ST_Unaligned, )
+{
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_LF__ST_Unaligned                    m_sStack;
+#if 0 != (240 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[240 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
+};
+
+TgMSVC_WARN_DISABLE_POP(4820)
+
+TgCOMPILER_ASSERT( 16 == sizeof( STg2_UT_ST__PTR_TKT_Unaligned ), 0 );
+TgCOMPILER_ASSERT( 0 == (sizeof( STg2_UT_LF_ISO__ST_Unaligned ) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE), 0 ) ;
+
+
 /* ---- STg2_UT_LF__ST ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
 TgTYPE_STRUCT(STg2_UT_ST__ST_Node,)
 {
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
     TgVOID_P                                    m_pNext_Node;
+#if 0 != (248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[248 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 typedef struct
@@ -56,22 +100,25 @@ TgTYPE_DECLARE( tagSTg2_UT_ST__PTR_TKT, STg2_UT_ST__PTR_TKT );
 
 TgMSVC_WARN_DISABLE_PUSH(4820)
 
-TgTYPE_STRUCT(STg2_UT_LF__ST,)
+TgTYPE_STRUCT(STg2_UT_LF__ST, )
 {
     TgALIGN(16) STg2_UT_ST__PTR_TKT_A           m_sTop;
     TgCXX_CONSTRUCTOR(STg2_UT_LF__ST(): m_sTop() {})
 };
 
-TgTYPE_STRUCT(STg2_UT_LF_ISO__ST,)
+TgTYPE_STRUCT(STg2_UT_LF_ISO__ST, )
 {
-    TgALIGN(TgCCL) STg2_UT_LF__ST               m_sStack;
-    TgUINT_E08                                  m_uiPad[TgCCL - (ATOMIC_128BIT_SIZE % TgCCL)];
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_LF__ST                              m_sStack;
+#if 0 != (240 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    TgUINT_E08                                  m_uiPad0[240 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+#endif
 };
 
 TgMSVC_WARN_DISABLE_POP(4820)
 
 TgCOMPILER_ASSERT( 16 == sizeof( STg2_UT_ST__PTR_TKT ), 0 );
-TgCOMPILER_ASSERT( 0 == sizeof( STg2_UT_LF_ISO__ST ) % TgCCL, 0 ) ;
+TgCOMPILER_ASSERT( 0 == (sizeof( STg2_UT_LF_ISO__ST ) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE), 0 ) ;
 
 
 /* ---- STg2_UT_MT__ST_MX -------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -85,18 +132,99 @@ TgTYPE_STRUCT(STg2_UT_MT__ST_MX,)
     STg2_UT_ST__ST_Node_P                       m_psTop_Node;
 };
 
-TgTYPE_STRUCT(STg2_UT_MT_ISO__ST_MX,)
+TgTYPE_STRUCT(STg2_UT_MT_ISO__ST_MX, )
 {
-    TgALIGN(TgCCL) STg2_UT_MT__ST_MX            m_sStack;
-    TgUINT_E08                                  m_uiPad[TgCCL - (SIZE_STg2_UT_MT__ST_MX % TgCCL)];
+    TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+    STg2_UT_MT__ST_MX                           m_sStack;
+#if 0 != (TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE - (SIZE_STg2_UT_MT__ST_MX % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE))
+    TgUINT_E08                                  m_uiPad[TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE - (SIZE_STg2_UT_MT__ST_MX % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)];
+#endif
 };
 
-TgCOMPILER_ASSERT( 0 == sizeof( STg2_UT_MT_ISO__ST_MX ) % TgCCL, 0 ) ;
+TgCOMPILER_ASSERT( 0 == (sizeof( STg2_UT_MT_ISO__ST_MX ) % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE), 0 ) ;
 
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
 /*  Public Functions                                                                                                                                                               */
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- */
+
+/* ---- Atomic Stack ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/** @addtogroup TGS_COMMON_UTIL_MT_STACK_LOCKFREE */
+/** @{ */
+
+/** @brief Initialize a stack container
+@param [out] OUT Pointer to a stack object */
+TgINLINE TgVOID
+tgCM_UT_LF__ST_Unaligned__Init(
+    STg2_UT_LF__ST_Unaligned_PCU OUT );
+
+/** @brief Initialize a stack container filled with the given stack nodes
+@param [out] OUT0 Pointer to a stack object
+@param [in,out] ARG1 Pointer to the beginning range of elements to place into the stack
+@param [in,out] ARG2 Stride of the stack element
+@param [in,out] ARG3 Number of elements in the memory range */
+TgINLINE TgVOID
+tgCM_UT_LF__ST_Unaligned__Init_PreLoad(
+    STg2_UT_LF__ST_Unaligned_PCU OUT0, TgVOID_P ARG1, TgRSIZE_C ARG2, TgRSIZE_C ARG3 );
+
+/** @brief Free all resources used by the object and perform some sanity checks
+@param [in,out] ARG Pointer to a stack object */
+TgINLINE TgVOID
+tgCM_UT_LF__ST_Unaligned__Free(
+    STg2_UT_LF__ST_Unaligned_PCU ARG );
+
+/** @brief Insert the element at ARG1 at the top of the stack
+@param [in,out] ARG0 Pointer to a stack object
+@param [in] ARG1 Pointer to a stack element */
+TgINLINE TgVOID
+tgCM_UT_LF__ST_Unaligned__Push(
+    STg2_UT_LF__ST_Unaligned_PCU ARG0, STg2_UT_ST__ST_Node_Unaligned_PCU ARG1 );
+
+/** @brief Remove the top element from the stack, return it, if able to acquire the synchronization lock
+@param [in,out] ARG Pointer to a stack object
+@return The removed node or nullptr otherwise */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P
+tgCM_UT_LF__ST_Unaligned__Pop(
+    STg2_UT_LF__ST_Unaligned_PCU ARG );
+
+/** @brief Remove the top element from the stack, return it, once the synchronization lock is acquired
+@param [in,out] ARG Pointer to a stack object
+@return The removed node or nullptr otherwise */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P
+tgCM_UT_LF__ST_Unaligned__Pop_Wait_Yield(
+    STg2_UT_LF__ST_Unaligned_PCU ARG );
+
+/** @brief Remove the top element from the stack, return it, once the synchronization lock is acquired
+@param [in,out] ARG Pointer to a stack object
+@return The removed node or nullptr otherwise */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P
+tgCM_UT_LF__ST_Unaligned__Pop_Wait_Spin(
+    STg2_UT_LF__ST_Unaligned_PCU ARG );
+
+/** @brief Return if the stack is empty
+@param [in,out] ARG Pointer to a stack object
+@return True if the stack is empty, and false otherwise */
+TgINLINE TgBOOL
+tgCM_UT_LF__ST_Unaligned__Is_Empty(
+    STg2_UT_LF__ST_Unaligned_PCU ARG );
+
+/** @brief Pop (clear) the entire stack returning the former stack head
+@param [in,out] ARG Pointer to a stack object
+@return The former head of the stack, and nullptr otherwise */
+TgINLINE STg2_UT_ST__ST_Node_Unaligned_P
+tgCM_UT_LF__ST_Unaligned__Release(
+    STg2_UT_LF__ST_Unaligned_PCU ARG );
+
+/** @brief Push (append) an entire list of notes [ARG1,ARG2) onto the stack
+@param [in,out] ARG0 Pointer to a stack object
+@param [in] ARG1 Pointer to start of region to merge
+@param [in] ARG2 Pointer to end of region to merge */
+TgINLINE TgVOID
+tgCM_UT_LF__ST_Unaligned__Merge(
+    STg2_UT_LF__ST_Unaligned_PCU ARG0, STg2_UT_ST__ST_Node_Unaligned_P ARG1, STg2_UT_ST__ST_Node_Unaligned_P ARG2 );
+
+/** @} TGS_COMMON_UTIL_MT_STACK_LOCKFREE */
+
 
 /* ---- Atomic Stack ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /** @addtogroup TGS_COMMON_UTIL_MT_STACK_LOCKFREE */

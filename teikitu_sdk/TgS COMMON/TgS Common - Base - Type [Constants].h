@@ -4,13 +4,16 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 #if !defined(TGS_COMMON_BASE_TYPE_CONSTANTS_H)
 #define TGS_COMMON_BASE_TYPE_CONSTANTS_H
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 
 /* == Common ===================================================================================================================================================================== */
@@ -23,71 +26,102 @@
 /* ---- Enumerations ------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
 /**@enum closed enumeration list for all of the supported libraries */
-TgTYPE_ENUM(ETgLIB, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgLIB__UNKNOWN = 0,            ETgLIB__TOOLS,                  ETgLIB__GENERAL,                ETgLIB__COMMON,                 ETgLIB__COLLISION,
     ETgLIB__KERNEL,                 ETgLIB__PARTITION,              ETgLIB__PATH_AI,                ETgLIB__SOUND,                  ETgLIB__RENDER,
     ETgLIB__ANIMATION,              ETgLIB__INPUT,                  ETgLIB__PHYSICS,                ETgLIB__SCRIPT,                 ETgLIB__EFFECT,
     ETgLIB__OBJECT,                 ETgLIB__SET,                    ETgLIB__EXECUTE,
-);
+} ETgLIB;
+TgTYPE_MODIFIER_DEFAULT(ETgLIB);
+
 
 /** @enum closed enumeration list for different time channels. Allows for independent control of perceived elapsed time. */
-TgTYPE_ENUM(ETgTIMER_CHANNEL, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgTIME_CHANNEL__UNKNOWN = 0,   ETgTIME_CHANNEL__UI,            ETgTIME_CHANNEL__GAME,          ETgTIME_CHANNEL__RENDER,        ETgTIME_CHANNEL__WALL,
     ETgTIME_CHANNEL__COUNT
-);
+} ETgTIMER_CHANNEL;
+TgTYPE_MODIFIER_DEFAULT(ETgTIMER_CHANNEL);
+
 
 /** @enum closed enumeration for the state of a module. */
-TgTYPE_ENUM_FLAG(ETgMODULE_STATE, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM_FLAG
+{
     ETgMODULE_STATE__UNKNOWN = 0,   ETgMODULE_STATE__INITIALIZING,  ETgMODULE_STATE__INITIALIZED,   ETgMODULE_STATE__BOOTING,       ETgMODULE_STATE__BOOTED,
     ETgMODULE_STATE__STOP_REQUEST,  ETgMODULE_STATE__STOP_GRANTED,  ETgMODULE_STATE__STOPPING,      ETgMODULE_STATE__STOPPED,       ETgMODULE_STATE__FREEING,
     ETgMODULE_STATE__FREED,         ETgMODULE_STATE__MAX = ETgMODULE_STATE__FREED
-);
+} ETgMODULE_STATE;
+TgTYPE_MODIFIER_DEFAULT(ETgMODULE_STATE);
+
+TgTYPE_MODIFIER_DEFAULT(ETgMODULE_STATE);
 
 /** @enum closed flag enumeration for indicating different IO modes */
-TgTYPE_ENUM_FLAG(ETgFILE_IO_ACCESS, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM_FLAG
+{
     ETgFILE_IO_ACCESS__INVALID      = 0,                            ETgFILE_IO_ACCESS__READ         = 1 << 1,
     ETgFILE_IO_ACCESS__WRITE        = 1 << 2,                       ETgFILE_IO_ACCESS__SHARED       = 1 << 3,
     ETgFILE_IO_ACCESS__CREATE       = 1 << 28,                      ETgFILE_IO_ACCESS__CLOSING      = 1 << 29,
     ETgFILE_IO_ACCESS__OVERLAPPED   = 1 << 30,
 
     ETgFILE_IO_ACCESS__ACCESS_MASK  = ETgFILE_IO_ACCESS__READ | ETgFILE_IO_ACCESS__WRITE | ETgFILE_IO_ACCESS__SHARED,
-);
+} ETgFILE_IO_ACCESS;
+TgTYPE_MODIFIER_DEFAULT(ETgFILE_IO_ACCESS);
+
+TgTYPE_MODIFIER_DEFAULT(ETgFILE_IO_ACCESS);
 
 /** @enum closed enumeration to indicate different IO seek modes */
-TgTYPE_ENUM(ETgIO_SEEK, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgIO_SEEK__BEGIN,              ETgIO_SEEK__END,                ETgIO_SEEK__CURRENT
-);
+} ETgIO_SEEK;
+TgTYPE_MODIFIER_DEFAULT(ETgIO_SEEK);
+
 
 /** @enum closed enumeration to select different a thread priority */
-TgTYPE_ENUM(ETgTHREAD_PRIORITY, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgTHREAD_PRIORITY__UNKNOWN=0,  ETgTHREAD_PRIORITY__CRITICAL,   ETgTHREAD_PRIORITY__HIGHEST,    ETgTHREAD_PRIORITY__HIGH,       ETgTHREAD_PRIORITY__NORMAL,
     ETgTHREAD_PRIORITY__LOW,        ETgTHREAD_PRIORITY__LOWEST,
-);
+} ETgTHREAD_PRIORITY;
+TgTYPE_MODIFIER_DEFAULT(ETgTHREAD_PRIORITY);
+
 
 /** @enum close enumeration to indicate the state of a thread */
-TgTYPE_ENUM(ETgTHREAD_STATUS, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgTHREAD_STATUS__UNKNOWN = 0,  ETgTHREAD_STATUS__INVALID,      ETgTHREAD_STATUS__INIT,         ETgTHREAD_STATUS__EXEC,         ETgTHREAD_STATUS__CLOSE,
     ETgTHREAD_STATUS__DONE
-);
+} ETgTHREAD_STATUS;
+TgTYPE_MODIFIER_DEFAULT(ETgTHREAD_STATUS);
+
 
 /** @enum closed enumeration to select a supported colour space */
-TgTYPE_ENUM(ETgCOLOUR_SPACE, TgUINT_E32,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgCOLOUR_SPACE__UNKNOWN = 0,   ETgCOLOUR_SPACE__709,           ETgCOLOUR_SPACE__PI3,           ETgCOLOUR_SPACE__ST2020,
-);
+} ETgCOLOUR_SPACE;
+TgTYPE_MODIFIER_DEFAULT(ETgCOLOUR_SPACE);
+
 
 /** @enum closed enumeration to select a supported variable type, meant to be used for scripting and tools */
-TgTYPE_ENUM(ETgTYPE, TgUINT_E32,
-
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgTYPE__UNKNOWN = 0,           ETgTYPE__UINT08,                ETgTYPE__UINT16,                ETgTYPE__UINT32,                ETgTYPE__UINT64,
     ETgTYPE__SINT08,                ETgTYPE__SINT16,                ETgTYPE__SINT32,                ETgTYPE__SINT64,                ETgTYPE__FLOAT32,
     ETgTYPE__FLOAT64,               ETgTYPE__VEC_U32_04,            ETgTYPE__VEC_U16_08,            ETgTYPE__VEC_U08_16,            ETgTYPE__VEC_S32_04,
     ETgTYPE__VEC_S16_08,            ETgTYPE__VEC_S08_16,            ETgTYPE__VEC_F32_04,            ETgTYPE__MAX
-);
+} ETgTYPE;
+TgTYPE_MODIFIER_DEFAULT(ETgTYPE);
+
 
 /** @enum closed enumeration to indicate the text encoding used for a buffer */
-TgTYPE_ENUM(ETgTEXT_ENCODING, TgUINT_E08,
+typedef enum TgATTRIBUTE_ENUM
+{
     ETgTEXT_ENCODING_UNKNOWN=0,     ETgTEXT_ENCODING_ASCII,         ETgTEXT_ENCODING_UTF8,          ETgTEXT_ENCODING_UTF16,         ETgTEXT_ENCODING_UTF32,
-);
+} ETgTEXT_ENCODING;
+TgTYPE_MODIFIER_DEFAULT(ETgTEXT_ENCODING);
+
 
 
 /* ---- TgS Enumerations --------------------------------------------------------------------------------------------------------------------------------------------------------- */

@@ -1,7 +1,7 @@
 # PARAMETER LIST FOR SCRIPT
 Param(
     [Parameter(HelpMessage = "REPO")]
-    [string]$REPO = "teikitu_release"
+    [string]$REPO = "teikitu"
 )
 
 # GitHub API authentication and repo info

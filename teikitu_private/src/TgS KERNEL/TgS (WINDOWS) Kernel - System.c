@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -446,10 +446,10 @@ TgSINT_E64 __stdcall tgKN_OS_Base_Window_Update( HWND hWnd, TgUINT_E32 uMessage,
 
             tgKN_OS_Set_Window_Title_Internal( iWindow_Index, &g_asKN_Wnd[iWindow_Index].m_sConfig, nullptr, 0 );
 
-            if (g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down)
-                g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down( &g_asKN_Wnd[iWindow_Index].m_sConfig.m_uiRender_Target_W,
-                                                                   &g_asKN_Wnd[iWindow_Index].m_sConfig.m_uiRender_Target_H,
-                                                                   g_asKN_Wnd[iWindow_Index].m_hWnd, hMonitor );
+            if (g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down)
+            g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down( &g_asKN_Wnd[iWindow_Index].m_sConfig.m_uiRender_Target_W,
+                                                         &g_asKN_Wnd[iWindow_Index].m_sConfig.m_uiRender_Target_H,
+                                                         g_asKN_Wnd[iWindow_Index].m_hWnd );
 
             pRect->right = pRect->left + (LONG)g_asKN_Wnd[iWindow_Index].m_sConfig.m_uiRender_Target_W + g_iKN_Window_PadX;
             pRect->bottom = pRect->top + (LONG)g_asKN_Wnd[iWindow_Index].m_sConfig.m_uiRender_Target_H + g_iKN_Window_PadY;
@@ -459,7 +459,7 @@ TgSINT_E64 __stdcall tgKN_OS_Base_Window_Update( HWND hWnd, TgUINT_E32 uMessage,
         break;
 
         case WM_SIZING:
-            if (g_asKN_Wnd[iWindow_Index].m_sConfig.m_bWindowSize_Fixed && g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down)
+            if (g_asKN_Wnd[iWindow_Index].m_sConfig.m_bWindowSize_Fixed && g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down)
             {
                 LPRECT                              pRect = (LPRECT)lParam;
                 TgUINT_E32                          iW = (TgUINT_E32)(pRect->right - pRect->left - g_iKN_Window_PadX);
@@ -474,7 +474,7 @@ TgSINT_E64 __stdcall tgKN_OS_Base_Window_Update( HWND hWnd, TgUINT_E32 uMessage,
                 //    iH = -g_asKN_Wnd[iWindow_Index].m_sConfig.m_iRender_Target_H;
                 //};
 
-                g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down( &iW, &iH, g_asKN_Wnd[iWindow_Index].m_hWnd, hMonitor );
+                g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down( &iW, &iH, g_asKN_Wnd[iWindow_Index].m_hWnd );
 
                 switch (wParam)
                 {
@@ -511,10 +511,10 @@ TgSINT_E64 __stdcall tgKN_OS_Base_Window_Update( HWND hWnd, TgUINT_E32 uMessage,
             {
                 TgUINT_E32                          iW = 0, iH = 0;
 
-                if (g_pfnQuery_Swap_Context_Mode_Width_and_Height)
+                if (g_pfnQuery_CXT_SWAP_Query_Mode)
                 {
                     hMonitor = g_pfnMonitorFromWindow( g_asKN_Wnd[iWindow_Index].m_hWnd, MONITOR_DEFAULTTONULL );
-                    g_pfnQuery_Swap_Context_Mode_Width_and_Height( &iW, &iH, g_asKN_Wnd[iWindow_Index].m_hWnd, hMonitor );
+                    g_pfnQuery_CXT_SWAP_Query_Mode( &iW, &iH, g_asKN_Wnd[iWindow_Index].m_hWnd );
                 };
 
                 ((MINMAXINFO*)lParam)->ptMinTrackSize.x = (LONG)iW + g_iKN_Window_PadX;
@@ -648,7 +648,7 @@ TgSINT_E64 __stdcall tgKN_OS_Base_Window_Update( HWND hWnd, TgUINT_E32 uMessage,
 
         case WM_SETCURSOR:
             // Turn off window cursor.
-            g_pfnSetCursor( NULL );
+            g_pfnSetCursor( nullptr );
             return (1);
 
         case WM_DESTROY:
@@ -695,7 +695,7 @@ TgVOID tgKN_Path_Query_Application_Data_Folder( TgCHAR_U8_P szPath, TgRSIZE_C nu
 {
     PWSTR            pszPath = nullptr;
 
-    g_pfnSHGetKnownFolderPath( &FOLDERID_LocalAppData, 0, NULL, &pszPath );
+    g_pfnSHGetKnownFolderPath( &FOLDERID_LocalAppData, 0, nullptr, &pszPath );
     tgUSZ_Convert_WSZ( szPath, nuiPath, pszPath, KTgMAX_RSIZE );
     g_pfnCoTaskMemFree( pszPath );
 }
@@ -706,7 +706,7 @@ TgVOID tgKN_Path_Query_Temporary_Folder( TgCHAR_U8_P szPath, TgRSIZE_C nuiPath )
 {
     PWSTR            pszPath = nullptr;
 
-    g_pfnSHGetKnownFolderPath( &FOLDERID_LocalAppData, 0, NULL, &pszPath );
+    g_pfnSHGetKnownFolderPath( &FOLDERID_LocalAppData, 0, nullptr, &pszPath );
     tgUSZ_Convert_WSZ( szPath, nuiPath, pszPath, KTgMAX_RSIZE );
     g_pfnCoTaskMemFree( pszPath );
     tgUSZ_Append( szPath, nuiPath, u8"\\temp", KTgMAX_RSIZE );

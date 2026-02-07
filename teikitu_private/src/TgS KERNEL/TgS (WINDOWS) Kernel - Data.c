@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -38,8 +38,12 @@ WNDPROC                                     g_pfnKN_GUI_Mouse_Handler = nullptr;
 TgVOID                                      (*g_pfnDevice_Change_Check)(HWND,STg2_KN_OS_Window_Configuration_PC) = nullptr;
 TgVOID                                      (*g_pfnQuery_Monitor_Min_Resolution)(TgUINT_E32_P, TgUINT_E32_P, HMONITOR) = nullptr;
 TgVOID                                      (*g_pfnQuery_Monitor_Max_Resolution)(TgUINT_E32_P, TgUINT_E32_P, HMONITOR) = nullptr;
-TgVOID                                      (*g_pfnQuery_Swap_Context_Mode_Width_and_Height)(TgUINT_E32_P, TgUINT_E32_P, HWND, HMONITOR) = nullptr;
-TgVOID                                      (*g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down)(TgUINT_E32_P, TgUINT_E32_P, HWND, HMONITOR) = nullptr;
+TgVOID                                      (*g_pfnQuery_CXT_SWAP_Query_Mode)(TgUINT_E32_P, TgUINT_E32_P, HWND) = nullptr;
+TgVOID                                      (*g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down)(TgUINT_E32_P, TgUINT_E32_P, HWND) = nullptr;
+
+HRESULT                                     (__stdcall *g_pfnDXGICreateDXGIFactory)( UINT, REFIID, TgVOID_PP ) = nullptr;
+
+HRESULT                                     (__stdcall *g_pfnDXGIGetDebugInterface1)( UINT, REFIID, TgVOID_PP ) = nullptr;
 
 /*  API Set: api-ms-win-core-com-l1-1-0 */
 HRESULT                                     (__stdcall *g_pfnCoInitializeEx)( TgVOID_P, DWORD ) = nullptr;
@@ -137,8 +141,11 @@ TgRSIZE tgKN_OS_Query_Fixed_Memory( TgVOID )
             + sizeof( g_pfnDevice_Change_Check )
             + sizeof( g_pfnQuery_Monitor_Min_Resolution )
             + sizeof( g_pfnQuery_Monitor_Max_Resolution )
-            + sizeof( g_pfnQuery_Swap_Context_Mode_Width_and_Height )
-            + sizeof( g_pfnQuery_Swap_Context_Closest_Mode_Rounded_Down )
+            + sizeof( g_pfnQuery_CXT_SWAP_Query_Mode )
+            + sizeof( g_pfnQuery_CXT_SWAP_Query_Mode_Rounded_Down )
+
+            + sizeof( g_pfnDXGICreateDXGIFactory )
+            + sizeof( g_pfnDXGIGetDebugInterface1 )
 
             + sizeof( g_pfnCoInitializeEx )
             + sizeof( g_pfnCoUninitialize )

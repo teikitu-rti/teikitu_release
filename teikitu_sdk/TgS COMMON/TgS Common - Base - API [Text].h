@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -512,7 +512,7 @@ FCN(AppendN)(
     @return KTgS_OK on success and KTgE_FAIL (or other failure error code) otherwise */
 TgEXTN TgRESULT
 FCN(Token)(
-    CHAR(PP) OUT0, CHAR(PC) OKNULL ARG1, TgRSIZE_P TgANALYSIS_NO_NULL ARG2, CHAR(CPC) TgANALYSIS_NO_NULL ARG3, CHAR(PP) TgANALYSIS_NO_NULL ARG4 );
+    CHAR(PP) OUT0, CHAR(PC) TgANALYSIS_OK_NULL ARG1, TgRSIZE_P TgANALYSIS_NO_NULL ARG2, CHAR(CPC) TgANALYSIS_NO_NULL ARG3, CHAR(PP) TgANALYSIS_NO_NULL ARG4 );
 
 /** @brief Finds the first occurrence of the character ARG1 in the string at ARG0
     @param [out] OUT0 Offset in ARG1 to the first instance of the string in ARG3

@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.19 | »GUID« 76B73546-7B98-46E1-9192-4E484C67D169 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -25,12 +25,38 @@ tgUnit_Test__KN_GPU__Create_Resources(
     TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgUINT_E32 uiNodeMask );
 
 TgEXTN TgRESULT
-tgUnit_Test__KN_GPU__Render(
-    TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgRSIZE_C uiTest_Level );
-
-TgEXTN TgRESULT
 tgUnit_Test__KN_GPU__Release_Resources(
     TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP );
+
+/** @brief Clear the screen using the clear screen API. Colour correction will need to be done on the CPU. */
+TgEXTN TgRESULT
+tgUnit_Test__KN_GPU__Render_0(
+    TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target );
+
+/** @brief Clear the screen using a fullscreen quad. This will use the colour reference image. Render gradient image. */
+TgEXTN TgRESULT
+tgUnit_Test__KN_GPU__Render_1(
+    TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target);
+
+/** @brief Clear the screen using a fullscreen quad. This will use the colour reference image. Render gradient image. */
+TgEXTN TgRESULT
+tgUnit_Test__KN_GPU__Render_2(
+    TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target);
+
+/** @brief Render using the shared render function (quad clear with reference image, gradients, 3D debug geometry). */
+TgEXTN TgRESULT
+tgUnit_Test__KN_GPU__Render_3(
+    TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target);
+
+/** @brief Render using the shared render function and line drawing. */
+TgEXTN TgRESULT
+tgUnit_Test__KN_GPU__Render_4(
+    TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target);
+
+/** @brief Render using the shared render function and . */
+TgEXTN TgRESULT
+ tgUnit_Test__KN_GPU__Render_5(
+     TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP, TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target);
 
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
@@ -110,6 +136,7 @@ TgTYPE_STRUCT( UT_KN_GPU_Render_Simple_Job_Data, )
     TgKN_GPU_CXT_SWAP_ID                m_tiCXT_SWAP;
     TgKN_GPU_CXT_EXEC_ID                m_tiCXT_EXEC;
     TgKN_GPU_CXT_WORK_ID                m_tiCXT_WORK;
+    TgKN_GPU_RENDER_TARGET_ID           m_tiRender_Target;
     TgUINT_E32                          m_uiNodeMask;
     TgUINT_E32                          m_uiWindow;
     TgUINT_E32                          m_uiLoopWait;
@@ -190,14 +217,14 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Enumeration )
 {
 #if defined(TgBUILD_FEATURE__GRAPHICS)
 
-    STg2_KN_GPU_Adapter_CP              apAdapter[KTgKN_GPU_MAX_ADAPTER];
+    STg2_KN_GPU_Physical_Device_CP      apPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE];
 
     /* Enumerate all the device and device instantiations (including software (WARP on DX12) adapters). */
     Test__Expect_EQ(KTgS_OK, tgKN_GPU_Enumerate());
 
     /* Unit Test validation that we pulled back at least one adapter, and the output list is legal (though potential empty). */
-    Test__Expect_EQ(KTgS_OK, tgKN_GPU_Query_Adapter_List( apAdapter, KTgKN_GPU_MAX_ADAPTER ));
-    Test__Expect_NE(nullptr, apAdapter[0]);
+    Test__Expect_EQ(KTgS_OK, tgKN_GPU__Host__Query_Physical_Device_List( apPhysical_Device, KTgKN_GPU_MAX_PHYSICAL_DEVICE ));
+    Test__Expect_NE(nullptr, apPhysical_Device[0]);
 
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
@@ -235,11 +262,6 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select )
     Test__Expect_EQ( KTgS_OK, tgKN_GPU_Select_Context__Validate( &s_sSelect ) );
     s_sSelect.m_sOutput[0].m_uiOutput_Config.m_bFullscreen = 0;
 
-    /* Initialize the selection limits. For non-windows platforms, we will assume that we are doing a 1:1:1. */
-    s_sSelect.m_nuiAdapter = 1;
-    s_sSelect.m_nuiNode = 2;
-    s_sSelect.m_nuiOutput = 1;
-
 #if defined(TgBUILD_OS__WINDOWS)
     {
         /* On Windows, pull back the window client size to use as the render target size. */
@@ -271,6 +293,24 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Init_Select )
 }
 
 
+/* ---- tgUnit_Test__KN_GPU__Render ---------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if defined(TgBUILD_FEATURE__GRAPHICS)
+static TgRESULT tgUnit_Test__KN_GPU__Render(TgKN_GPU_CXT_EXEC_ID_C tiCXT_EXEC, TgKN_GPU_CXT_WORK_ID_C tiCXT_WORK, TgKN_GPU_CXT_SWAP_ID_C tiCXT_SWAP,
+                                            TgKN_GPU_RENDER_TARGET_ID_C tiRender_Target, TgRSIZE_C uiTest_Level)
+{
+    switch (uiTest_Level)
+    {
+        case 0:     return (tgUnit_Test__KN_GPU__Render_1(tiCXT_EXEC, tiCXT_WORK, tiCXT_SWAP, tiRender_Target));
+        case 1:     return (tgUnit_Test__KN_GPU__Render_4(tiCXT_EXEC, tiCXT_WORK, tiCXT_SWAP, tiRender_Target));
+        case 2:     return (tgUnit_Test__KN_GPU__Render_5   (tiCXT_EXEC, tiCXT_WORK, tiCXT_SWAP, tiRender_Target));
+        default:    return (tgUnit_Test__KN_GPU__Render_0(tiCXT_EXEC, tiCXT_WORK, tiCXT_SWAP, tiRender_Target));
+    };
+}
+/*# defined(TgBUILD_FEATURE__GRAPHICS) */
+#endif
+
+
 /* ---- UNIT_TEST__TEST__KN_GPU_Render_Simple_Job -------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if defined(TgBUILD_FEATURE__GRAPHICS)
@@ -278,36 +318,103 @@ static TgRESULT UNIT_TEST__TEST__KN_GPU_Render_Simple_Job( STg2_Job_CPC psJob )
 {
     union { TgUINT_E08_CP pui; UT_KN_GPU_Render_Simple_Job_Data_CP ps; } const uJob_Data = { .pui = psJob->m_auiData };
 
-    TgOSCHAR                            szBuffer[256];
+    TgKN_GPU_CXT_WORK_ID                tiCXT_WORK;
+
+#if defined(TgBUILD_OS__WINDOWS)
     TgFLOAT32                           fFrame_Start_Time;
+    TgRSIZE                             uiTimestamp_Start, uiTimestamp_End;
 
     fFrame_Start_Time = tgTM_Query_Time();
-    if (3 == uJob_Data.ps->m_uiWindow || 4 == uJob_Data.ps->m_uiWindow || 5 == uJob_Data.ps->m_uiWindow)
+    uiTimestamp_Start = s_shWnd[uJob_Data.ps->m_uiWindow].m_uiTimestamp_Start;
+    uiTimestamp_End = s_shWnd[uJob_Data.ps->m_uiWindow].m_uiTimestamp_End;
+/*# defined(TgBUILD_OS__WINDOWS) */
+#endif
+
+    if (KTgKN_GPU_CXT_WORK_ID__INVALID.m_uiKI == uJob_Data.ps->m_tiCXT_WORK.m_uiKI)
     {
-        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiCXT_WORK, 5 );
-    }
-    else if (0 == uJob_Data.ps->m_uiWindow || 1 == uJob_Data.ps->m_uiWindow|| 2 == uJob_Data.ps->m_uiWindow)
-    {
-        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiCXT_WORK, 3 );
-    }
-    else if (6 == uJob_Data.ps->m_uiWindow || 7 == uJob_Data.ps->m_uiWindow || 8 == uJob_Data.ps->m_uiWindow)
-    {
-        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiCXT_WORK, 4 );
+        tiCXT_WORK = tgKN_GPU_EXT__Execute__Frame_Start(uJob_Data.ps->m_tiCXT_EXEC);
     }
     else
     {
-        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiCXT_WORK, 2 );
+        tiCXT_WORK = uJob_Data.ps->m_tiCXT_WORK;
+    }
+
+    if (KTgKN_GPU_CXT_WORK_ID__INVALID.m_uiKI == tiCXT_WORK.m_uiKI)
+    {
+        return (KTgE_FAIL);
     }
 
 #if defined(TgBUILD_OS__WINDOWS)
+    tgKN_GPU_EXT__WORK__Submit_GPU_Timestamp( &s_shWnd[uJob_Data.ps->m_uiWindow].m_uiTimestamp_Start, tiCXT_WORK );
+/*# defined(TgBUILD_OS__WINDOWS) */
+#endif
+
+    if (0 == uJob_Data.ps->m_uiWindow || 1 == uJob_Data.ps->m_uiWindow|| 2 == uJob_Data.ps->m_uiWindow)
+    {
+        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, tiCXT_WORK, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiRender_Target, 0 );
+    }
+    else if (3 == uJob_Data.ps->m_uiWindow || 4 == uJob_Data.ps->m_uiWindow || 5 == uJob_Data.ps->m_uiWindow)
+    {
+        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, tiCXT_WORK, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiRender_Target, 1 );
+    }
+    else if (6 == uJob_Data.ps->m_uiWindow || 7 == uJob_Data.ps->m_uiWindow || 8 == uJob_Data.ps->m_uiWindow)
+    {
+        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, tiCXT_WORK, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiRender_Target, 2 );
+    }
+    else
+    {
+        tgUnit_Test__KN_GPU__Render( uJob_Data.ps->m_tiCXT_EXEC, tiCXT_WORK, uJob_Data.ps->m_tiCXT_SWAP, uJob_Data.ps->m_tiRender_Target, 2 );
+    }
+
+#if defined(TgBUILD_OS__WINDOWS)
+    tgKN_GPU_EXT__WORK__Submit_GPU_Timestamp( &s_shWnd[uJob_Data.ps->m_uiWindow].m_uiTimestamp_End, tiCXT_WORK );
+/*# defined(TgBUILD_OS__WINDOWS) */
+#endif
+
+#if defined(TgBUILD_OS__WINDOWS)
     /* Add the frame time to the windows title. */
-    s_shWnd[uJob_Data.ps->m_uiWindow].m_fFrame_Elapsed_Time = tgTM_Query_Time() - fFrame_Start_Time;
-    TgOS_TEXT_FCN(PrintF)( szBuffer, 256, TgOS_TEXT(" Frame Time: % 2.2fms"), (double)s_shWnd[uJob_Data.ps->m_uiWindow].m_fFrame_Elapsed_Time );
-    tgKN_OS_Set_Window_Title(s_shWnd[uJob_Data.ps->m_uiWindow].m_iWnd, szBuffer, 256 );
+    {
+        TgFLOAT32                           fCPU_Frame_Elapsed_Time;
+        TgFLOAT32                           fGPU_Frame_Elapsed_Time;
+        TgRSIZE                             uiTotal_Elements;
+        TgFLOAT32                           fTotal_Elements;
+        TgRSIZE                             uiIndex;
+        TgOSCHAR                            szBuffer[256];
+
+        uiTotal_Elements = TgARRAY_COUNT(s_shWnd[uJob_Data.ps->m_uiWindow].m_afCPU_Frame_Elapsed_Time);
+        s_shWnd[uJob_Data.ps->m_uiWindow].m_afCPU_Frame_Elapsed_Time[s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time]
+            = tgTM_Query_Time() - fFrame_Start_Time;
+        s_shWnd[uJob_Data.ps->m_uiWindow].m_afGPU_Frame_Elapsed_Time[s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time]
+            = tgKN_GPU_EXT__WORK__Query_GPU_Timestamp(tiCXT_WORK, uiTimestamp_Start, uiTimestamp_End);
+
+        fTotal_Elements = (TgFLOAT32)uiTotal_Elements;
+        fCPU_Frame_Elapsed_Time = 0.0;
+        fGPU_Frame_Elapsed_Time = 0.0;
+        for (uiIndex = 0; uiIndex < uiTotal_Elements; ++uiIndex)
+        {
+            fCPU_Frame_Elapsed_Time += s_shWnd[uJob_Data.ps->m_uiWindow].m_afCPU_Frame_Elapsed_Time[uiIndex] / fTotal_Elements;
+            fGPU_Frame_Elapsed_Time += s_shWnd[uJob_Data.ps->m_uiWindow].m_afGPU_Frame_Elapsed_Time[uiIndex] / fTotal_Elements;
+        };
+        fCPU_Frame_Elapsed_Time = s_shWnd[uJob_Data.ps->m_uiWindow].m_afCPU_Frame_Elapsed_Time[s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time];
+        fGPU_Frame_Elapsed_Time = s_shWnd[uJob_Data.ps->m_uiWindow].m_afGPU_Frame_Elapsed_Time[s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time];
+
+        s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time++;
+        s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time = s_shWnd[uJob_Data.ps->m_uiWindow].m_uiElapsed_Time % uiTotal_Elements;
+
+        TgOS_TEXT_FCN(PrintF)( szBuffer, 256, TgOS_TEXT(" CPU: %2.2fms | GPU: %2.2fms"), (TgFLOAT64)fCPU_Frame_Elapsed_Time, (TgFLOAT64)fGPU_Frame_Elapsed_Time );
+        tgKN_OS_Set_Window_Title(s_shWnd[uJob_Data.ps->m_uiWindow].m_iWnd, szBuffer, 256 );
+    }
 /*# defined(TgBUILD_OS__WINDOWS) */
 #endif
 
     TgSTD_ATOMIC(fetch_add)( &s_xuiRender_Counter, 1 );
+
+    if (KTgKN_GPU_CXT_WORK_ID__INVALID.m_uiKI == uJob_Data.ps->m_tiCXT_WORK.m_uiKI)
+    {
+        tgKN_GPU_EXT__WORK__Frame_End(tiCXT_WORK);
+        tiCXT_WORK = KTgKN_GPU_CXT_WORK_ID__INVALID;
+    }
+
     return (KTgS_OK);
 }
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
@@ -345,6 +452,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
         uJob_Data[uiSwap].ps->m_tiCXT_SWAP = sGPU_Init_Result.m_sSWAP[uiSwap].m_tiCXT_SWAP;
         uJob_Data[uiSwap].ps->m_tiCXT_EXEC = sGPU_Init_Result.m_sSWAP[uiSwap].m_tiCXT_EXEC;
         uJob_Data[uiSwap].ps->m_tiCXT_WORK.m_uiKI = KTgKN_GPU_CXT_WORK_ID__INVALID.m_uiKI;
+        uJob_Data[uiSwap].ps->m_tiRender_Target = KTgKN_GPU_RENDER_TARGET_ID__INVALID;
         uJob_Data[uiSwap].ps->m_uiNodeMask = sGPU_Init_Result.m_sSWAP[uiSwap].m_uiNodeMask;
         uJob_Data[uiSwap].ps->m_fStart_Time= tgTM_Query_Time();
         uJob_Data[uiSwap].ps->m_uiLoopWait = KTgMAX_U32;
@@ -352,7 +460,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
 
         asJob[uiSwap].m_pfnExecute = UNIT_TEST__TEST__KN_GPU_Render_Simple_Job;
 
-        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT__MAX, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
+        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT_UNDEFINED, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
         tgUnit_Test__KN_GPU__Create_Resources( uJob_Data[uiSwap].ps->m_tiCXT_EXEC, uJob_Data[uiSwap].ps->m_tiCXT_SWAP, uJob_Data[uiSwap].ps->m_uiNodeMask );
     };
 
@@ -374,6 +482,39 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
     };
 /*# defined(TgBUILD_OS__WINDOWS) */
 #endif
+
+    for (uiWindow = 0; uiWindow < s_nuiAppWindow; ++uiWindow)
+    {
+    #if defined(TgBUILD_OS__WINDOWS)
+        uiSwap = (TgRSIZE)s_shWnd[uiWindow].m_iOutput;
+    #else
+        uiSwap = 0;
+    /*# defined(TgBUILD_OS__WINDOWS) */
+    #endif
+
+        uJob_Data[uiSwap].pui = asJob[uiSwap].m_auiData;
+
+        if (KTgKN_GPU_RENDER_TARGET_ID__INVALID.m_uiKI == uJob_Data[uiSwap].ps->m_tiRender_Target.m_uiKI)
+        {
+            STg2_KN_GPU_Render_Target_DESC_C    sRender_Target_Desc = {
+                                                    .m_aenColour_Format = {
+                                                        ETgKN_GPU_EXT_FORMAT_R16G16B16A16_SFLOAT,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED,
+                                                        ETgKN_GPU_EXT_FORMAT_UNDEFINED },
+                                                    .m_nuiColour_Target = 1,
+                                                    .m_enDepth_Stencil_Format = ETgKN_GPU_EXT_FORMAT_D24_UNORM_S8_UINT,
+                                                    .m_enColour_Space = ETgKN_GPU_HLSL_COLOUR_SPACE_G10_P709_NO_CORRECTION,
+                                                    .m_uiWidth = s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_uiWidth,
+                                                    .m_uiHeight = s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_uiHeight,
+            };
+            uJob_Data[uiSwap].ps->m_tiRender_Target = tgKN_GPU_EXT__Execute__Create_Render_Target(uJob_Data[uiSwap].ps->m_tiCXT_EXEC, &sRender_Target_Desc);
+        }
+    }
 
     bAll_Windows_Closed = false;
     for (s_uiFrame_Counter = 0; !bAll_Windows_Closed; ++s_uiFrame_Counter)
@@ -397,21 +538,29 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
         bAll_Windows_Closed = true;
         nuiSwap = 0;
         uiFrame_Counter_Start = TgSTD_ATOMIC(load)( &s_xuiRender_Counter );
+
         for (uiWindow = 0; uiWindow < s_nuiAppWindow; ++uiWindow)
         {
         #if defined(TgBUILD_OS__WINDOWS)
             if (ETgTHREAD_STATUS__INVALID == tgKN_OS_Query_Window_Thread_Status( s_shWnd[uiWindow].m_iWnd ))
                 continue;
             bAll_Windows_Closed = false;
+            if (s_shWnd[uiWindow].m_iOutput < 0)
+                continue;
             uiSwap = (TgRSIZE)s_shWnd[uiWindow].m_iOutput;
+        #else
+            uiSwap = 0;
+            bAll_Windows_Closed = false;
         /*# defined(TgBUILD_OS__WINDOWS) */
         #endif
 
             ++nuiSwap;
+
+            uJob_Data[uiSwap].pui = asJob[uiSwap].m_auiData;
+
             if (!s_bTest_Context_CMD_Per_Window)
             {
-                uJob_Data[uiSwap].pui = asJob[uiSwap].m_auiData;
-
+                /* We still need to do one frame start per execution context. I am assuming that the windows are grouped by execcution context. */
                 if (tiCXT_EXEC.m_uiKI != uJob_Data[uiSwap].ps->m_tiCXT_EXEC.m_uiKI)
                 {
                     tiCXT_EXEC.m_uiKI = uJob_Data[uiSwap].ps->m_tiCXT_EXEC.m_uiKI;
@@ -443,7 +592,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
         {
             if (atiCXT_WORK[uiSwap].m_uiKI != 0)
             {
-                tgKN_GPU_EXT__Execute__Frame_End( atiCXT_WORK[uiSwap] );
+                tgKN_GPU_EXT__WORK__Frame_End( atiCXT_WORK[uiSwap] );
                 atiCXT_WORK[uiSwap].m_uiKI = 0;
             }
         }
@@ -451,6 +600,7 @@ TEST_METHOD( UNIT_TEST__TEST__KN_GPU_Render_Simple )
         /* Finish measuring the time used for this frame (all windows / swap chains). */
         afFrame_Elapsed_Time[nuiFrame_Elapsed_Time % 31] = tgTM_Query_Time() - fFrame_Start_Time;
         tgCN_Update( afFrame_Elapsed_Time[nuiFrame_Elapsed_Time % 31] / 1000.0F );
+        tgGB_Inc_Frame_Time(afFrame_Elapsed_Time[nuiFrame_Elapsed_Time % 31] / 1000.0F);
         ++nuiFrame_Elapsed_Time;
 
         /* Calculate a smoothed total frame time. */

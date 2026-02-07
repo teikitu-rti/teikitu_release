@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: andrew.aye@teikitu.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -161,13 +161,13 @@ TEST_METHOD( UNIT_TEST__TEST__PH_GPU_Render_Enumeration )
 {
 #if defined(TgBUILD_FEATURE__GRAPHICS)
 
-    STg2_KN_GPU_Adapter_CP              apAdapter[KTgKN_GPU_MAX_ADAPTER];
+    STg2_KN_GPU_Physical_Device_CP      apPhysical_Device[KTgKN_GPU_MAX_PHYSICAL_DEVICE];
 
     /* Enumerate all the device and device instantiations (including software (WARP on DX12) adapters). */
     Test__Expect_EQ(KTgS_OK, tgKN_GPU_Enumerate());
 
     /* Unit Test validation that we pulled back at least one adapter, and the output list is legal (though potential empty). */
-    Test__Expect_EQ(KTgS_OK, tgKN_GPU_Query_Adapter_List( apAdapter, KTgKN_GPU_MAX_ADAPTER ));
+    Test__Expect_EQ(KTgS_OK, tgKN_GPU__Host__Query_Physical_Device_List( apPhysical_Device, KTgKN_GPU_MAX_PHYSICAL_DEVICE ));
 
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
@@ -199,7 +199,7 @@ TEST_METHOD( UNIT_TEST__TEST__PH_GPU_Render_Init_Select )
     Test__Expect_EQ(KTgS_OK, tgKN_GPU_UNIT_TEST__UTIL__Init_Select( &s_sSelect, true ));
 
     /* Initialize the selection limits. For non-windows platforms, we will assume that we are doing a 1:1:1. */
-    s_sSelect.m_nuiAdapter = 1;
+    s_sSelect.m_nuiPhysical_Device = 1;
     s_sSelect.m_nuiNode = 2;
     s_sSelect.m_nuiOutput = 1;
 
@@ -266,7 +266,7 @@ TEST_METHOD( UNIT_TEST__TEST__PH_GPU_Render_Simple )
 
     for (uiSwap = 0; uiSwap < sGPU_Init_Result.m_nuiSWAP; ++uiSwap)
     {
-        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT__MAX, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
+        Test__Expect_NE(ETgKN_GPU_EXT_FORMAT_UNDEFINED, s_sSelect.m_sOutput[uiSwap].m_sMode.m_sBuffer.m_enFormat);
     };
 
     /* Map the windows to output contexts base don the results. i.e. We selected which output context that we expected for each window in the select data structure, however, the
@@ -403,7 +403,6 @@ TEST_METHOD( UNIT_TEST__TEST__PH_GPU_Render_Simple )
         uiFrame_Counter_Start = TgSTD_ATOMIC(load)( &s_xuiRender_Counter );
         for (uiWindow = 0; uiWindow < s_nuiAppWindow; ++uiWindow)
         {
-            TgOSCHAR                            szBuffer[256];
             TgFLOAT32                           fFrame_Start_Time_Render;
 
         #if defined(TgBUILD_OS__WINDOWS)
@@ -423,15 +422,6 @@ TEST_METHOD( UNIT_TEST__TEST__PH_GPU_Render_Simple )
             fFrame_Start_Time_Render = tgTM_Query_Time();
             tgUnit_Test__PH__Render( sGPU_Init_Result.m_sSWAP[uiSwap].m_tiCXT_EXEC, sGPU_Init_Result.m_sSWAP[uiSwap].m_tiCXT_SWAP, tiCXT_WORK, 0 );
 
-        #if defined(TgBUILD_OS__WINDOWS)
-            /* Add the frame time to the windows title. */
-            s_shWnd[uiWindow].m_fFrame_Elapsed_Time = tgTM_Query_Time() - fFrame_Start_Time_Render;
-            TgOS_TEXT_FCN(PrintF)( szBuffer, 256, TgOS_TEXT(" Render Time: % 2.2fms, Update Time: % 2.2fms"), (double)s_shWnd[uiWindow].m_fFrame_Elapsed_Time,
-                                   (double)s_fTotal_Elapse_Frame_Time );
-            tgKN_OS_Set_Window_Title(s_shWnd[uiWindow].m_iWnd, szBuffer, 256 );
-        /*# defined(TgBUILD_OS__WINDOWS) */
-        #endif
-
             TgSTD_ATOMIC(fetch_add)( &s_xuiRender_Counter, 1 );
         }
 
@@ -446,7 +436,7 @@ TEST_METHOD( UNIT_TEST__TEST__PH_GPU_Render_Simple )
         {
             if (atiCXT_WORK[uiSwap].m_uiKI != 0)
             {
-                tgKN_GPU_EXT__Execute__Frame_End( atiCXT_WORK[uiSwap] );
+                tgKN_GPU_EXT__WORK__Frame_End( atiCXT_WORK[uiSwap] );
                 atiCXT_WORK[uiSwap].m_uiKI = 0;
             }
         }
@@ -505,22 +495,22 @@ TgVOID tgUnit_Test__PH__Setup_Scene_Constant_Buffer( STg2_KN_GPU_Render_Buffer_C
     TgFLOAT32                           fCosTheta, fSinTheta, fCosPhi, fSinPhi;
     TgVEC_S_F32_04_4                    mS2C;
 
-    tgMH_PProj_FoVLH_S_F32_04_4( &g_sSceneConstantBuffer.m_mC2S, fFoV, fAspect_Ratio, 0.01F, 1000.0F );
-    tgMM_Copy( &g_sCamera.m_xFrustum_C2S, sizeof(g_sCamera.m_xFrustum_C2S), &g_sSceneConstantBuffer.m_mC2S, sizeof(g_sSceneConstantBuffer.m_mC2S) );
-    tgMH_INV_S_F32_04_4( &mS2C, &g_sSceneConstantBuffer.m_mC2S );
-    tgMM_Copy( &g_sCamera.m_xFrustum_S2C, sizeof(g_sCamera.m_xFrustum_S2C), &mS2C, sizeof(mS2C) );
+    tgMH_PProj_FoVLH_S_F32_04_4( &g_sSceneConstantBuffer.m_avC2S, fFoV, fAspect_Ratio, 0.01F, 1000.0F );
+    tgMM_Copy( &g_sCamera.m_sCamera_Shared.m_avC2S, sizeof(g_sCamera.m_sCamera_Shared.m_avC2S), &g_sSceneConstantBuffer.m_avC2S, sizeof(g_sSceneConstantBuffer.m_avC2S) );
+    tgMH_INV_S_F32_04_4( &mS2C, &g_sSceneConstantBuffer.m_avC2S );
+    tgMM_Copy( &g_sCamera.m_sCamera_Shared.m_avS2C, sizeof(g_sCamera.m_sCamera_Shared.m_avS2C), &mS2C, sizeof(mS2C) );
 
     if (fAspect_Ratio < 1.0F)
     {
-        TgFLOAT32_C                         fSwap = g_sSceneConstantBuffer.m_mC2S._11;
+        TgFLOAT32_C                         fSwap = g_sSceneConstantBuffer.m_avC2S._11;
 
-        g_sSceneConstantBuffer.m_mC2S._11 = g_sSceneConstantBuffer.m_mC2S._22 / fAspect_Ratio;
-        g_sSceneConstantBuffer.m_mC2S._22 = fSwap * fAspect_Ratio;
+        g_sSceneConstantBuffer.m_avC2S._11 = g_sSceneConstantBuffer.m_avC2S._22 / fAspect_Ratio;
+        g_sSceneConstantBuffer.m_avC2S._22 = fSwap * fAspect_Ratio;
     }
 
     if (g_tiPH_BY1.m_uiKI != 0ULL)
     {
-        tgPH_Body_Query_Position_W( &g_sCamera.m_sCamera.m_uCam_Target.m_vF32_04_1, g_tiPH_BY1 );
+        tgPH_Body_Query_Position_W( &g_sCamera.m_sConfiguration.m_uCamera_Target.m_vF32_04_1, g_tiPH_BY1 );
     }
 
     tgPM_SINCOS_F32( &fSinTheta, &fCosTheta, s_fTheta );
@@ -529,18 +519,18 @@ TgVOID tgUnit_Test__PH__Setup_Scene_Constant_Buffer( STg2_KN_GPU_Render_Buffer_C
     vEye = tgMH_Init_Point_ELEM_S_F32_04_1( fCosTheta * fCosPhi * s_fCam_Dist_Max,
                                             fSinPhi * s_fCam_Dist_Max,
                                             fSinTheta * fCosPhi * s_fCam_Dist_Max );
-    vEye = tgMH_ADD_S_F32_04_1( vEye, g_sCamera.m_sCamera.m_uCam_Target.m_vS_F32_04_1 );
+    vEye = tgMH_ADD_S_F32_04_1( vEye, g_sCamera.m_sConfiguration.m_uCamera_Target.m_vS_F32_04_1 );
 
     vUp = tgMH_Init_Vector_ELEM_S_F32_04_1( 0.0f, 1.0f, 0.0f );
 
-    tgMH_LookLH_S_F32_04_4( &g_sSceneConstantBuffer.m_mW2C, vEye, g_sCamera.m_sCamera.m_uCam_Target.m_vS_F32_04_1, vUp );
-    tgMM_Copy( &g_sCamera.m_xFrustum_W2C, sizeof(g_sCamera.m_xFrustum_W2C), &g_sSceneConstantBuffer.m_mW2C, sizeof(g_sSceneConstantBuffer.m_mW2C) );
+    tgMH_LookLH_S_F32_04_4( &g_sSceneConstantBuffer.m_avW2C, vEye, g_sCamera.m_sConfiguration.m_uCamera_Target.m_vS_F32_04_1, vUp );
+    tgMM_Copy( &g_sCamera.m_sCamera_Shared.m_avW2C, sizeof(g_sCamera.m_sCamera_Shared.m_avW2C), &g_sSceneConstantBuffer.m_avW2C, sizeof(g_sSceneConstantBuffer.m_avW2C) );
 
-    g_sCamera.m_sCamera.m_uCam_Position.m_vS_F32_04_1 = vEye;
+    g_sCamera.m_sConfiguration.m_uCamera_Position.m_vS_F32_04_1 = vEye;
 
-    g_sCamera.m_vCam_Forward = tgMH_Init_Vector_F32_04_1( g_sCamera.m_xFrustum_W2C.m_vC2 );
-    g_sCamera.m_vCam_Right = tgMH_Init_Vector_F32_04_1( g_sCamera.m_xFrustum_W2C.m_vC0 );
-    g_sCamera.m_vCam_Up = tgMH_Init_Vector_F32_04_1( g_sCamera.m_xFrustum_W2C.m_vC1 );
+    g_sCamera.m_sCamera_Shared.m_vCam_Forward = tgMH_Init_Vector_F32_04_1( g_sCamera.m_sCamera_Shared.m_avW2C.m_vC2 );
+    g_sCamera.m_sCamera_Shared.m_vCam_Right = tgMH_Init_Vector_F32_04_1( g_sCamera.m_sCamera_Shared.m_avW2C.m_vC0 );
+    g_sCamera.m_sCamera_Shared.m_vCam_Up = tgMH_Init_Vector_F32_04_1( g_sCamera.m_sCamera_Shared.m_avW2C.m_vC1 );
 }
 /*# defined(TgBUILD_FEATURE__GRAPHICS) */
 #endif
@@ -637,7 +627,7 @@ static TgBOOL tgUT_IN_Gamepad_Camera( TgATTRIBUTE_UNUSED TgUINT_PTR_C ARG0, TgAT
     case ETgPROP_GAMEPAD__LTHUMB_X:
         if (bChange_Camera_Target)
         {
-            g_sCamera.m_sCamera.m_uCam_Target.m_vF32_04_1 = tgMH_MAD_F32_04_1( g_sCamera.m_vCam_Right, tgMH_SET1_F32_04_1( psIN_Event->m_fValue * 0.0025F ), g_sCamera.m_sCamera.m_uCam_Target.m_vF32_04_1 );
+            g_sCamera.m_sConfiguration.m_uCamera_Target.m_vF32_04_1 = tgMH_MAD_F32_04_1( g_sCamera.m_sCamera_Shared.m_vCam_Right, tgMH_SET1_F32_04_1( psIN_Event->m_fValue * 0.0025F ), g_sCamera.m_sConfiguration.m_uCamera_Target.m_vF32_04_1 );
         }
         else
         {
@@ -647,7 +637,7 @@ static TgBOOL tgUT_IN_Gamepad_Camera( TgATTRIBUTE_UNUSED TgUINT_PTR_C ARG0, TgAT
     case ETgPROP_GAMEPAD__LTHUMB_Y:
         if (bChange_Camera_Target)
         {
-            g_sCamera.m_sCamera.m_uCam_Target.m_vF32_04_1 = tgMH_MAD_F32_04_1( g_sCamera.m_vCam_Up, tgMH_SET1_F32_04_1( psIN_Event->m_fValue * 0.0025F ), g_sCamera.m_sCamera.m_uCam_Target.m_vF32_04_1 );
+            g_sCamera.m_sConfiguration.m_uCamera_Target.m_vF32_04_1 = tgMH_MAD_F32_04_1( g_sCamera.m_sCamera_Shared.m_vCam_Up, tgMH_SET1_F32_04_1( psIN_Event->m_fValue * 0.0025F ), g_sCamera.m_sConfiguration.m_uCamera_Target.m_vF32_04_1 );
         }
         else
         {
@@ -657,7 +647,7 @@ static TgBOOL tgUT_IN_Gamepad_Camera( TgATTRIBUTE_UNUSED TgUINT_PTR_C ARG0, TgAT
     case ETgPROP_GAMEPAD__RTHUMB_Y:
         if (bChange_Camera_Target)
         {
-            g_sCamera.m_sCamera.m_uCam_Target.m_vS_F32_04_1.y += psIN_Event->m_fValue * 0.0025F;
+            g_sCamera.m_sConfiguration.m_uCamera_Target.m_vS_F32_04_1.y += psIN_Event->m_fValue * 0.0025F;
         }
         else
         {

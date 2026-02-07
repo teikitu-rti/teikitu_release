@@ -6,10 +6,11 @@ build_windows
   - This script will only attempt to build Teikitu and linked dependencies
   - This will be done using Clang only
   - It will attempt to compile DEBUG, RELEASE, FINAL, TOOL configurations
-  - It will also compile for Rendering NONE, REF, DX12
+  - It will also compile for Rendering NONE, REF, VULKAN
 
 build_linux
  - Will attempt to build DEBUG and RELEASE, using Clang only
+ - Example command line: clear; remove-item ../build -force -recurse; remove-item ../teikitu_external/_* -force -recurse; ./build_linux.ps1 -TEIKITU
 
 build_macos
  - Will attempt to build DEBUG and RELEASE, using Clang only

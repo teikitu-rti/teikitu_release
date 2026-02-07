@@ -125,11 +125,6 @@ ELSEIF (DEFINED CMAKE_CXX_COMPILER_ID AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUA
         MESSAGE(FATAL_ERROR "UNSUPPORTED CXX FRONTEND: " ${CMAKE_CXX_COMPILER_FRONTEND_VARIANT})
     ENDIF ()
 
-# NO C/CXX COMPILER
-ELSE()
-    MESSAGE(SEND_ERROR "UNSUPPORTED C COMPILER: " ${CMAKE_C_COMPILER_ID})
-    MESSAGE(SEND_ERROR "UNSUPPORTED CXX COMPILER: " ${CMAKE_CXX_COMPILER_ID})
-    MESSAGE(FATAL_ERROR "MISSING COMPILER DEFINITIONS")
 ENDIF ()
 
 
@@ -184,18 +179,9 @@ ELSEIF (MK_COMPILER__CLANG OR MK_COMPILER__APPLE)
     SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -ffunction-sections")                   # Place each function in its own section
     SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -fomit-frame-pointer")                  # Omit the frame pointer from functions that don't need it. On many targets, -O1 and higher omit the frame pointer by default.
     SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -fdata-sections")                       # Place each data in its own section
-    SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -fchar8_t")                             # Include support for UTF8 character type and literals
-    SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -fno-short-enums")                      # 
-    SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -finline-functions")                    # Inline suitable functions
     SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -fstandalone-debug")                    # Emit full debug info for all types used by the program
     SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -mstackrealign")                        # Force realign the stack at entry to every function
     SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -g")                                    # Generate source-level debug information
-
-#   SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -fms-compatibility")                    # MSFT extension support - compatability
-#   SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -mms-bitfields")                        # MSFT extension support - bitfield
-#   SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -nostdinc")                             # 
-#   SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -nostdinc++")                           # 
-#   SET (CLANG_COMPILE_FLAGS                        "${CLANG_COMPILE_FLAGS} -Xclang -ibuiltininc")                  # 
 
     SET (CMAKE_C_FLAGS_INIT                         "${CMAKE_C_FLAGS_INIT} ${CLANG_COMPILE_FLAGS}")
     SET (CMAKE_C_FLAGS_DEBUG_INIT                   "${CMAKE_C_FLAGS_DEBUG_INIT} -O0")                              # Optimization Flag
@@ -205,6 +191,4 @@ ELSEIF (MK_COMPILER__CLANG OR MK_COMPILER__APPLE)
     SET (CMAKE_CXX_FLAGS_DEBUG_INIT                 "${CMAKE_CXX_FLAGS_DEBUG_INIT} -O0")                            # Optimization Flag
     SET (CMAKE_CXX_FLAGS_RELEASE_INIT               "${CMAKE_CXX_FLAGS_RELEASE_INIT} -O3")                          # Optimization Flag
 
-ELSE()
-    MESSAGE(FATAL_ERROR "UNSUPPORTED COMPILER AT THIS TIME")
 ENDIF ()

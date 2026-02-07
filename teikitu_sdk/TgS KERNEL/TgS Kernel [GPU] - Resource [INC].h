@@ -4,17 +4,20 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.20 | »GUID« DE461472-5528-4A5B-A7F4-09CCAD73387B */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
 
     /** Resource Types
-        CS = Computer Shader
-        DS = Domain Shader
-        HS = Hull Shader
-        PS = Pixel Shader
         VS = Vertex Shader
+        TCS = Tesselation Control Shader
+        TES = Tesselation Evaluation Shader
+        GS = Geometry Shader
+        TS = Task Shader
+        MS = Mesh Shader
+        FS = Fragment Shader
+        CS = Computer Shader
         IL = Input Layout
         VT = Vertex Declaration
         TX_CBE = Texture, Cube
@@ -36,11 +39,15 @@
 
     #define MACRO_BUILD_SHADER
 
-    #define TgMACRO_BUILD_RESOURCE_TYPE CS
+    #define TgMACRO_BUILD_RESOURCE_TYPE VS
         #include __PARENT_FILE__
     #undef TgMACRO_BUILD_RESOURCE_TYPE
 
-    #define TgMACRO_BUILD_RESOURCE_TYPE DS
+    #define TgMACRO_BUILD_RESOURCE_TYPE TCS
+        #include __PARENT_FILE__
+    #undef TgMACRO_BUILD_RESOURCE_TYPE
+
+    #define TgMACRO_BUILD_RESOURCE_TYPE TES
         #include __PARENT_FILE__
     #undef TgMACRO_BUILD_RESOURCE_TYPE
 
@@ -48,15 +55,19 @@
         #include __PARENT_FILE__
     #undef TgMACRO_BUILD_RESOURCE_TYPE
 
-    #define TgMACRO_BUILD_RESOURCE_TYPE HS
+    #define TgMACRO_BUILD_RESOURCE_TYPE TS
         #include __PARENT_FILE__
     #undef TgMACRO_BUILD_RESOURCE_TYPE
 
-    #define TgMACRO_BUILD_RESOURCE_TYPE PS
+    #define TgMACRO_BUILD_RESOURCE_TYPE MS
         #include __PARENT_FILE__
     #undef TgMACRO_BUILD_RESOURCE_TYPE
 
-    #define TgMACRO_BUILD_RESOURCE_TYPE VS
+    #define TgMACRO_BUILD_RESOURCE_TYPE FS
+        #include __PARENT_FILE__
+    #undef TgMACRO_BUILD_RESOURCE_TYPE
+
+    #define TgMACRO_BUILD_RESOURCE_TYPE CS
         #include __PARENT_FILE__
     #undef TgMACRO_BUILD_RESOURCE_TYPE
 

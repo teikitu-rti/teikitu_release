@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.21 | »GUID« AEEC8393-9780-4ECA-918D-E3E11F7E2744 */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -23,7 +23,7 @@
 #include <direct.h>
 #endif
 
-#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID)
+#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID) || defined(TgBUILD_OS__MAC) || defined(TgBUILD_OS__IOS)
 #include <unistd.h>
 #endif
 
@@ -376,7 +376,7 @@ TgSINT_E32 tgMM_Compare( TgVOID_CPU pCmp0, TgRSIZE_C nuiCmp0, TgVOID_CPU pCmp1, 
 
 static TgSINT_E64                   s_iInit_Start_NanoSeconds;
 
-/* ---- timespec_get_ns ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- timespec_get_nanoseconds ------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgINLINE TgSINT_E64 timespec_get_nanoseconds( TgVOID ) /* Nano, Micro, Milli */
 {
@@ -408,12 +408,13 @@ TgSINT_E64 tgTM_Query_Counter_Tick( TgVOID )
     return (iTime - s_iInit_Start_NanoSeconds);
 }
 
-/* ---- tgTM_Counter_To_MSec ----------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ---- tgTM_Counter_Tick_To_MilliSeconds ---------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgFLOAT32 tgTM_Counter_Tick_To_MilliSeconds( TgSINT_E64_C iTime )
 {
     return ((TgFLOAT32)((TgFLOAT64)(iTime) / 1000.0 / 1000.0));
 }
+
 
 
 /*# !defined(TgCOMPILE__PLATFORM_TIME) */
@@ -431,6 +432,7 @@ TgFLOAT32 tgTM_Query_Time( TgVOID )
 {
     return (tgTM_Counter_Tick_To_MilliSeconds( tgTM_Query_Counter_Tick() ));
 }
+
 
 
 /* ---- tgTM_Channel_Query_Time -------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -688,7 +690,7 @@ TgRESULT tgIO_Folder_Remove( TgCHAR_U8_CPC mbzPath, TgATTRIBUTE_UNUSED TgRSIZE_C
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgBOOL tgIO_Folder_Exists( TgCHAR_U8_CPC mbzPath, TgATTRIBUTE_UNUSED TgRSIZE_C nbyMaxPath )
 {
-#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID)
+#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID) || defined(TgBUILD_OS__MAC) || defined(TgBUILD_OS__IOS)
     struct stat sStatInfo = { 0 };
     return (0 == stat( (TgCHAR_NC_CP)mbzPath, &sStatInfo));
 #else
@@ -761,7 +763,7 @@ TgRESULT tgIO_File_Move( TgCHAR_U8_CPC mbzDest, TgRSIZE_C nbyMaxDest, TgCHAR_U8_
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 TgBOOL tgIO_File_Exists( TgCHAR_U8_CPC uszFile, TgATTRIBUTE_UNUSED TgRSIZE_C nbyMaxFile )
 {
-#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID)
+#if defined(TgBUILD_OS__POSIX) || defined(TgBUILD_OS__ANDROID) || defined(TgBUILD_OS__MAC) || defined(TgBUILD_OS__IOS)
     struct stat sStatInfo = { 0 };
     return (0 == stat( (TgCHAR_NC_CP)uszFile, &sStatInfo));
 #else

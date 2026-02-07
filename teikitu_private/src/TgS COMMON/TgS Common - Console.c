@@ -4,7 +4,7 @@
     »Author«    Andrew Aye (mailto: teikitu@andrewaye.com, https://www.andrew.aye.page)
     »Version«   5.16 | »GUID« 015482FC-A4BD-4E1C-AE49-A30E5728D73A */
 /*  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
-/*  Copyright: © 2002-2023, Andrew Aye.  All Rights Reserved.
+/*  Copyright: © 2002-2025, Andrew Aye.  All Rights Reserved.
     This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license,
     visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. */
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -33,7 +33,7 @@ TgRSIZE                                     g_nuiOS_Console_Render_Page_Height;
 /*# TgCOMPILE__CONSOLE */
 #endif
 
-STg2_UT_LF__RW                              g_sCN_Command_Name_Lock;
+STg2_UT_LF_ISO__RW                          g_sCN_Command_Name_Lock;
 STg2_CN_Command_Common_P                    g_apsCN_Command_Hash_Set[KTgCN_MAX_COMMAND_HASH_SET];
 STg2_CN_Command_Common_P                    g_apsCommand_Lexical_Set[KTgCN_MAX_COMMAND_LEXICAL_LIST];
 
@@ -74,10 +74,18 @@ TgTYPE_STRUCT(STg2_CN_OnScreen_Line,)
 };
 
 
-TgTYPE_STRUCT(STg2_CN_Command_Function,)
+TgTYPE_UNION(STg2_CN_Command_Function,)
 {
-    STg2_CN_Command_Common                      m_sCommon;
-    TgFCN_CONSOLE                               m_pfnExecute;
+    STg2_UT_ST__ST_Node                         m_sNode_Stack;
+    struct
+    {
+        TgALIGN(TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        STg2_CN_Command_Common                      m_sCommon;
+        TgFCN_CONSOLE                               m_pfnExecute;
+    #if 0 != (184 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE)
+        TgUINT_E08                                  m_uiPad0[184 % TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE];
+    #endif
+    };
 };
 
 /*# TgCOMPILE__CONSOLE */
@@ -94,7 +102,7 @@ static ETgMODULE_STATE                      s_enConsole_State = ETgMODULE_STATE_
 
 #if TgCOMPILE__CONSOLE
 
-static TgVOID                               tgCN_UID_Print_Internal( TgSINT_E32_C , TgUINT_E32_C , TgCHAR_U8_CP, TgRSIZE_C );
+static TgVOID                               tgCN_UID_Print_Internal( TgSINT_E32_C , TgUINT_E32_C , TgCHAR_U8_CP, TgCHAR_U8_CP, TgRSIZE_C );
 
 static TgRSIZE                              tgCN_Default_Break_Write( STg2_Output_PC, TgRSIZE_C, TgVOID_CP, TgRSIZE_C );
 static TgRSIZE                              tgCN_Default_Abort_Write( STg2_Output_PC, TgRSIZE_C, TgVOID_CP, TgRSIZE_C );
@@ -200,7 +208,7 @@ TgRESULT tgCN_Init( TgVOID )
     (void)iIndex2;
 
     /* Initialize Console Command Common Data - Console Variables are always compiled */
-    TgVERIFY( KTgS_OK == tgCM_UT_LF__RW__Init( &g_sCN_Command_Name_Lock ) );
+    TgVERIFY( KTgS_OK == tgCM_UT_LF__RW__Init( &g_sCN_Command_Name_Lock.m_sLock ) );
     tgMM_Set_U08_0x00( (TgVOID_P)g_apsCN_Command_Hash_Set, sizeof( g_apsCN_Command_Hash_Set ) );
     tgMM_Set_U08_0x00( (TgVOID_P)g_apsCommand_Lexical_Set, sizeof( g_apsCommand_Lexical_Set ) );
 
@@ -641,6 +649,9 @@ TgRESULT tgCN_Update( TgFLOAT32_C fDT )
             ppuszCon_Render_Buffer[0] = g_szOS_Console_Buffer[g_uiOS_Console_Buffer_Index];
             for (nuiCon_Render_Buffer = 0; nuiCon_Render_Buffer < (TgRSIZE)g_nuiOS_Console_Render_Page_Height && nuiCon_Render_Buffer <= g_uiOS_Console_Display_Index; ++nuiCon_Render_Buffer)
             {
+                if (0 == g_szOS_Console_Buffer[g_uiOS_Console_Display_Index - nuiCon_Render_Buffer][0]) {
+                    break;
+                }
                 ppuszCon_Render_Buffer[1 + nuiCon_Render_Buffer] = g_szOS_Console_Buffer[g_uiOS_Console_Display_Index - nuiCon_Render_Buffer];
             }
             s_pfnOS_Console_Render( KTgCN_CHANEL_CONSOLE, ppuszCon_Render_Buffer, nuiCon_Render_Buffer + 1u, g_nuiOS_Console_Render_Page_Height + 1u );
@@ -684,7 +695,7 @@ TgEXTN TgBOOL tgCN_Query_Boot( TgVOID )
 TgEXTN TgRSIZE tgCN_Query_Fixed_Memory( TgVOID )
 {
     return (0
-             + sizeof( g_sCN_Command_Name_Lock )
+             + sizeof( g_sCN_Command_Name_Lock.m_sLock )
              + sizeof( g_apsCN_Command_Hash_Set )
              + sizeof( s_enConsole_State )
              + sizeof( g_apsCommand_Lexical_Set )
@@ -802,7 +813,7 @@ TgBOOL tgCN_Execute_Command( TgCHAR_U8_CPC szCmdLN, TgRSIZE_C nbyMaxCmdLN )
         return (false);
     };
 
-    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     do
     {
@@ -818,7 +829,7 @@ TgBOOL tgCN_Execute_Command( TgCHAR_U8_CPC szCmdLN, TgRSIZE_C nbyMaxCmdLN )
     #if TgCOMPILE__CONSOLE
         if (ETgCN_COMMAND__FCN == psCmd->m_uiType)
         {
-            psCmd_Fcn = (STg2_CN_Command_Function_P)psCmd;
+            psCmd_Fcn = (STg2_CN_Command_Function_P)TgCLANG_ASSUME_ALIGNED(psCmd, TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE);
             if (nullptr != psCmd_Fcn->m_pfnExecute)
             {
                 /* This function call must be within the critical section so that removals can be guaranteed that there are no in-flight executions of their functions. */
@@ -1108,7 +1119,7 @@ TgBOOL tgCN_Execute_Command( TgCHAR_U8_CPC szCmdLN, TgRSIZE_C nbyMaxCmdLN )
 
     } while (0);
 
-    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock.m_sLock );
     TgFREEA( pszCmdLN );
     return (bRet);
 }
@@ -1357,10 +1368,22 @@ TgUINT_E32 tgCN_Set_Severity_Filter( TgUINT_E32_C uiChannel_Mask, TgUINT_E32_C u
 /* ---- tgCN_Print --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-TgVOID tgCN_Print( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, TgRSIZE_C nbyMaxText )
+TgVOID tgCN_Print( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP uszText, TgRSIZE_C nbyMaxText )
 {
     /* Execute the standard print function */
-    tgCN_UID_Print_Internal( KTgUID_NONE, uiChannel_Mask, mbzText, nbyMaxText );
+    tgCN_UID_Print_Internal( KTgUID_NONE, uiChannel_Mask, nullptr, uszText, nbyMaxText );
+}
+/*# TgCOMPILE__CONSOLE */
+#endif
+
+
+/* ---- tgCN_PrintPrefixF -------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if TgCOMPILE__CONSOLE
+TgVOID CDECL tgCN_PrintPrefix( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP uszPrefix, TgCHAR_U8_CP uszText, TgRSIZE_C nbyMaxText )
+{
+    /* Execute the standard print function */
+    tgCN_UID_Print_Internal( KTgUID_NONE, uiChannel_Mask, uszPrefix, uszText, nbyMaxText );
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -1369,18 +1392,38 @@ TgVOID tgCN_Print( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, TgRSIZE_C 
 /* ---- tgCN_PrintF -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-TgVOID CDECL tgCN_PrintF( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, ... )
+TgVOID CDECL tgCN_PrintF( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP uszText, ... )
 {
     TgCHAR_U8                           szBuffer[KTgCN_OSCON_LINE_LENGTH + 1];
     va_list                             argptr;
 
     /* Create the text string from the printf format */
-    va_start( argptr, mbzText );
-    TgVERIFY(TgSUCCEEDED(tgUSZ_PrintVF( szBuffer, KTgCN_OSCON_LINE_LENGTH, mbzText, argptr )));
+    va_start( argptr, uszText );
+    TgVERIFY(TgSUCCEEDED(tgUSZ_PrintVF( szBuffer, KTgCN_OSCON_LINE_LENGTH, uszText, argptr )));
     va_end( argptr );
 
     /* Execute the standard print function */
-    tgCN_UID_Print_Internal( KTgUID_NONE, uiChannel_Mask, szBuffer, sizeof szBuffer );
+    tgCN_UID_Print_Internal( KTgUID_NONE, uiChannel_Mask, nullptr, szBuffer, sizeof szBuffer );
+}
+/*# TgCOMPILE__CONSOLE */
+#endif
+
+
+/* ---- tgCN_PrintPrefixF -------------------------------------------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+#if TgCOMPILE__CONSOLE
+TgVOID CDECL tgCN_PrintPrefixF( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP uszPrefix, TgCHAR_U8_CP uszText, ... )
+{
+    TgCHAR_U8                           szBuffer[KTgCN_OSCON_LINE_LENGTH + 1];
+    va_list                             argptr;
+
+    /* Create the text string from the printf format */
+    va_start( argptr, uszText );
+    TgVERIFY(TgSUCCEEDED(tgUSZ_PrintVF( szBuffer, KTgCN_OSCON_LINE_LENGTH, uszText, argptr )));
+    va_end( argptr );
+
+    /* Execute the standard print function */
+    tgCN_UID_Print_Internal( KTgUID_NONE, uiChannel_Mask, uszPrefix, szBuffer, sizeof szBuffer );
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -1389,10 +1432,10 @@ TgVOID CDECL tgCN_PrintF( TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, ...
 /* ---- tgCN_UID_Print ----------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-TgVOID tgCN_UID_Print( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, TgRSIZE_C nbyMaxText )
+TgVOID tgCN_UID_Print( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP uszText, TgRSIZE_C nbyMaxText )
 {
     /* Execute the standard print function */
-    tgCN_UID_Print_Internal( iUID, uiChannel_Mask, mbzText, nbyMaxText );
+    tgCN_UID_Print_Internal( iUID, uiChannel_Mask, nullptr, uszText, nbyMaxText );
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -1401,18 +1444,18 @@ TgVOID tgCN_UID_Print( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8
 /* ---- tgCN_UID_PrintF ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-TgVOID tgCN_UID_PrintF( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, ... )
+TgVOID tgCN_UID_PrintF( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP uszText, ... )
 {
     TgCHAR_U8                           szBuffer[KTgCN_OSCON_LINE_LENGTH + 1];
     va_list                             argptr;
 
     /* Create the text string from the printf format */
-    va_start( argptr, mbzText );
-    tgUSZ_PrintVF( szBuffer, KTgCN_OSCON_LINE_LENGTH, mbzText, argptr );
+    va_start( argptr, uszText );
+    tgUSZ_PrintVF( szBuffer, KTgCN_OSCON_LINE_LENGTH, uszText, argptr );
     va_end( argptr );
 
     /* Execute the standard print function */
-    tgCN_UID_Print_Internal( iUID, uiChannel_Mask, szBuffer, sizeof szBuffer );
+    tgCN_UID_Print_Internal( iUID, uiChannel_Mask, nullptr, szBuffer, sizeof szBuffer );
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -1479,33 +1522,33 @@ TgBOOL tgCN_Insert_Command_Function( TgCHAR_U8_CPC mbzName, TgRSIZE nbyMaxName, 
     psCmd_Fcn->m_sCommon.m_uiType = ETgCN_COMMAND__FCN;
     psCmd_Fcn->m_pfnExecute = pfnExecute;
 
-    tgCM_UT_LF__RW__Enter_Write_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Write_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     iRet = tgCN_Insert_Command( &psCmd_Ret, &psCmd_Fcn->m_sCommon );
     if (TgSUCCEEDED( iRet ))
     {
         psCmd_Fcn->m_sCommon.m_uiFlags |= KTgCN_CMD_FLAG_USED;
-        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
         return (true);
     }
     else if (KTgW_DUPLICATE == iRet)
     {
-        if (((STg2_CN_Command_Function_P)psCmd_Ret)->m_pfnExecute == pfnExecute)
+        if (((STg2_CN_Command_Function_P)TgCLANG_ASSUME_ALIGNED(psCmd_Ret, TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE))->m_pfnExecute == pfnExecute)
         {
-            tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+            tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
             TgWARNING_MSGF( 0, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Duplicate insert of console function." );
 
             tgMM_Set_U08_0x00( psCmd_Fcn, sizeof( STg2_CN_Command_Function ) );
-            tgCM_UT_LF__ST__Push( &s_sCommand_Function_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)(psCmd_Fcn) );
+            tgCM_UT_LF__ST__Push( &s_sCommand_Function_Stack.m_sStack, &psCmd_Fcn->m_sNode_Stack );
             return (true);
         };
     };
 
-    tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
 
     TgWARNING_MSGF( 0, STD_MSG_LITERAL_1, STD_MSG_POST, u8"Console command name already used." );
     tgMM_Set_U08_0x00( psCmd_Fcn, sizeof( STg2_CN_Command_Function ) );
-    tgCM_UT_LF__ST__Push( &s_sCommand_Function_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)(psCmd_Fcn) );
+    tgCM_UT_LF__ST__Push( &s_sCommand_Function_Stack.m_sStack, &psCmd_Fcn->m_sNode_Stack );
 
     return (false);
 }
@@ -1541,7 +1584,7 @@ TgBOOL tgCN_Remove_Command_Function( TgCHAR_U8_CPC mbzCmd, TgRSIZE nbyMaxCmd )
     uiHash_Index = uiHash % KTgCN_MAX_COMMAND_HASH_SET;
     TgERROR_INDEX( uiHash_Index, g_apsCN_Command_Hash_Set );
 
-    tgCM_UT_LF__RW__Enter_Write_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Write_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     /* Remove the item from the hash set */
     psHash_Cmd = g_apsCN_Command_Hash_Set[uiHash_Index];
@@ -1559,7 +1602,7 @@ TgBOOL tgCN_Remove_Command_Function( TgCHAR_U8_CPC mbzCmd, TgRSIZE nbyMaxCmd )
 
     if (nullptr == psHash_Cmd || psHash_Cmd->m_uiType != ETgCN_COMMAND__FCN)
     {
-        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+        tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
         return (false);
     };
 
@@ -1602,10 +1645,11 @@ TgBOOL tgCN_Remove_Command_Function( TgCHAR_U8_CPC mbzCmd, TgRSIZE nbyMaxCmd )
         psPrev_Cmd->m_psNext_Lexical = psLexical_Cmd->m_psNext_Lexical;
     };
 
-    tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Write( &g_sCN_Command_Name_Lock.m_sLock );
 
     tgMM_Set_U08_0x00( psLexical_Cmd, sizeof( STg2_CN_Command_Function ) );
-    tgCM_UT_LF__ST__Push( &s_sCommand_Function_Stack.m_sStack, (STg2_UT_ST__ST_Node_P)(psLexical_Cmd) );
+    tgCM_UT_LF__ST__Push( &s_sCommand_Function_Stack.m_sStack,
+                          &((STg2_CN_Command_Function_P)TgCLANG_ASSUME_ALIGNED(psLexical_Cmd, TgBUILD_HARDWARE__DESTRUCTIVE_INTERFERENCE_SIZE))->m_sNode_Stack );
 
     return (true);
 }
@@ -1621,7 +1665,7 @@ TgVOID tgCN_Print_Command_Functions( STg2_Output_P psOutput )
     TgSINT_E32                          iIndex;
     STg2_CN_Command_Common_P            psCmd;
 
-    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Enter_Read_Yield_Block( &g_sCN_Command_Name_Lock.m_sLock );
 
     for (iIndex = 0; iIndex < KTgCN_MAX_COMMAND_FCN; ++iIndex)
     {
@@ -1634,7 +1678,7 @@ TgVOID tgCN_Print_Command_Functions( STg2_Output_P psOutput )
         tgIO_PrintF( psOutput, STD_MSG_LITERAL_3, STD_MSG_POST, psCmd->m_mbzName, u8" - ", psCmd->m_mbzDesc );
     };
 
-    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock );
+    tgCM_UT_LF__RW__Exit_Read( &g_sCN_Command_Name_Lock.m_sLock );
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -1923,42 +1967,43 @@ TgVOID tgCN_Scroll_Display( TgSINT_E32_C niLN, TgSINT_E32_C niPG )
 /* ---- tgCN_UID_Print_Internal -------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgVOID tgCN_UID_Print_Internal( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzText, TgRSIZE_C nbyMaxText )
+static TgVOID tgCN_UID_Print_Internal( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel_Mask, TgCHAR_U8_CP mbzHeader, TgCHAR_U8_CP uszText, TgRSIZE_C nbyMaxText )
 {
     TgUINT_E32_C                        uiSeverity = uiChannel_Mask & KTgCN_SEVERITY_MASK;
+    TgRSIZE_C                           nbyHeader = nullptr != mbzHeader ? tgUSZ_Length_U08( mbzHeader, KTgMAX_RSIZE ) : 0;
     TgUINT_E32                          uiChannel, uiOutput, uiLength;
     TgCHAR_U8_CP                        mbzStart;
     TgBOOL                              bEmitPrefix;
 
     if (ETgMODULE_STATE__BOOTED != s_enConsole_State)
     {
-        tgCM_DBG_ERR_Write( nullptr, KTgMAX_RSIZE, (TgUINT_E08_CP )mbzText, tgUSZ_Length_U08( mbzText, nbyMaxText ) );
+        tgCM_DBG_ERR_Write( nullptr, KTgMAX_RSIZE, (TgUINT_E08_CP )uszText, tgUSZ_Length_U08( uszText, nbyMaxText ) );
         return;
-    };
+    }
 
     /* Enter the critical sections for the system and output system (if required) */
     if (0 != (uiChannel_Mask & KTgCN_CHANEL_LOG_SCREEN))
     {
         tgPM_MT_MX_Wait_Block( &g_sCN_OS_Lock );
-    };
+    }
     tgPM_MT_MX_Wait_Block( &s_sSystem_Lock );
 
-    for (mbzStart = mbzText; '\0' != *mbzText; mbzStart = mbzText)
+    for (mbzStart = uszText; '\0' != *uszText; mbzStart = uszText)
     {
         /* Calculate the byte size of the first string up to the end or the first new line character */
-        for (uiLength = 1; '\0' != *mbzText && '\n' != *mbzText; ++uiLength, ++mbzText);
+        for (uiLength = 1; '\0' != *uszText && '\n' != *uszText; ++uiLength, ++uszText);
 
         /* Include the nullptr terminator for the string and determine if we should emit a prefix on the next token */
-        if ('\0' != *mbzText)
+        if ('\0' != *uszText)
         {
             bEmitPrefix = true;
-            ++mbzText;
+            ++uszText;
         }
         else
         {
             bEmitPrefix = false;
             --uiLength;
-        };
+        }
 
         for (uiChannel = 0; uiChannel < KTgCN_MAX_CHANNEL; ++uiChannel)
         {
@@ -1969,19 +2014,19 @@ static TgVOID tgCN_UID_Print_Internal( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel
             if (0 == (uiChannel_Mask & uiChannel_ID))
             {
                 continue;
-            };
+            }
 
             /* Check to see if the message passes the UID filter */
             if ((KTgUID_NONE != s_aiUID_Filter[uiChannel]) && (iUID != s_aiUID_Filter[uiChannel]))
             {
                 continue;
-            };
+            }
 
             /* Check to see if the message passes the severity filter */
             if (s_auiSeverity_Filter[uiChannel] <= uiSeverity)
             {
                 continue;
-            };
+            }
 
             /* Screen output is kept within a ring buffer log for display purposes as well sent to the output functions */
             if (KTgCN_CHANEL_LOG_SCREEN == uiChannel_ID && nullptr != s_psOS_Log_Free)
@@ -1997,7 +2042,7 @@ static TgVOID tgCN_UID_Print_Internal( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel
                 psOS_Log_Display->m_psNext = s_psOS_Log_Display;
 
                 s_psOS_Log_Display = psOS_Log_Display;
-            };
+            }
 
             /* Iterate through all of the output objects for this channel */
             for (uiOutput = 0; uiOutput < KTgCN_MAX_CHANNEL_OUTPUT; ++uiOutput)
@@ -2005,26 +2050,31 @@ static TgVOID tgCN_UID_Print_Internal( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel
                 if (0 == s_apsOutput[uiChannel][uiOutput])
                 {
                     break;
-                };
+                }
 
                 if ((s_abOutput_Prefix[uiChannel]) && 0 != s_pzOutput_Prefix[uiChannel])
                 {
                     s_apsOutput[uiChannel][uiOutput]->m_pfnWrite( s_apsOutput[uiChannel][uiOutput], KTgMAX_RSIZE, (TgUINT_E08_CP)s_pzOutput_Prefix[uiChannel],
                                                                   s_nbyOutput_Prefix[uiChannel] );
-                };
+                }
+
+                if (nbyHeader > 0)
+                {
+                    s_apsOutput[uiChannel][uiOutput]->m_pfnWrite( s_apsOutput[uiChannel][uiOutput], KTgMAX_RSIZE, (TgUINT_E08_CP)mbzHeader, nbyHeader );
+                }
 
                 s_apsOutput[uiChannel][uiOutput]->m_pfnWrite( s_apsOutput[uiChannel][uiOutput], KTgMAX_RSIZE, (TgUINT_E08_CP)mbzStart, uiLength*sizeof( TgCHAR_U8 ) );
-            };
+            }
 
             s_abOutput_Prefix[uiChannel] = bEmitPrefix;
-        };
-    };
+        }
+    }
 
     /* Exit the critical sections for the system and output system (if required) */
     if (0 != (uiChannel_Mask & KTgCN_CHANEL_LOG_SCREEN))
     {
         tgPM_MT_MX_Release( &g_sCN_OS_Lock );
-    };
+    }
     tgPM_MT_MX_Release( &s_sSystem_Lock );
 }
 /*# TgCOMPILE__CONSOLE */
@@ -2034,7 +2084,7 @@ static TgVOID tgCN_UID_Print_Internal( TgSINT_E32_C iUID, TgUINT_E32_C uiChannel
 /* ---- tgCN_Default_Break_Write ------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgCN_Default_Break_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgATTRIBUTE_UNUSED TgVOID_CP mbzText,
+static TgRSIZE tgCN_Default_Break_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgATTRIBUTE_UNUSED TgVOID_CP uszText,
                                          TgATTRIBUTE_UNUSED TgRSIZE_C niText )
 {
     tgPM_Break();
@@ -2047,7 +2097,7 @@ static TgRSIZE tgCN_Default_Break_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut
 /* ---- tgCN_Default_Abort_Write ------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgCN_Default_Abort_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgATTRIBUTE_UNUSED TgVOID_CP mbzText,
+static TgRSIZE tgCN_Default_Abort_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgATTRIBUTE_UNUSED TgVOID_CP uszText,
                                          TgATTRIBUTE_UNUSED TgRSIZE_C niText )
 {
     tgPM_Abort();
@@ -2060,9 +2110,9 @@ static TgRSIZE tgCN_Default_Abort_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut
 /* ---- tgLOG_CON_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_CON_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_CON_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Console_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Console_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2071,9 +2121,9 @@ static TgRSIZE tgLOG_CON_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_LOG_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_LOG_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_LOG_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iLOG_Output_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iLOG_Output_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2082,9 +2132,9 @@ static TgRSIZE tgLOG_LOG_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_FCN_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_FCN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_FCN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Log_FCN_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Log_FCN_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2093,9 +2143,9 @@ static TgRSIZE tgLOG_FCN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_MEM_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_MEM_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_MEM_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Log_Mem_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Log_Mem_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2104,9 +2154,9 @@ static TgRSIZE tgLOG_MEM_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_MSG_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_MSG_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_MSG_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Msg_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Msg_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2115,9 +2165,9 @@ static TgRSIZE tgLOG_MSG_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_WRN_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_WRN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_WRN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Wrn_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Wrn_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2126,9 +2176,9 @@ static TgRSIZE tgLOG_WRN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_ERR_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_ERR_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_ERR_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Err_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Err_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2137,9 +2187,9 @@ static TgRSIZE tgLOG_ERR_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_CRT_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_CRT_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_CRT_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Crt_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Crt_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2148,9 +2198,9 @@ static TgRSIZE tgLOG_CRT_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_INT_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_INT_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_INT_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Int_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Int_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2159,9 +2209,9 @@ static TgRSIZE tgLOG_INT_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_LDN_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_LDN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_LDN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iOuput_Ldn_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iOuput_Ldn_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
@@ -2170,9 +2220,9 @@ static TgRSIZE tgLOG_LDN_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, Tg
 /* ---- tgLOG_STD_File_Write ----------------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 #if TgCOMPILE__CONSOLE
-static TgRSIZE tgLOG_STD_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP mbzText, TgRSIZE_C _nuiText )
+static TgRSIZE tgLOG_STD_File_Write( TgATTRIBUTE_UNUSED STg2_Output_PC psOut, TgATTRIBUTE_UNUSED TgRSIZE_C uiOffset, TgVOID_CP uszText, TgRSIZE_C _nuiText )
 {
-    return (tgIO_File_Write( s_iLOG_Output_File, (TgVOID_CPC)mbzText, _nuiText ));
+    return (tgIO_File_Write( s_iLOG_Output_File, (TgVOID_CPC)uszText, _nuiText ));
 }
 /*# TgCOMPILE__CONSOLE */
 #endif
